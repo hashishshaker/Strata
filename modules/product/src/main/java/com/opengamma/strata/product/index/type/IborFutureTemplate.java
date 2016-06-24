@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeTemplate;
 import com.opengamma.strata.product.index.IborFutureTrade;
 
@@ -92,6 +93,7 @@ public final class IborFutureTemplate
    * The notional is unsigned, with the quantity determining the direction of the trade.
    * 
    * @param tradeDate  the date of the trade
+   * @param securityId  the identifier of the security
    * @param quantity  the number of contracts traded, positive if buying, negative if selling
    * @param notional  the notional amount of one future contract
    * @param price  the trade price
@@ -101,12 +103,13 @@ public final class IborFutureTemplate
    */
   public IborFutureTrade createTrade(
       LocalDate tradeDate,
+      SecurityId securityId,
       double quantity,
       double notional,
       double price,
       ReferenceData refData) {
 
-    return convention.createTrade(tradeDate, minimumPeriod, sequenceNumber, quantity, notional, price, refData);
+    return convention.createTrade(tradeDate, securityId, minimumPeriod, sequenceNumber, quantity, notional, price, refData);
   }
 
   /**

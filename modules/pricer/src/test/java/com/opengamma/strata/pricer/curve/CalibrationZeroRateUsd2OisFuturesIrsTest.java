@@ -55,7 +55,7 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FixedOvernightSwapCurveNode;
 import com.opengamma.strata.market.curve.node.IborFixingDepositCurveNode;
-import com.opengamma.strata.market.curve.node.IborFutureCurveNode;
+import com.opengamma.strata.market.curve.node.RelativeIborFutureCurveNode;
 import com.opengamma.strata.market.curve.node.TermDepositCurveNode;
 import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
@@ -192,7 +192,7 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
     IborFutureConvention convention = ImmutableIborFutureConvention.of(USD_LIBOR_3M, DateSequences.QUARTERLY_IMM);
     for (int i = 0; i < FWD3_NB_FUT_NODES; i++) {
       IborFutureTemplate template = IborFutureTemplate.of(Period.ofDays(7), FWD3_FUT_SEQ[i], convention);
-      FWD3_NODES[i + 1] = IborFutureCurveNode.of(template, 
+      FWD3_NODES[i + 1] = RelativeIborFutureCurveNode.of(template, 
           QuoteId.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i + 1])));
     }
     for (int i = 0; i < FWD3_NB_IRS_NODES; i++) {

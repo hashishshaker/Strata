@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.market.curve.node;
 
+import static java.time.temporal.ChronoUnit.MONTHS;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -32,32 +34,38 @@ import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveNodeDate;
+import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.YearMonthDateParameterMetadata;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
-import com.opengamma.strata.product.index.type.IborFutureTemplate;
+import com.opengamma.strata.product.index.type.IborFutureConvention;
 
 /**
- * A curve node whose instrument is an Ibor Future.
+ * A curve node whose instrument is an Ibor Future specified absolutely by year-month.
  * <p>
  * The trade produced by the node will be a long for a positive quantity and a short for a negative quantity. 
  * This convention is line with other nodes where a positive quantity is similar to long a bond or deposit.
  */
 @BeanDefinition
-public final class IborFutureCurveNode
+public final class AbsoluteIborFutureCurveNode
     implements CurveNode, ImmutableBean, Serializable {
 
   /**
-   * The template for the Ibor Futures associated with this node.
+   * The convention for the Ibor Future associated with this node.
    */
   @PropertyDefinition(validate = "notNull")
-  private final IborFutureTemplate template;
+  private final IborFutureConvention convention;
+  /**
+   * The year-month of the Ibor Future associated with this node.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final YearMonth yearMonth;
   /**
    * The identifier of the market data value which provides the price.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ObservableId rateId;
+  private final QuoteId rateId;
   /**
    * The additional spread added to the price.
    */
@@ -81,46 +89,55 @@ public final class IborFutureCurveNode
   /**
    * Obtains a curve node for an Ibor Future using the specified template and rate key.
    *
-   * @param template  the template used for building the instrument for the node
-   * @param rateId  the identifier of the market rate used when building the instrument for the node
+   * @param convention  the convention defining the future
+   * @param yearMonth  the year-month that the future is defined to be for
+   * @param rateId  the identifier of the market rate for the security
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static IborFutureCurveNode of(IborFutureTemplate template, ObservableId rateId) {
-    return of(template, rateId, 0d);
+  public static AbsoluteIborFutureCurveNode of(
+      IborFutureConvention convention,
+      YearMonth yearMonth,
+      QuoteId rateId) {
+
+    return of(convention, yearMonth, rateId, 0d);
   }
 
   /**
    * Obtains a curve node for an Ibor Future using the specified template, rate key and spread.
    *
-   * @param template  the template defining the node instrument
-   * @param rateId  the identifier of the market data providing the rate for the node instrument
+   * @param convention  the convention defining the future
+   * @param yearMonth  the year-month that the future is defined to be for
+   * @param rateId  the identifier of the market rate for the security
    * @param additionalSpread  the additional spread amount added to the rate
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static IborFutureCurveNode of(
-      IborFutureTemplate template,
-      ObservableId rateId,
+  public static AbsoluteIborFutureCurveNode of(
+      IborFutureConvention convention,
+      YearMonth yearMonth,
+      QuoteId rateId,
       double additionalSpread) {
 
-    return of(template, rateId, additionalSpread, "");
+    return of(convention, yearMonth, rateId, additionalSpread, "");
   }
 
   /**
    * Obtains a curve node for an Ibor Future using the specified template, rate key, spread and label.
    *
-   * @param template  the template defining the node instrument
-   * @param rateId  the identifier of the market data providing the rate for the node instrument
+   * @param convention  the convention defining the future
+   * @param yearMonth  the year-month that the future is defined to be for
+   * @param rateId  the identifier of the market rate for the security
    * @param additionalSpread  the additional spread amount added to the rate
    * @param label  the label to use for the node, if empty an appropriate default label will be generated
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static IborFutureCurveNode of(
-      IborFutureTemplate template,
-      ObservableId rateId,
+  public static AbsoluteIborFutureCurveNode of(
+      IborFutureConvention convention,
+      YearMonth yearMonth,
+      QuoteId rateId,
       double additionalSpread,
       String label) {
 
-    return new IborFutureCurveNode(template, rateId, additionalSpread, label, CurveNodeDate.END);
+    return new AbsoluteIborFutureCurveNode(convention, yearMonth, rateId, additionalSpread, label, CurveNodeDate.END);
   }
 
   @ImmutableDefaults
@@ -136,7 +153,7 @@ public final class IborFutureCurveNode
 
   @Override
   public DatedParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
-    LocalDate referenceDate = template.calculateReferenceDateFromTradeDate(valuationDate, refData);
+    LocalDate referenceDate = convention.calculateReferenceDateFromTradeDate(valuationDate, yearMonth, refData);
     LocalDate nodeDate = date.calculate(
         () -> calculateEnd(referenceDate, refData),
         () -> calculateLastFixingDate(valuationDate, refData));
@@ -148,19 +165,20 @@ public final class IborFutureCurveNode
 
   // calculate the end date
   private LocalDate calculateEnd(LocalDate referenceDate, ReferenceData refData) {
-    return template.getConvention().getIndex().calculateMaturityFromEffective(referenceDate, refData);
+    return convention.getIndex().calculateMaturityFromEffective(referenceDate, refData);
   }
 
   // calculate the last fixing date
   private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
-    IborFutureTrade trade = template.createTrade(valuationDate, 1, 1, 0, refData);
+    IborFutureTrade trade = convention.createTrade(valuationDate, rateId.toSecurityId(), yearMonth, 1, 1, 0, refData);
     return trade.getProduct().getFixingDate();
   }
 
   @Override
   public IborFutureTrade trade(double quantity, MarketData marketData, ReferenceData refData) {
-    double price = marketData.getValue(rateId) + additionalSpread;
-    return template.createTrade(marketData.getValuationDate(), quantity, 1d, price, refData);
+    LocalDate valuationDate = marketData.getValuationDate();
+    double price = marketPrice(marketData) + additionalSpread;
+    return convention.createTrade(valuationDate, rateId.toSecurityId(), yearMonth, quantity, 1d, price, refData);
   }
 
   @Override
@@ -171,14 +189,18 @@ public final class IborFutureCurveNode
   @Override
   public double initialGuess(MarketData marketData, ValueType valueType) {
     if (ValueType.ZERO_RATE.equals(valueType) || ValueType.FORWARD_RATE.equals(valueType)) {
-      return 1d - marketData.getValue(rateId);
+      return 1d - marketPrice(marketData);
     }
     if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {
-      double approximateMaturity = template.getMinimumPeriod()
-          .plus(template.getConvention().getIndex().getTenor()).toTotalMonths() / 12d;
-      return Math.exp(-approximateMaturity * (1d - marketData.getValue(rateId)));
+      double approximateMaturity = MONTHS.between(marketData.getValuationDate(), yearMonth.atEndOfMonth()) / 12d;
+      return Math.exp(-approximateMaturity * (1d - marketPrice(marketData)));
     }
     return 0d;
+  }
+
+  // scale (100 - percentRate) to (1 - decimalRate)
+  private Double marketPrice(MarketData marketData) {
+    return marketData.getValue(rateId) / 100;
   }
 
   //-------------------------------------------------------------------------
@@ -188,22 +210,22 @@ public final class IborFutureCurveNode
    * @param date  the date to use
    * @return the node based on this node with the specified date
    */
-  public IborFutureCurveNode withDate(CurveNodeDate date) {
-    return new IborFutureCurveNode(template, rateId, additionalSpread, label, date);
+  public AbsoluteIborFutureCurveNode withDate(CurveNodeDate date) {
+    return new AbsoluteIborFutureCurveNode(convention, yearMonth, rateId, additionalSpread, label, date);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code IborFutureCurveNode}.
+   * The meta-bean for {@code AbsoluteIborFutureCurveNode}.
    * @return the meta-bean, not null
    */
-  public static IborFutureCurveNode.Meta meta() {
-    return IborFutureCurveNode.Meta.INSTANCE;
+  public static AbsoluteIborFutureCurveNode.Meta meta() {
+    return AbsoluteIborFutureCurveNode.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(IborFutureCurveNode.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(AbsoluteIborFutureCurveNode.Meta.INSTANCE);
   }
 
   /**
@@ -215,20 +237,23 @@ public final class IborFutureCurveNode
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static IborFutureCurveNode.Builder builder() {
-    return new IborFutureCurveNode.Builder();
+  public static AbsoluteIborFutureCurveNode.Builder builder() {
+    return new AbsoluteIborFutureCurveNode.Builder();
   }
 
-  private IborFutureCurveNode(
-      IborFutureTemplate template,
-      ObservableId rateId,
+  private AbsoluteIborFutureCurveNode(
+      IborFutureConvention convention,
+      YearMonth yearMonth,
+      QuoteId rateId,
       double additionalSpread,
       String label,
       CurveNodeDate date) {
-    JodaBeanUtils.notNull(template, "template");
+    JodaBeanUtils.notNull(convention, "convention");
+    JodaBeanUtils.notNull(yearMonth, "yearMonth");
     JodaBeanUtils.notNull(rateId, "rateId");
     JodaBeanUtils.notNull(label, "label");
-    this.template = template;
+    this.convention = convention;
+    this.yearMonth = yearMonth;
     this.rateId = rateId;
     this.additionalSpread = additionalSpread;
     this.label = label;
@@ -236,8 +261,8 @@ public final class IborFutureCurveNode
   }
 
   @Override
-  public IborFutureCurveNode.Meta metaBean() {
-    return IborFutureCurveNode.Meta.INSTANCE;
+  public AbsoluteIborFutureCurveNode.Meta metaBean() {
+    return AbsoluteIborFutureCurveNode.Meta.INSTANCE;
   }
 
   @Override
@@ -252,11 +277,20 @@ public final class IborFutureCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the template for the Ibor Futures associated with this node.
+   * Gets the convention for the Ibor Future associated with this node.
    * @return the value of the property, not null
    */
-  public IborFutureTemplate getTemplate() {
-    return template;
+  public IborFutureConvention getConvention() {
+    return convention;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the year-month of the Ibor Future associated with this node.
+   * @return the value of the property, not null
+   */
+  public YearMonth getYearMonth() {
+    return yearMonth;
   }
 
   //-----------------------------------------------------------------------
@@ -264,7 +298,7 @@ public final class IborFutureCurveNode
    * Gets the identifier of the market data value which provides the price.
    * @return the value of the property, not null
    */
-  public ObservableId getRateId() {
+  public QuoteId getRateId() {
     return rateId;
   }
 
@@ -314,8 +348,9 @@ public final class IborFutureCurveNode
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      IborFutureCurveNode other = (IborFutureCurveNode) obj;
-      return JodaBeanUtils.equal(template, other.template) &&
+      AbsoluteIborFutureCurveNode other = (AbsoluteIborFutureCurveNode) obj;
+      return JodaBeanUtils.equal(convention, other.convention) &&
+          JodaBeanUtils.equal(yearMonth, other.yearMonth) &&
           JodaBeanUtils.equal(rateId, other.rateId) &&
           JodaBeanUtils.equal(additionalSpread, other.additionalSpread) &&
           JodaBeanUtils.equal(label, other.label) &&
@@ -327,7 +362,8 @@ public final class IborFutureCurveNode
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(template);
+    hash = hash * 31 + JodaBeanUtils.hashCode(convention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yearMonth);
     hash = hash * 31 + JodaBeanUtils.hashCode(rateId);
     hash = hash * 31 + JodaBeanUtils.hashCode(additionalSpread);
     hash = hash * 31 + JodaBeanUtils.hashCode(label);
@@ -337,9 +373,10 @@ public final class IborFutureCurveNode
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
-    buf.append("IborFutureCurveNode{");
-    buf.append("template").append('=').append(template).append(',').append(' ');
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("AbsoluteIborFutureCurveNode{");
+    buf.append("convention").append('=').append(convention).append(',').append(' ');
+    buf.append("yearMonth").append('=').append(yearMonth).append(',').append(' ');
     buf.append("rateId").append('=').append(rateId).append(',').append(' ');
     buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
     buf.append("label").append('=').append(label).append(',').append(' ');
@@ -350,7 +387,7 @@ public final class IborFutureCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code IborFutureCurveNode}.
+   * The meta-bean for {@code AbsoluteIborFutureCurveNode}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -359,36 +396,42 @@ public final class IborFutureCurveNode
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code template} property.
+     * The meta-property for the {@code convention} property.
      */
-    private final MetaProperty<IborFutureTemplate> template = DirectMetaProperty.ofImmutable(
-        this, "template", IborFutureCurveNode.class, IborFutureTemplate.class);
+    private final MetaProperty<IborFutureConvention> convention = DirectMetaProperty.ofImmutable(
+        this, "convention", AbsoluteIborFutureCurveNode.class, IborFutureConvention.class);
+    /**
+     * The meta-property for the {@code yearMonth} property.
+     */
+    private final MetaProperty<YearMonth> yearMonth = DirectMetaProperty.ofImmutable(
+        this, "yearMonth", AbsoluteIborFutureCurveNode.class, YearMonth.class);
     /**
      * The meta-property for the {@code rateId} property.
      */
-    private final MetaProperty<ObservableId> rateId = DirectMetaProperty.ofImmutable(
-        this, "rateId", IborFutureCurveNode.class, ObservableId.class);
+    private final MetaProperty<QuoteId> rateId = DirectMetaProperty.ofImmutable(
+        this, "rateId", AbsoluteIborFutureCurveNode.class, QuoteId.class);
     /**
      * The meta-property for the {@code additionalSpread} property.
      */
     private final MetaProperty<Double> additionalSpread = DirectMetaProperty.ofImmutable(
-        this, "additionalSpread", IborFutureCurveNode.class, Double.TYPE);
+        this, "additionalSpread", AbsoluteIborFutureCurveNode.class, Double.TYPE);
     /**
      * The meta-property for the {@code label} property.
      */
     private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
-        this, "label", IborFutureCurveNode.class, String.class);
+        this, "label", AbsoluteIborFutureCurveNode.class, String.class);
     /**
      * The meta-property for the {@code date} property.
      */
     private final MetaProperty<CurveNodeDate> date = DirectMetaProperty.ofImmutable(
-        this, "date", IborFutureCurveNode.class, CurveNodeDate.class);
+        this, "date", AbsoluteIborFutureCurveNode.class, CurveNodeDate.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "template",
+        "convention",
+        "yearMonth",
         "rateId",
         "additionalSpread",
         "label",
@@ -403,8 +446,10 @@ public final class IborFutureCurveNode
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1321546630:  // template
-          return template;
+        case 2039569265:  // convention
+          return convention;
+        case -496678845:  // yearMonth
+          return yearMonth;
         case -938107365:  // rateId
           return rateId;
         case 291232890:  // additionalSpread
@@ -418,13 +463,13 @@ public final class IborFutureCurveNode
     }
 
     @Override
-    public IborFutureCurveNode.Builder builder() {
-      return new IborFutureCurveNode.Builder();
+    public AbsoluteIborFutureCurveNode.Builder builder() {
+      return new AbsoluteIborFutureCurveNode.Builder();
     }
 
     @Override
-    public Class<? extends IborFutureCurveNode> beanType() {
-      return IborFutureCurveNode.class;
+    public Class<? extends AbsoluteIborFutureCurveNode> beanType() {
+      return AbsoluteIborFutureCurveNode.class;
     }
 
     @Override
@@ -434,18 +479,26 @@ public final class IborFutureCurveNode
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code template} property.
+     * The meta-property for the {@code convention} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborFutureTemplate> template() {
-      return template;
+    public MetaProperty<IborFutureConvention> convention() {
+      return convention;
+    }
+
+    /**
+     * The meta-property for the {@code yearMonth} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<YearMonth> yearMonth() {
+      return yearMonth;
     }
 
     /**
      * The meta-property for the {@code rateId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ObservableId> rateId() {
+    public MetaProperty<QuoteId> rateId() {
       return rateId;
     }
 
@@ -477,16 +530,18 @@ public final class IborFutureCurveNode
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -1321546630:  // template
-          return ((IborFutureCurveNode) bean).getTemplate();
+        case 2039569265:  // convention
+          return ((AbsoluteIborFutureCurveNode) bean).getConvention();
+        case -496678845:  // yearMonth
+          return ((AbsoluteIborFutureCurveNode) bean).getYearMonth();
         case -938107365:  // rateId
-          return ((IborFutureCurveNode) bean).getRateId();
+          return ((AbsoluteIborFutureCurveNode) bean).getRateId();
         case 291232890:  // additionalSpread
-          return ((IborFutureCurveNode) bean).getAdditionalSpread();
+          return ((AbsoluteIborFutureCurveNode) bean).getAdditionalSpread();
         case 102727412:  // label
-          return ((IborFutureCurveNode) bean).getLabel();
+          return ((AbsoluteIborFutureCurveNode) bean).getLabel();
         case 3076014:  // date
-          return ((IborFutureCurveNode) bean).getDate();
+          return ((AbsoluteIborFutureCurveNode) bean).getDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -504,12 +559,13 @@ public final class IborFutureCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code IborFutureCurveNode}.
+   * The bean-builder for {@code AbsoluteIborFutureCurveNode}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<IborFutureCurveNode> {
+  public static final class Builder extends DirectFieldsBeanBuilder<AbsoluteIborFutureCurveNode> {
 
-    private IborFutureTemplate template;
-    private ObservableId rateId;
+    private IborFutureConvention convention;
+    private YearMonth yearMonth;
+    private QuoteId rateId;
     private double additionalSpread;
     private String label;
     private CurveNodeDate date;
@@ -525,8 +581,9 @@ public final class IborFutureCurveNode
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(IborFutureCurveNode beanToCopy) {
-      this.template = beanToCopy.getTemplate();
+    private Builder(AbsoluteIborFutureCurveNode beanToCopy) {
+      this.convention = beanToCopy.getConvention();
+      this.yearMonth = beanToCopy.getYearMonth();
       this.rateId = beanToCopy.getRateId();
       this.additionalSpread = beanToCopy.getAdditionalSpread();
       this.label = beanToCopy.getLabel();
@@ -537,8 +594,10 @@ public final class IborFutureCurveNode
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1321546630:  // template
-          return template;
+        case 2039569265:  // convention
+          return convention;
+        case -496678845:  // yearMonth
+          return yearMonth;
         case -938107365:  // rateId
           return rateId;
         case 291232890:  // additionalSpread
@@ -555,11 +614,14 @@ public final class IborFutureCurveNode
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -1321546630:  // template
-          this.template = (IborFutureTemplate) newValue;
+        case 2039569265:  // convention
+          this.convention = (IborFutureConvention) newValue;
+          break;
+        case -496678845:  // yearMonth
+          this.yearMonth = (YearMonth) newValue;
           break;
         case -938107365:  // rateId
-          this.rateId = (ObservableId) newValue;
+          this.rateId = (QuoteId) newValue;
           break;
         case 291232890:  // additionalSpread
           this.additionalSpread = (Double) newValue;
@@ -601,9 +663,10 @@ public final class IborFutureCurveNode
     }
 
     @Override
-    public IborFutureCurveNode build() {
-      return new IborFutureCurveNode(
-          template,
+    public AbsoluteIborFutureCurveNode build() {
+      return new AbsoluteIborFutureCurveNode(
+          convention,
+          yearMonth,
           rateId,
           additionalSpread,
           label,
@@ -612,13 +675,24 @@ public final class IborFutureCurveNode
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the template for the Ibor Futures associated with this node.
-     * @param template  the new value, not null
+     * Sets the convention for the Ibor Future associated with this node.
+     * @param convention  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder template(IborFutureTemplate template) {
-      JodaBeanUtils.notNull(template, "template");
-      this.template = template;
+    public Builder convention(IborFutureConvention convention) {
+      JodaBeanUtils.notNull(convention, "convention");
+      this.convention = convention;
+      return this;
+    }
+
+    /**
+     * Sets the year-month of the Ibor Future associated with this node.
+     * @param yearMonth  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder yearMonth(YearMonth yearMonth) {
+      JodaBeanUtils.notNull(yearMonth, "yearMonth");
+      this.yearMonth = yearMonth;
       return this;
     }
 
@@ -627,7 +701,7 @@ public final class IborFutureCurveNode
      * @param rateId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder rateId(ObservableId rateId) {
+    public Builder rateId(QuoteId rateId) {
       JodaBeanUtils.notNull(rateId, "rateId");
       this.rateId = rateId;
       return this;
@@ -670,9 +744,10 @@ public final class IborFutureCurveNode
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
-      buf.append("IborFutureCurveNode.Builder{");
-      buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
+      StringBuilder buf = new StringBuilder(224);
+      buf.append("AbsoluteIborFutureCurveNode.Builder{");
+      buf.append("convention").append('=').append(JodaBeanUtils.toString(convention)).append(',').append(' ');
+      buf.append("yearMonth").append('=').append(JodaBeanUtils.toString(yearMonth)).append(',').append(' ');
       buf.append("rateId").append('=').append(JodaBeanUtils.toString(rateId)).append(',').append(' ');
       buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');
       buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');

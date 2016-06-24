@@ -20,6 +20,7 @@ import java.time.Period;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.index.IborFutureTrade;
 
 /**
@@ -56,8 +57,9 @@ public class IborFutureTemplateTest {
     double quantity = 3;
     double price = 0.99;
     double notional = 100.0;
-    IborFutureTrade trade = base.createTrade(date, quantity, notional, price, REF_DATA);
-    IborFutureTrade expected = CONVENTION.createTrade(date, MIN_PERIOD, NUMBER, quantity, notional, price, REF_DATA);
+    SecurityId secId = SecurityId.of("OG-Future", "GBP-LIBOR-3M-Jun16");
+    IborFutureTrade trade = base.createTrade(date, secId, quantity, notional, price, REF_DATA);
+    IborFutureTrade expected = CONVENTION.createTrade(date, secId, MIN_PERIOD, NUMBER, quantity, notional, price, REF_DATA);
     assertEquals(trade, expected);
   }
 
