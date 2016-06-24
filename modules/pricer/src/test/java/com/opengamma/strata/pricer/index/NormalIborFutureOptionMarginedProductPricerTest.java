@@ -59,8 +59,8 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
   private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
 
-  private static final NormalVolatilityIborFutureProvider VOL_SIMPLE_MONEY_PRICE =
-      NormalVolatilityExpSimpleMoneynessIborFutureProvider.of(
+  private static final NormalIborFutureOptionVolatilities VOL_SIMPLE_MONEY_PRICE =
+      NormalIborFutureOptionExpirySimpleMoneynessVolatilities.of(
           PARAMETERS_PRICE, true, GBP_LIBOR_2M, ACT_365F, VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE));
 
   private static final ResolvedIborFutureOption OPTION = IborFutureDummyData.IBOR_FUTURE_OPTION_2.resolve(REF_DATA);

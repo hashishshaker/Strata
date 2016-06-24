@@ -63,7 +63,7 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
   public CurrencyAmount presentValue(
       ResolvedIborFutureOptionTrade trade,
       RatesProvider ratesProvider,
-      NormalVolatilityIborFutureProvider volatilityProvider,
+      NormalIborFutureOptionVolatilities volatilityProvider,
       double futurePrice,
       double lastClosingPrice) {
 
@@ -88,7 +88,7 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
   public IborFutureOptionSensitivity presentValueSensitivityNormalVolatility(
       ResolvedIborFutureOptionTrade futureOptionTrade,
       RatesProvider ratesProvider,
-      NormalVolatilityIborFutureProvider volatilityProvider) {
+      NormalIborFutureOptionVolatilities volatilityProvider) {
 
     ResolvedIborFuture future = futureOptionTrade.getProduct().getUnderlyingFuture();
     double futurePrice = futureOptionPricer.getFuturePricer().price(future, ratesProvider);
@@ -111,7 +111,7 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
   public IborFutureOptionSensitivity presentValueSensitivityNormalVolatility(
       ResolvedIborFutureOptionTrade futureOptionTrade,
       RatesProvider ratesProvider,
-      NormalVolatilityIborFutureProvider volatilityProvider,
+      NormalIborFutureOptionVolatilities volatilityProvider,
       double futurePrice) {
 
     ResolvedIborFutureOption product = futureOptionTrade.getProduct();

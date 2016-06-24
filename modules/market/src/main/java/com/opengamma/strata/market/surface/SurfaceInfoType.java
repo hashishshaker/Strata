@@ -9,6 +9,7 @@ package com.opengamma.strata.market.surface;
 import org.joda.convert.FromString;
 
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.TypedString;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
@@ -39,6 +40,10 @@ public final class SurfaceInfoType<T>
    * Key used to access information about the swaption convention.
    */
   public static final SurfaceInfoType<FixedIborSwapConvention> SWAP_CONVENTION = SurfaceInfoType.of("SwapConvention");
+  /**
+   * Key used to access information about the Ibor index.
+   */
+  public static final SurfaceInfoType<IborIndex> IBOR_INDEX = SurfaceInfoType.of("IborIndex");
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

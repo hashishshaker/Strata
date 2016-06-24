@@ -53,7 +53,7 @@ public abstract class IborFutureOptionMarginedTradePricer {
   public double price(
       ResolvedIborFutureOptionTrade trade,
       RatesProvider ratesProvider,
-      IborFutureProvider futureProvider) {
+      IborFutureOptionVolatilities futureProvider) {
 
     return getProductPricer().price(trade.getProduct(), ratesProvider, futureProvider);
   }
@@ -101,7 +101,7 @@ public abstract class IborFutureOptionMarginedTradePricer {
   public CurrencyAmount presentValue(
       ResolvedIborFutureOptionTrade trade,
       RatesProvider ratesProvider,
-      IborFutureProvider futureProvider,
+      IborFutureOptionVolatilities futureProvider,
       double lastClosingPrice) {
 
     double price = price(trade, ratesProvider, futureProvider);
@@ -123,7 +123,7 @@ public abstract class IborFutureOptionMarginedTradePricer {
   public PointSensitivities presentValueSensitivity(
       ResolvedIborFutureOptionTrade trade,
       RatesProvider ratesProvider,
-      IborFutureProvider futureProvider) {
+      IborFutureOptionVolatilities futureProvider) {
 
     ResolvedIborFutureOption product = trade.getProduct();
     PointSensitivities priceSensi = getProductPricer().priceSensitivity(product, ratesProvider, futureProvider);
