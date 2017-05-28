@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -120,7 +120,7 @@ public final class ThreeLegBasisSwapTemplate
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
    * If buying the swap, the rate of the floating flat leg is received from the counterparty,
-   * with the rate of the floating spread leg and the spread of the fixed leg being paid. 
+   * with the rate of the floating spread leg and the spread of the fixed leg being paid.
    * If selling the swap, the opposite occurs.
    * 
    * @param tradeDate  the date of the trade
@@ -454,19 +454,31 @@ public final class ThreeLegBasisSwapTemplate
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

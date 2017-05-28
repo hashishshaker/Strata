@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -43,8 +43,8 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * The market price is for the difference (spread) between the values of the two floating legs.
  * This convention has three legs, the "spread leg", the "spread floating leg" and the "flat floating leg". 
  * The "spread leg" represented by the fixed leg will be added to the "spread floating leg" 
- * which is typically the leg with the shorter underlying tenor. 
- * Thus the "spread leg" and "spread floating leg" will have the same pay/receive direction. 
+ * which is typically the leg with the shorter underlying tenor.
+ * Thus the "spread leg" and "spread floating leg" will have the same pay/receive direction.
  * <p>
  * The convention is defined by four key dates.
  * <ul>
@@ -560,19 +560,31 @@ public final class ImmutableThreeLegBasisSwapConvention
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

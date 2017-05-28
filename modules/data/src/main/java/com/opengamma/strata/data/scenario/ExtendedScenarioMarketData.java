@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -74,7 +74,7 @@ final class ExtendedScenarioMarketData<T>
 
   @ImmutableValidator
   private void validate() {
-    if (value.getScenarioCount() != 1 && value.getScenarioCount() != underlying.getScenarioCount()) {
+    if (value.isScenarioValue() && value.getScenarioCount() != underlying.getScenarioCount()) {
       throw new IllegalArgumentException(Messages.format(
           "Scenario count mismatch: value has {} scenarios but this market data has {}",
           value.getScenarioCount(), underlying.getScenarioCount()));
@@ -140,6 +140,11 @@ final class ExtendedScenarioMarketData<T>
   }
 
   @Override
+  public Set<ObservableId> getTimeSeriesIds() {
+    return underlying.getTimeSeriesIds();
+  }
+
+  @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
     return underlying.getTimeSeries(id);
   }
@@ -149,7 +154,7 @@ final class ExtendedScenarioMarketData<T>
   /**
    * The meta-bean for {@code ExtendedScenarioMarketData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(ExtendedScenarioMarketData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(ExtendedScenarioMarketData.class);
 
   /**
    * The meta-bean for {@code ExtendedScenarioMarketData}.

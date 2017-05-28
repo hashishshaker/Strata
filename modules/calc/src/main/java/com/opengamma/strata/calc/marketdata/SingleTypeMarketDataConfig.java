@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -124,7 +124,7 @@ final class SingleTypeMarketDataConfig implements ImmutableBean, Serializable {
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static SingleTypeMarketDataConfig.Builder builder() {
+  static SingleTypeMarketDataConfig.Builder builder() {
     return new SingleTypeMarketDataConfig.Builder();
   }
 
@@ -175,7 +175,7 @@ final class SingleTypeMarketDataConfig implements ImmutableBean, Serializable {
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
-  public Builder toBuilder() {
+  Builder toBuilder() {
     return new Builder(this);
   }
 
@@ -214,7 +214,7 @@ final class SingleTypeMarketDataConfig implements ImmutableBean, Serializable {
   /**
    * The meta-bean for {@code SingleTypeMarketDataConfig}.
    */
-  public static final class Meta extends DirectMetaBean {
+  static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -316,7 +316,7 @@ final class SingleTypeMarketDataConfig implements ImmutableBean, Serializable {
   /**
    * The bean-builder for {@code SingleTypeMarketDataConfig}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<SingleTypeMarketDataConfig> {
+  static final class Builder extends DirectFieldsBeanBuilder<SingleTypeMarketDataConfig> {
 
     private Class<?> configType;
     private Map<String, Object> configObjects = ImmutableMap.of();
@@ -371,19 +371,31 @@ final class SingleTypeMarketDataConfig implements ImmutableBean, Serializable {
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

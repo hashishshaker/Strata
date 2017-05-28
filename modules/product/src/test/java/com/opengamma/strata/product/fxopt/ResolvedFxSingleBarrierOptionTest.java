@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -25,6 +25,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.product.fx.ResolvedFxSingle;
+import com.opengamma.strata.product.option.BarrierType;
+import com.opengamma.strata.product.option.KnockType;
+import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 
 /**
  * Test {@link ResolvedFxSingleBarrierOption}.
@@ -53,6 +56,7 @@ public class ResolvedFxSingleBarrierOptionTest {
     assertEquals(test.getBarrier(), BARRIER);
     assertEquals(test.getRebate().get(), REBATE);
     assertEquals(test.getUnderlyingOption(), VANILLA_OPTION);
+    assertEquals(test.getCurrencyPair(), VANILLA_OPTION.getCurrencyPair());
   }
 
   public void test_of_noRebate() {

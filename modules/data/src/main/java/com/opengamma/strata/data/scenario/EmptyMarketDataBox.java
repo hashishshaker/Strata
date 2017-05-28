@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -53,7 +53,7 @@ class EmptyMarketDataBox
 
   @Override
   public boolean isSingleValue() {
-    throw new UnsupportedOperationException("Box is empty");
+    return true;
   }
 
   @Override

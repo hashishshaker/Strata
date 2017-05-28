@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -15,7 +15,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.scenario.MarketDataBox;
-import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 
 /**
  * Test {@link CurveParallelShifts}.

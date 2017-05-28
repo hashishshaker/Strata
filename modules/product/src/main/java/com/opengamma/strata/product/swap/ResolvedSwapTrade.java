@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -38,7 +38,7 @@ import com.opengamma.strata.product.TradeInfo;
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
-@BeanDefinition
+@BeanDefinition(constructorScope = "package")
 public final class ResolvedSwapTrade
     implements ResolvedTrade, ImmutableBean, Serializable {
 
@@ -101,7 +101,12 @@ public final class ResolvedSwapTrade
     return new ResolvedSwapTrade.Builder();
   }
 
-  private ResolvedSwapTrade(
+  /**
+   * Creates an instance.
+   * @param info  the value of the property
+   * @param product  the value of the property, not null
+   */
+  ResolvedSwapTrade(
       TradeInfo info,
       ResolvedSwap product) {
     JodaBeanUtils.notNull(product, "product");
@@ -347,19 +352,31 @@ public final class ResolvedSwapTrade
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

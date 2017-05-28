@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.function.special;
@@ -31,6 +31,11 @@ public class IncompleteGammaFunction implements Function<Double, Double> {
   private final double _eps;
   private final double _a;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param a  the value
+   */
   public IncompleteGammaFunction(double a) {
     ArgChecker.notNegativeOrZero(a, "a");
     _maxIter = 100000;
@@ -38,6 +43,13 @@ public class IncompleteGammaFunction implements Function<Double, Double> {
     _a = a;
   }
 
+  /**
+   * Creates an instance.
+   * 
+   * @param a  the value
+   * @param maxIter  the maximum iterations
+   * @param eps  the epsilon
+   */
   public IncompleteGammaFunction(double a, int maxIter, double eps) {
     ArgChecker.notNegativeOrZero(a, "a");
     ArgChecker.notNegative(eps, "eps");

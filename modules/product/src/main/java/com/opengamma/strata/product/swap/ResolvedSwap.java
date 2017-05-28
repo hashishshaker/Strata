@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -79,11 +79,11 @@ public final class ResolvedSwap
   /**
    * The set of currencies.
    */
-  private final ImmutableSet<Currency> currencies;  // not a property, derived and cached from input data
+  private final transient ImmutableSet<Currency> currencies;  // not a property, derived and cached from input data
   /**
    * The set of indices.
    */
-  private final ImmutableSet<Index> indices;  // not a property, derived and cached from input data
+  private final transient ImmutableSet<Index> indices;  // not a property, derived and cached from input data
 
   //-------------------------------------------------------------------------
   /**
@@ -108,6 +108,13 @@ public final class ResolvedSwap
     this.indices = buildIndices(legs);
   }
 
+  // trusted constructor
+  ResolvedSwap(ImmutableList<ResolvedSwapLeg> legs, ImmutableSet<Currency> currencies, ImmutableSet<Index> indices) {
+    this.legs = legs;
+    this.currencies = currencies;
+    this.indices = indices;
+  }
+
   // collect the set of currencies
   private static ImmutableSet<Currency> buildCurrencies(List<ResolvedSwapLeg> legs) {
     // avoid streams as profiling showed a hotspot
@@ -126,6 +133,11 @@ public final class ResolvedSwap
       leg.collectIndices(builder);
     }
     return builder.build();
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new ResolvedSwap(legs);
   }
 
   //-------------------------------------------------------------------------
@@ -222,13 +234,18 @@ public final class ResolvedSwap
   }
 
   /**
-   * Returns the set of primary currencies of this swap.
+   * Returns the set of payment currencies referred to by the swap.
    * <p>
-   * Any currency associated with FX reset is not included.
+   * This returns the complete set of payment currencies for the swap.
+   * This will typically return one or two currencies.
+   * <p>
+   * If there is an FX reset, then this set contains the currency of the payment,
+   * not the currency of the notional. Note that in many cases, the currency of
+   * the FX reset notional will be the currency of the other leg.
    * 
    * @return the currencies
    */
-  public ImmutableSet<Currency> allCurrencies() {
+  public ImmutableSet<Currency> allPaymentCurrencies() {
     return currencies;
   }
 
@@ -330,11 +347,9 @@ public final class ResolvedSwap
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(64);
     buf.append("ResolvedSwap{");
-    buf.append("legs").append('=').append(legs).append(',').append(' ');
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate()));
+    buf.append("legs").append('=').append(JodaBeanUtils.toString(legs));
     buf.append('}');
     return buf.toString();
   }
@@ -510,19 +525,31 @@ public final class ResolvedSwap
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

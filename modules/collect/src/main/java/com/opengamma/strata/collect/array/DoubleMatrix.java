@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -24,10 +24,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
@@ -64,15 +64,15 @@ public final class DoubleMatrix
   /**
    * The number of rows.
    */
-  private final int rows;  // derived, not a property
+  private final transient int rows;  // derived, not a property
   /**
    * The number of columns.
    */
-  private final int columns;  // derived, not a property
+  private final transient int columns;  // derived, not a property
   /**
    * The number of elements.
    */
-  private final int elements;  // derived, not a property
+  private final transient int elements;  // derived, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -342,6 +342,11 @@ public final class DoubleMatrix
     return cloned;
   }
 
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new DoubleMatrix(array);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the number of dimensions of this matrix.
@@ -491,7 +496,7 @@ public final class DoubleMatrix
    *   base.forEach((row, col, value) -> System.out.println(row + ": " + col + ": " + value));
    * </pre>
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    *
    * @param action  the action to be applied
    */
@@ -507,7 +512,7 @@ public final class DoubleMatrix
   /**
    * Returns an instance with the value at the specified index changed.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param row  the zero-based row index to retrieve
    * @param column  the zero-based column index to retrieve
@@ -532,7 +537,7 @@ public final class DoubleMatrix
    * This is used to multiply the contents of this matrix, returning a new matrix.
    * <p>
    * This is a special case of {@link #map(DoubleUnaryOperator)}.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param factor  the multiplicative factor
    * @return a copy of this matrix with the each value multiplied by the factor
@@ -560,7 +565,7 @@ public final class DoubleMatrix
    *   result = base.map(value -> 1 / value);
    * </pre>
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    *
    * @param operator  the operator to be applied
    * @return a copy of this matrix with the operator applied to the original values
@@ -585,7 +590,7 @@ public final class DoubleMatrix
    *   result = base.mapWithIndex((index, value) -> index * value);
    * </pre>
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    *
    * @param function  the function to be applied
    * @return a copy of this matrix with the operator applied to the original values
@@ -611,7 +616,7 @@ public final class DoubleMatrix
    * The matrices must be of the same size.
    * <p>
    * This is a special case of {@link #combine(DoubleMatrix, DoubleBinaryOperator)}.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param other  the other matrix
    * @return a copy of this matrix with matching elements added
@@ -640,7 +645,7 @@ public final class DoubleMatrix
    * The matrices must be of the same size.
    * <p>
    * This is a special case of {@link #combine(DoubleMatrix, DoubleBinaryOperator)}.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param other  the other matrix
    * @return a copy of this matrix with matching elements subtracted
@@ -668,7 +673,7 @@ public final class DoubleMatrix
    * when applied to element {@code (i,j)} in this array and element {@code (i,j)} in the other array.
    * The arrays must be of the same size.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param other  the other matrix
    * @param operator  the operator used to combine each pair of values
@@ -714,7 +719,7 @@ public final class DoubleMatrix
    * The first argument to the operator is the running total of the reduction, starting from zero.
    * The second argument to the operator is the element.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param identity  the identity value to start from
    * @param operator  the operator used to combine the value with the current total
@@ -902,7 +907,7 @@ public final class DoubleMatrix
   /**
    * The bean-builder for {@code DoubleMatrix}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<DoubleMatrix> {
+  private static final class Builder extends DirectPrivateBeanBuilder<DoubleMatrix> {
 
     private double[][] array;
 
@@ -910,6 +915,7 @@ public final class DoubleMatrix
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -932,30 +938,6 @@ public final class DoubleMatrix
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

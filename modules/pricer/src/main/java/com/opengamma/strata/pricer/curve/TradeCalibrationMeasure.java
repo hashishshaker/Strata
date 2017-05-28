@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.pricer.curve;
@@ -33,7 +33,7 @@ import com.opengamma.strata.product.swap.ResolvedSwapTrade;
  * 
  * @param <T> the trade type
  */
-public class TradeCalibrationMeasure<T extends ResolvedTrade>
+public final class TradeCalibrationMeasure<T extends ResolvedTrade>
     implements CalibrationMeasure<T> {
 
   /**
@@ -86,7 +86,7 @@ public class TradeCalibrationMeasure<T extends ResolvedTrade>
           "TermDepositParSpreadDiscounting",
           ResolvedTermDepositTrade.class,
           (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parSpread(trade.getProduct(), p),
-              (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parSpreadSensitivity(
+          (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parSpreadSensitivity(
               trade.getProduct(), p));
 
   /**

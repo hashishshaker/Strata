@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -177,7 +177,7 @@ public class FixedIborSwapConventionsTest {
         {FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M, Tenor.TENOR_9M},
     };
   }
-  
+
   @Test(dataProvider = "stubIbor")
   public void test_stub_ibor(FixedIborSwapConvention convention, Tenor tenor) {
     LocalDate tradeDate = LocalDate.of(2015, 10, 20);

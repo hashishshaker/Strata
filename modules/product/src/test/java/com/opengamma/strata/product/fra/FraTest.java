@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -77,7 +77,7 @@ public class FraTest {
 
   public void test_builder_AUD() {
     ImmutableIborIndex dummyIndex = ImmutableIborIndex.builder()
-        .name("AUD-INDEX")
+        .name("AUD-INDEX-3M")
         .currency(AUD)
         .dayCount(ACT_360)
         .fixingDateOffset(MINUS_TWO_DAYS)
@@ -114,7 +114,7 @@ public class FraTest {
 
   public void test_builder_NZD() {
     ImmutableIborIndex dummyIndex = ImmutableIborIndex.builder()
-        .name("NZD-INDEX")
+        .name("NZD-INDEX-3M")
         .currency(NZD)
         .dayCount(ACT_360)
         .fixingDateOffset(MINUS_TWO_DAYS)

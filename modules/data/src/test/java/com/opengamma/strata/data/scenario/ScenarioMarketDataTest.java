@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -154,6 +154,11 @@ public class ScenarioMarketDataTest {
 
       @Override
       public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
+        return ImmutableSet.of();
+      }
+
+      @Override
+      public Set<ObservableId> getTimeSeriesIds() {
         return ImmutableSet.of();
       }
     };
@@ -333,6 +338,11 @@ public class ScenarioMarketDataTest {
     @Override
     public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
       throw new UnsupportedOperationException("getTimeSeries(ObservableKey) not implemented");
+    }
+
+    @Override
+    public Set<ObservableId> getTimeSeriesIds() {
+      return ImmutableSet.of();
     }
   }
 }

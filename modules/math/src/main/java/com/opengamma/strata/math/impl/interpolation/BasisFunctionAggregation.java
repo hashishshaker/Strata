@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.interpolation;
@@ -21,6 +21,12 @@ public class BasisFunctionAggregation<T> implements Function<T, Double> {
   private final List<Function<T, Double>> _f;
   private final double[] _w;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param functions  the functions
+   * @param weights  the weights
+   */
   public BasisFunctionAggregation(List<Function<T, Double>> functions, double[] weights) {
     ArgChecker.notEmpty(functions, "no functions");
     ArgChecker.notNull(weights, "no weights");

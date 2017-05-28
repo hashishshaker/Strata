@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -59,12 +59,12 @@ public final class ResolvedIborCapFloorTrade
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ResolvedIborCapFloor product;
   /**
-   * The optional premium of the product. 
+   * The optional premium of the product.
    * <p>
    * For most Ibor cap/floor products, a premium is paid upfront. This typically occurs instead
    * of periodic payments based on fixed or Ibor rates over the lifetime of the product.
    * <p>
-   * The premium sign must be compatible with the product Pay/Receive flag. 
+   * The premium sign must be compatible with the product Pay/Receive flag.
    */
   @PropertyDefinition(get = "optional")
   private final Payment premium;
@@ -392,19 +392,31 @@ public final class ResolvedIborCapFloorTrade
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

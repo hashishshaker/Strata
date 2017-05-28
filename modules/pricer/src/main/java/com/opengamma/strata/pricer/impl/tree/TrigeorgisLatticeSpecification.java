@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.pricer.impl.tree;
@@ -8,7 +8,7 @@ package com.opengamma.strata.pricer.impl.tree;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * Trigeorgis lattice specification. 
+ * Trigeorgis lattice specification.
  */
 public final class TrigeorgisLatticeSpecification implements LatticeSpecification {
 

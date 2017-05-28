@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -10,4 +10,3 @@
  * Wrappers are provided for {@code double[]} and {@code double[][]}.
  */
 package com.opengamma.strata.collect.array;
-

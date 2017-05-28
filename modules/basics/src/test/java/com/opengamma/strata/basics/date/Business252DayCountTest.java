@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.date;
@@ -32,6 +32,15 @@ public class Business252DayCountTest {
   //-------------------------------------------------------------------------
   public void test_factory_name() {
     DayCount test = DayCount.of("Bus/252 EUTA");
+    assertEquals(test.getName(), "Bus/252 EUTA");
+    assertEquals(test.toString(), "Bus/252 EUTA");
+
+    assertSame(DayCount.of("Bus/252 EUTA"), test);
+    assertSame(DayCount.ofBus252(EUTA), test);
+  }
+
+  public void test_factory_nameUpper() {
+    DayCount test = DayCount.of("BUS/252 EUTA");
     assertEquals(test.getName(), "Bus/252 EUTA");
     assertEquals(test.toString(), "Bus/252 EUTA");
 
@@ -75,7 +84,7 @@ public class Business252DayCountTest {
       date2 = date2.plusDays(1);
     }
   }
-  
+
   //-------------------------------------------------------------------------
   public void test_equalsHashCode() {
     DayCount a = DayCount.of("Bus/252 EUTA");

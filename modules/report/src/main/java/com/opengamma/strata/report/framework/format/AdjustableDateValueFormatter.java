@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.report.framework.format;
@@ -10,7 +10,7 @@ import com.opengamma.strata.basics.date.AdjustableDate;
 /**
  * Formatter for adjustable dates.
  */
-class AdjustableDateValueFormatter
+final class AdjustableDateValueFormatter
     implements ValueFormatter<AdjustableDate> {
 
   /**

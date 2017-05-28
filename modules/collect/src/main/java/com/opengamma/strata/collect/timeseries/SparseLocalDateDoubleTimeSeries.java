@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.collect.timeseries;
@@ -30,10 +30,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
@@ -41,7 +41,7 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.function.ObjDoublePredicate;
 
 /**
- * A immutable implementation of {@code DoubleTimeSeries} where the
+ * A immutable implementation of {@code LocalDateDoubleTimeSeries} where the
  * data stored is expected to be relatively sparse.
  * <p>
  * A sparse time-series has a relatively low density of dates with values.
@@ -51,7 +51,7 @@ import com.opengamma.strata.collect.function.ObjDoublePredicate;
  * <p>
  * This implementation uses arrays internally.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", metaScope = "package")
 final class SparseLocalDateDoubleTimeSeries
     implements ImmutableBean, Serializable, LocalDateDoubleTimeSeries {
 
@@ -422,7 +422,7 @@ final class SparseLocalDateDoubleTimeSeries
   /**
    * The meta-bean for {@code SparseLocalDateDoubleTimeSeries}.
    */
-  public static final class Meta extends DirectMetaBean {
+  static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -522,7 +522,7 @@ final class SparseLocalDateDoubleTimeSeries
   /**
    * The bean-builder for {@code SparseLocalDateDoubleTimeSeries}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<SparseLocalDateDoubleTimeSeries> {
+  private static final class Builder extends DirectPrivateBeanBuilder<SparseLocalDateDoubleTimeSeries> {
 
     private LocalDate[] dates;
     private double[] values;
@@ -531,6 +531,7 @@ final class SparseLocalDateDoubleTimeSeries
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -558,30 +559,6 @@ final class SparseLocalDateDoubleTimeSeries
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

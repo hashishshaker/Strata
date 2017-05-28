@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.pricer.swaption;
@@ -19,10 +19,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.param.ParameterMetadata;
@@ -30,7 +30,7 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 /**
  * Surface node metadata for a surface node for swaptions with a specific time to expiry and underlying swap tenor.
  * <p>
- * This typically represents a node of swaption volatility surface parameterized by expiry and tenor. 
+ * This typically represents a node of swaption volatility surface parameterized by expiry and tenor.
  * Alternative applications include a representation of a node on model parameter surface, e.g., SABR model parameters.
  */
 @BeanDefinition(builderScope = "private")
@@ -60,7 +60,7 @@ public final class SwaptionSurfaceExpiryTenorParameterMetadata
 
   //-------------------------------------------------------------------------
   /**
-   * Creates node metadata using swap convention, year fraction and strike. 
+   * Creates node metadata using swap convention, year fraction and strike.
    * 
    * @param yearFraction  the year fraction
    * @param tenor  the tenor
@@ -75,7 +75,7 @@ public final class SwaptionSurfaceExpiryTenorParameterMetadata
   }
 
   /**
-   * Creates node using swap convention, year fraction, strike and label.  
+   * Creates node using swap convention, year fraction, strike and label.
    * 
    * @param yearFraction  the year fraction
    * @param tenor  the tenor
@@ -336,7 +336,7 @@ public final class SwaptionSurfaceExpiryTenorParameterMetadata
   /**
    * The bean-builder for {@code SwaptionSurfaceExpiryTenorParameterMetadata}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<SwaptionSurfaceExpiryTenorParameterMetadata> {
+  private static final class Builder extends DirectPrivateBeanBuilder<SwaptionSurfaceExpiryTenorParameterMetadata> {
 
     private double yearFraction;
     private double tenor;
@@ -346,6 +346,7 @@ public final class SwaptionSurfaceExpiryTenorParameterMetadata
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -378,30 +379,6 @@ public final class SwaptionSurfaceExpiryTenorParameterMetadata
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

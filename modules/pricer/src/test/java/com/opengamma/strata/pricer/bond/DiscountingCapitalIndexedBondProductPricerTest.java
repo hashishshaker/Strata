@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -18,10 +18,10 @@ import static com.opengamma.strata.basics.index.PriceIndices.JP_CPI_EXF;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.pricer.CompoundedRateType.CONTINUOUS;
 import static com.opengamma.strata.pricer.CompoundedRateType.PERIODIC;
-import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT;
-import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.JAPAN_IL_COMPOUND;
-import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.JAPAN_IL_SIMPLE;
-import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.UK_IL_BOND;
+import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.GB_IL_BOND;
+import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.GB_IL_FLOAT;
+import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.JP_IL_COMPOUND;
+import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.JP_IL_SIMPLE;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.US_IL_REAL;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED_JAPAN;
@@ -241,18 +241,18 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_zSpreadFromCurvesAndPV() {
+  public void test_zSpreadFromCurvesAndPv() {
     CurrencyAmount pv = PRICER.presentValueWithZSpread(
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    double computed = PRICER.zSpreadFromCurvesAndPV(
+    double computed = PRICER.zSpreadFromCurvesAndPv(
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, pv, PERIODIC, PERIOD_PER_YEAR);
     assertEquals(computed, Z_SPREAD, TOL);
   }
 
-  public void test_zSpreadFromCurvesAndPV_exCoupon() {
+  public void test_zSpreadFromCurvesAndPv_exCoupon() {
     CurrencyAmount pv = PRICER.presentValueWithZSpread(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, CONTINUOUS, 0);
-    double computed = PRICER.zSpreadFromCurvesAndPV(
+    double computed = PRICER.zSpreadFromCurvesAndPv(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, pv, CONTINUOUS, 0);
     assertEquals(computed, Z_SPREAD, TOL);
   }
@@ -676,7 +676,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .dayCount(ACT_ACT_ICMA)
       .rateCalculation(RATE_CALC_GOV)
       .legalEntityId(LEGAL_ENTITY)
-      .yieldConvention(INDEX_LINKED_FLOAT)
+      .yieldConvention(GB_IL_FLOAT)
       .settlementDateOffset(SETTLE_OFFSET_GB)
       .accrualSchedule(SCHEDULE_GOV)
       .exCouponPeriod(EX_COUPON_GOV)
@@ -696,7 +696,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .dayCount(ACT_ACT_ICMA)
       .rateCalculation(RATE_CALC_GOV.toBuilder().firstIndexValue(START_INDEX_GOV_OP).build())
       .legalEntityId(LEGAL_ENTITY)
-      .yieldConvention(INDEX_LINKED_FLOAT)
+      .yieldConvention(GB_IL_FLOAT)
       .settlementDateOffset(SETTLE_OFFSET_GB)
       .accrualSchedule(SCHEDULE_GOV_OP)
       .exCouponPeriod(EX_COUPON_GOV)
@@ -790,7 +790,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .dayCount(ACT_ACT_ICMA)
       .rateCalculation(RATE_CALC_CORP)
       .legalEntityId(LEGAL_ENTITY)
-      .yieldConvention(UK_IL_BOND)
+      .yieldConvention(GB_IL_BOND)
       .settlementDateOffset(SETTLE_OFFSET_GB)
       .accrualSchedule(SCHEDULE_CORP)
       .exCouponPeriod(EX_COUPON_CORP)
@@ -888,7 +888,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .dayCount(NL_365)
       .rateCalculation(RATE_CALC_JPI)
       .legalEntityId(LEGAL_ENTITY)
-      .yieldConvention(JAPAN_IL_SIMPLE)
+      .yieldConvention(JP_IL_SIMPLE)
       .settlementDateOffset(SETTLE_OFFSET_JPI)
       .accrualSchedule(SCHEDULE_JPI)
       .build()
@@ -978,7 +978,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .dayCount(NL_365)
       .rateCalculation(RATE_CALC_JPW)
       .legalEntityId(LEGAL_ENTITY)
-      .yieldConvention(JAPAN_IL_COMPOUND)
+      .yieldConvention(JP_IL_COMPOUND)
       .settlementDateOffset(SETTLE_OFFSET_JPW)
       .accrualSchedule(SCHEDULE_JPW)
       .build()

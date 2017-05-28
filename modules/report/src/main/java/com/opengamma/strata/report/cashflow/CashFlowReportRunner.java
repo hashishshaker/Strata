@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.report.cashflow;
@@ -35,7 +35,7 @@ import com.opengamma.strata.report.ReportRunner;
 /**
  * Report runner for cash flow reports.
  */
-public class CashFlowReportRunner
+public final class CashFlowReportRunner
     implements ReportRunner<CashFlowReportTemplate> {
 
   // TODO - when the cashflow report INI file supports specific columns, the following maps should

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -70,7 +70,7 @@ public interface MarketDataFactory {
       ObservableDataProvider observableDataProvider,
       TimeSeriesProvider timeSeriesProvider,
       List<MarketDataFunction<?, ?>> functions) {
-    
+
     return new DefaultMarketDataFactory(observableDataProvider, timeSeriesProvider, functions);
   }
 

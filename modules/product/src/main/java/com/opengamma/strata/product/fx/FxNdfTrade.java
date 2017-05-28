@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -34,7 +34,7 @@ import com.opengamma.strata.product.TradeInfo;
  * An Over-The-Counter (OTC) trade in an {@link FxNdf}.
  * <p>
  * An NDF is a financial instrument that returns the difference between a fixed FX rate 
- * agreed at the inception of the trade and the FX rate at maturity. 
+ * agreed at the inception of the trade and the FX rate at maturity.
  * It is primarily used to handle FX requirements for currencies that have settlement restrictions.
  * For example, the forward may be between USD and CNY (Chinese Yuan).
  */
@@ -353,19 +353,31 @@ public final class FxNdfTrade
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

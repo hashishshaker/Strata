@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -30,6 +30,18 @@ public final class ColumnName
   @FromString
   public static ColumnName of(String name) {
     return new ColumnName(name);
+  }
+
+  /**
+   * Obtains an instance from the specified measure.
+   * <p>
+   * The column name will be the same as the name of the measure.
+   *
+   * @param measure  the measure to extract the name from
+   * @return a column with the same name as the measure
+   */
+  public static ColumnName of(Measure measure) {
+    return new ColumnName(measure.getName());
   }
 
   /**

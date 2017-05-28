@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -12,7 +12,7 @@ import com.google.common.base.CaseFormat;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * Reference price index calculation method. 
+ * Reference price index calculation method.
  * <p>
  * This defines how the reference index calculation occurs.
  * <p>
@@ -29,13 +29,13 @@ public enum PriceIndexCalculationMethod {
   /**
    * The reference index is linearly interpolated between two months.
    * The interpolation is done with the number of days of the payment month.
-   * The number of days is counted from the beginning of the month. 
+   * The number of days is counted from the beginning of the month.
    */
   INTERPOLATED,
   /**
    * The reference index is linearly interpolated between two months.
    * The interpolation is done with the number of days of the payment month.
-   * The number of days is counted from the 10th day of the month. 
+   * The number of days is counted from the 10th day of the month.
    */
   INTERPOLATED_JAPAN;
 

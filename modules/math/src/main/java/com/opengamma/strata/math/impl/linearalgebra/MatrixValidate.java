@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.linearalgebra;
@@ -11,6 +11,7 @@ import com.opengamma.strata.math.MathException;
 /**
  * 
  */
+//CSOFF: JavadocMethod
 public abstract class MatrixValidate {
 
   public static void notNaNOrInfinite(DoubleMatrix x) {

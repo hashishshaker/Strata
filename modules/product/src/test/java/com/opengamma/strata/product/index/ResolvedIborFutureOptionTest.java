@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -39,6 +39,7 @@ public class ResolvedIborFutureOptionTest {
     assertEquals(test.getExpiryDate(), PRODUCT.getExpiryDate());
     assertEquals(test.getRounding(), PRODUCT.getRounding());
     assertEquals(test.getUnderlyingFuture(), PRODUCT.getUnderlyingFuture().resolve(REF_DATA));
+    assertEquals(test.getIndex(), PRODUCT.getUnderlyingFuture().getIndex());
   }
 
   public void test_builder_expiryNotAfterTradeDate() {
@@ -49,6 +50,10 @@ public class ResolvedIborFutureOptionTest {
         .strikePrice(PRODUCT.getStrikePrice())
         .underlyingFuture(PRODUCT.getUnderlyingFuture().resolve(REF_DATA))
         .build());
+  }
+
+  public void test_builder_badPrice() {
+    assertThrowsIllegalArg(() -> sut().toBuilder().strikePrice(2.1).build());
   }
 
   //-------------------------------------------------------------------------

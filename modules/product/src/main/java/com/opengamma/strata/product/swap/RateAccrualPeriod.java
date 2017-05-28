@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -172,6 +172,31 @@ public final class RateAccrualPeriod
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
     ArgChecker.inOrderNotEqual(
         this.unadjustedStartDate, this.unadjustedEndDate, "unadjustedStartDate", "unadjustedEndDate");
+  }
+
+  // trusted constructor
+  RateAccrualPeriod(SchedulePeriod period, double yearFraction, RateComputation rateComputation) {
+    this(period, yearFraction, rateComputation, 1d, 0d, NegativeRateMethod.ALLOW_NEGATIVE);
+  }
+
+  // trusted constructor
+  RateAccrualPeriod(
+      SchedulePeriod period,
+      double yearFraction,
+      RateComputation rateComputation,
+      double gearing,
+      double spread,
+      NegativeRateMethod negativeRateMethod) {
+
+    this.startDate = period.getStartDate();
+    this.endDate = period.getEndDate();
+    this.unadjustedStartDate = period.getUnadjustedStartDate();
+    this.unadjustedEndDate = period.getUnadjustedEndDate();
+    this.yearFraction = yearFraction;
+    this.rateComputation = rateComputation;
+    this.gearing = gearing;
+    this.spread = spread;
+    this.negativeRateMethod = negativeRateMethod;
   }
 
   //-------------------------------------------------------------------------
@@ -757,19 +782,31 @@ public final class RateAccrualPeriod
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -32,13 +32,15 @@ import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.SecuritizedProductTrade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.rate.RateComputation;
-import com.opengamma.strata.product.swap.KnownAmountPaymentPeriod;
-import com.opengamma.strata.product.swap.PaymentPeriod;
 
 /**
  * A trade representing a capital indexed bond.
  * <p>
  * A trade in an underlying {@link CapitalIndexedBond}.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+ * For example, a price of 99.32% is represented in Strata by 0.9932.
  */
 @BeanDefinition(constructorScope = "package")
 public final class CapitalIndexedBondTrade
@@ -70,6 +72,9 @@ public final class CapitalIndexedBondTrade
    * The <i>clean</i> price at which the bond was traded.
    * <p>
    * The "clean" price excludes any accrued interest.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+   * For example, a price of 99.32% is represented in Strata by 0.9932.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative", overrideGet = true)
   private final double price;
@@ -91,9 +96,9 @@ public final class CapitalIndexedBondTrade
     if (settlementDate.isBefore(resolvedProduct.getStartDate())) {
       throw new IllegalArgumentException("Settlement date must not be before bond starts");
     }
-    PaymentPeriod settlement;
-    if (product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
-      settlement = KnownAmountPaymentPeriod.of(
+    BondPaymentPeriod settlement;
+    if (product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT)) {
+      settlement = KnownAmountBondPaymentPeriod.of(
           Payment.of(product.getCurrency(),
               -product.getNotional() * quantity * (price + accruedInterest), settlementDate),
           SchedulePeriod.of(
@@ -240,6 +245,9 @@ public final class CapitalIndexedBondTrade
    * Gets the <i>clean</i> price at which the bond was traded.
    * <p>
    * The "clean" price excludes any accrued interest.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+   * For example, a price of 99.32% is represented in Strata by 0.9932.
    * @return the value of the property
    */
   @Override
@@ -502,19 +510,31 @@ public final class CapitalIndexedBondTrade
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;
@@ -572,6 +592,9 @@ public final class CapitalIndexedBondTrade
      * Sets the <i>clean</i> price at which the bond was traded.
      * <p>
      * The "clean" price excludes any accrued interest.
+     * <p>
+     * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+     * For example, a price of 99.32% is represented in Strata by 0.9932.
      * @param price  the new value
      * @return this, for chaining, not null
      */

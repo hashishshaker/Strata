@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -218,7 +218,7 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
   /**
    * The meta-bean for {@code CalculationParameters}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(CalculationParameters.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(CalculationParameters.class);
 
   /**
    * The meta-bean for {@code CalculationParameters}.

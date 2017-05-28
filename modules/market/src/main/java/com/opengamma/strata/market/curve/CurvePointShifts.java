@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -7,6 +7,7 @@ package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -20,10 +21,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +52,7 @@ import com.opengamma.strata.market.param.ParameterMetadata;
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class CurvePointShifts
-    implements ScenarioPerturbation<Curve>, ImmutableBean {
+    implements ScenarioPerturbation<Curve>, ImmutableBean, Serializable {
 
   /** Logger. */
   private static final Logger log = LoggerFactory.getLogger(CurvePointShifts.class);
@@ -156,6 +157,11 @@ public final class CurvePointShifts
   static {
     JodaBeanUtils.registerMetaBean(CurvePointShifts.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Creates an instance.
@@ -381,7 +387,7 @@ public final class CurvePointShifts
   /**
    * The bean-builder for {@code CurvePointShifts}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<CurvePointShifts> {
+  private static final class Builder extends DirectPrivateBeanBuilder<CurvePointShifts> {
 
     private ShiftType shiftType;
     private DoubleMatrix shifts;
@@ -391,6 +397,7 @@ public final class CurvePointShifts
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -424,30 +431,6 @@ public final class CurvePointShifts
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

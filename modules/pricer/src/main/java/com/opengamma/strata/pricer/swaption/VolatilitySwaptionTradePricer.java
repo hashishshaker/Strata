@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -132,7 +132,8 @@ public class VolatilitySwaptionTradePricer {
       SwaptionVolatilities swaptionVolatilities) {
 
     ResolvedSwaption product = trade.getProduct();
-    SwaptionSensitivity pointSens = productPricer.presentValueSensitivityModelParamsVolatility(product, ratesProvider, swaptionVolatilities);
+    SwaptionSensitivity pointSens =
+        productPricer.presentValueSensitivityModelParamsVolatility(product, ratesProvider, swaptionVolatilities);
     return PointSensitivities.of(pointSens);
   }
 

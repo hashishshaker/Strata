@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.pricer.impl.rate.model;
@@ -24,7 +24,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 import com.opengamma.strata.math.impl.rootfinding.RidderSingleRootFinder;
-import com.opengamma.strata.pricer.index.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.strata.pricer.model.HullWhiteOneFactorPiecewiseConstantParameters;
 
 /**
  * Methods related to the Hull-White one factor (extended Vasicek) model with piecewise constant volatility.
@@ -40,7 +40,7 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the future convexity factor used in future pricing.  
+   * Calculates the future convexity factor used in future pricing.
    * <p>
    * The factor is called gamma in the reference: 
    * Henrard, M. "The Irony in the derivatives discounting Part II: the crisis", Wilmott Journal, 2010, 2, 301-316
@@ -69,15 +69,15 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
     double factor2 = 0.0;
     for (int loopperiod = 0; loopperiod < indexT0; loopperiod++) {
       factor2 += data.getVolatility().get(loopperiod) * data.getVolatility().get(loopperiod) *
-          (Math.exp(data.getMeanReversion() * s[loopperiod + 1]) - Math.exp(data.getMeanReversion() * s[loopperiod]))
-          * (2 - Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod + 1])) -
-          Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod])));
+          (Math.exp(data.getMeanReversion() * s[loopperiod + 1]) - Math.exp(data.getMeanReversion() * s[loopperiod])) *
+          (2 - Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod + 1])) -
+              Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod])));
     }
     return Math.exp(factor1 / numerator * factor2);
   }
 
   /**
-   * Calculates the future convexity factor and its derivatives with respect to the model volatilities. 
+   * Calculates the future convexity factor and its derivatives with respect to the model volatilities.
    * <p>
    * The factor is called gamma in the reference: 
    * Henrard, M. "The Irony in the derivatives discounting Part II: the crisis", Wilmott Journal, 2010, 2, 301-316
@@ -106,10 +106,10 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
     double factor2 = 0.0;
     double[] factorExp = new double[indexT0];
     for (int loopperiod = 0; loopperiod < indexT0; loopperiod++) {
-      factorExp[loopperiod] = (Math.exp(data.getMeanReversion() * s[loopperiod + 1])
-          - Math.exp(data.getMeanReversion() * s[loopperiod])) *
-          (2 - Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod + 1]))
-          - Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod])));
+      factorExp[loopperiod] =
+          (Math.exp(data.getMeanReversion() * s[loopperiod + 1]) - Math.exp(data.getMeanReversion() * s[loopperiod])) *
+              (2 - Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod + 1])) -
+                  Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod])));
       factor2 += data.getVolatility().get(loopperiod) * data.getVolatility().get(loopperiod) * factorExp[loopperiod];
     }
     double factor = Math.exp(factor1 / numerator * factor2);
@@ -124,7 +124,7 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
   }
 
   /**
-   * Calculates the payment delay convexity factor used in coupons with mismatched dates pricing. 
+   * Calculates the payment delay convexity factor used in coupons with mismatched dates pricing.
    * 
    * @param parameters  the Hull-White model parameters
    * @param startExpiry  the start expiry time
@@ -160,14 +160,14 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
       exp2as[loopperiod] = Math.exp(2 * a * s[loopperiod]);
     }
     for (int loopperiod = 0; loopperiod < sLen; loopperiod++) {
-      factor2 += parameters.getVolatility().get(loopperiod + indexStart - 1)
-          * parameters.getVolatility().get(loopperiod + indexStart - 1) * (exp2as[loopperiod + 1] - exp2as[loopperiod]);
+      factor2 += parameters.getVolatility().get(loopperiod + indexStart - 1) *
+          parameters.getVolatility().get(loopperiod + indexStart - 1) * (exp2as[loopperiod + 1] - exp2as[loopperiod]);
     }
     return Math.exp(factor1 * factor2 / numerator);
   }
 
   /**
-   * Calculates the (zero-coupon) bond volatility divided by a bond numeraire, i.e., alpha, for a given period. 
+   * Calculates the (zero-coupon) bond volatility divided by a bond numeraire, i.e., alpha, for a given period.
    * 
    * @param data  the Hull-White model data
    * @param startExpiry the start time of the expiry period
@@ -209,7 +209,7 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
 
   /**
    * Calculates the (zero-coupon) bond volatility divided by a bond numeraire, i.e., alpha, for a given period and 
-   * its derivatives. 
+   * its derivatives.
    * <p>
    * The derivative values are the derivatives of the function alpha with respect to the piecewise constant volatilities.
    *  
@@ -330,7 +330,7 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
   }
 
   /**
-   * Calculates the common part of the exercise boundary of European swaptions forward. 
+   * Calculates the common part of the exercise boundary of European swaptions forward.
    * <p>
    * This is intended to be used in particular for Bermudan swaption first step of the pricing.
    * <p>
@@ -811,8 +811,8 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
     double[] termFixedBar = new double[sizeFixed];
     for (int loopcf = 0; loopcf < sizeFixed; loopcf++) {
       termFixedBar[loopcf] = gBar - alphaFixed.get(loopcf) * dgBar + alphaFixed.get(loopcf) * alphaFixed.get(loopcf) * dg2Bar;
-      alphaFixedBar[loopcf] = termFixed[loopcf] * (-x - alphaFixed.get(loopcf)) * termFixedBar[loopcf]
-          - termFixed[loopcf] * dgBar + 2d * alphaFixed.get(loopcf) * termFixed[loopcf] * dg2Bar;
+      alphaFixedBar[loopcf] = termFixed[loopcf] * (-x - alphaFixed.get(loopcf)) * termFixedBar[loopcf] -
+          termFixed[loopcf] * dgBar + 2d * alphaFixed.get(loopcf) * termFixed[loopcf] * dg2Bar;
     }
     double[] alphaIborBar = new double[sizeIbor];
     double[] termIborBar = new double[sizeIbor];
@@ -829,7 +829,7 @@ public final class HullWhiteOneFactorPiecewiseConstantInterestRateModel implemen
   /**
    * The meta-bean for {@code HullWhiteOneFactorPiecewiseConstantInterestRateModel}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(HullWhiteOneFactorPiecewiseConstantInterestRateModel.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(HullWhiteOneFactorPiecewiseConstantInterestRateModel.class);
 
   /**
    * The meta-bean for {@code HullWhiteOneFactorPiecewiseConstantInterestRateModel}.

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -6,19 +6,19 @@
 package com.opengamma.strata.pricer.rate;
 
 import java.time.LocalDate;
-import java.util.Optional;
+import java.util.function.Consumer;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterPerturbation;
@@ -101,18 +101,6 @@ public interface IborIndexRates
    */
   public abstract LocalDateDoubleTimeSeries getFixings();
 
-  /**
-   * Finds the market data structure underlying this instance with the specified name.
-   * <p>
-   * This is most commonly used to find a {@link Curve} using a {@link CurveName}.
-   * If the market data cannot be found, empty is returned.
-   * 
-   * @param <T>  the type of the market data value
-   * @param name  the name to find
-   * @return the market data value, empty if not found
-   */
-  public abstract <T> Optional<T> findData(MarketDataName<T> name);
-
   //-------------------------------------------------------------------------
   @Override
   public abstract IborIndexRates withParameter(int parameterIndex, double newValue);
@@ -179,6 +167,40 @@ public interface IborIndexRates
    * @return the point sensitivity of the rate ignoring the time-series of fixings
    */
   public abstract PointSensitivityBuilder rateIgnoringFixingsPointSensitivity(IborIndexObservation observation);
+
+  /**
+   * Explains the calculation of the the historic or forward rate at the specified fixing date.
+   * <p>
+   * This adds information to the {@link ExplainMapBuilder} to aid understanding of the computation.
+   * It does this by adding a populated {@link ExplainKey#OBSERVATIONS} entry.
+   * The actual rate is also returned.
+   * 
+   * @param observation  the rate observation, including the fixing date
+   * @param builder  the builder to populate
+   * @param consumer  the consumer that receives the list entry builder and adds to it
+   * @return the rate of the index, either historic or forward
+   * @throws RuntimeException if the value cannot be obtained
+   */
+  public default double explainRate(
+      IborIndexObservation observation,
+      ExplainMapBuilder builder,
+      Consumer<ExplainMapBuilder> consumer) {
+
+    LocalDate fixingDate = observation.getFixingDate();
+    double rate = rate(observation);
+    ExplainMapBuilder child = builder.openListEntry(ExplainKey.OBSERVATIONS);
+    child.put(ExplainKey.ENTRY_TYPE, "IborIndexObservation");
+    child.put(ExplainKey.FIXING_DATE, fixingDate);
+    child.put(ExplainKey.INDEX, observation.getIndex());
+    child.put(ExplainKey.INDEX_VALUE, rate);
+    if (fixingDate.isBefore(getValuationDate()) ||
+        (fixingDate.equals(getValuationDate()) && getFixings().containsDate(fixingDate))) {
+      child.put(ExplainKey.FROM_FIXING_SERIES, true);
+    }
+    consumer.accept(child);
+    child.closeListEntry(ExplainKey.OBSERVATIONS);
+    return rate;
+  }
 
   //-------------------------------------------------------------------------
   /**

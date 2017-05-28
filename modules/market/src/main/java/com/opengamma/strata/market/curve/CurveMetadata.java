@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.market.curve;
@@ -90,6 +90,19 @@ public interface CurveMetadata {
    * @return the curve information
    */
   public abstract <T> Optional<T> findInfo(CurveInfoType<T> type);
+
+  /**
+   * Gets the metadata of the parameter at the specified index.
+   * <p>
+   * If there is no specific parameter metadata, an empty instance will be returned.
+   * 
+   * @param parameterIndex  the zero-based index of the parameter to get
+   * @return the metadata of the parameter
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  public default ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return getParameterMetadata().map(pm -> pm.get(parameterIndex)).orElse(ParameterMetadata.empty());
+  }
 
   /**
    * Gets metadata about each parameter underlying the curve, optional.

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -26,9 +26,9 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
-import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
-import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.amount.LegAmount;
 import com.opengamma.strata.market.amount.LegAmounts;
@@ -36,6 +36,7 @@ import com.opengamma.strata.market.amount.SwapLegAmount;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.param.CrossGammaParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -46,10 +47,10 @@ import com.opengamma.strata.pricer.sensitivity.CurveGammaCalculator;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapTradePricer;
 import com.opengamma.strata.product.swap.NotionalPaymentPeriod;
-import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 
 /**
  * Multi-scenario measure calculations for Swap trades.
@@ -67,6 +68,10 @@ final class SwapMeasureCalculations {
    * The market quote sensitivity calculator.
    */
   private static final MarketQuoteSensitivityCalculator MARKET_QUOTE_SENS = MarketQuoteSensitivityCalculator.DEFAULT;
+  /**
+   * The cross gamma sensitivity calculator.
+   */
+  private static final CurveGammaCalculator CROSS_GAMMA = CurveGammaCalculator.DEFAULT;
   /**
    * One basis point, expressed as a {@code double}.
    */
@@ -93,11 +98,11 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
-  MultiCurrencyValuesArray presentValue(
+  MultiCurrencyScenarioArray presentValue(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> presentValue(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -131,11 +136,11 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates calibrated sum PV01 for all scenarios
-  MultiCurrencyValuesArray pv01CalibratedSum(
+  MultiCurrencyScenarioArray pv01CalibratedSum(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> pv01CalibratedSum(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -171,11 +176,11 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates market quote sum PV01 for all scenarios
-  MultiCurrencyValuesArray pv01MarketQuoteSum(
+  MultiCurrencyScenarioArray pv01MarketQuoteSum(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> pv01MarketQuoteSum(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -273,12 +278,34 @@ final class SwapMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
-  // calculates par rate for all scenarios
-  ValuesArray parRate(
+  // calculates single-node gamma PV01 for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> pv01SingleNodeGammaBucketed(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return ValuesArray.of(
+    return ScenarioArray.of(
+        marketData.getScenarioCount(),
+        i -> pv01SingleNodeGammaBucketed(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // single-node gamma PV01 for one scenario
+  private CurrencyParameterSensitivities pv01SingleNodeGammaBucketed(
+      ResolvedSwapTrade trade,
+      RatesProvider ratesProvider) {
+
+    CrossGammaParameterSensitivities crossGamma = CROSS_GAMMA.calculateCrossGammaIntraCurve(
+        ratesProvider,
+        p -> p.parameterSensitivity(tradePricer.presentValueSensitivity(trade, p)));
+    return crossGamma.diagonal().multipliedBy(ONE_BASIS_POINT * ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates par rate for all scenarios
+  DoubleScenarioArray parRate(
+      ResolvedSwapTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return DoubleScenarioArray.of(
         marketData.getScenarioCount(),
         i -> parRate(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -293,11 +320,11 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates par spread for all scenarios
-  ValuesArray parSpread(
+  DoubleScenarioArray parSpread(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return ValuesArray.of(
+    return DoubleScenarioArray.of(
         marketData.getScenarioCount(),
         i -> parSpread(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -331,11 +358,11 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates accrued interest for all scenarios
-  MultiCurrencyValuesArray accruedInterest(
+  MultiCurrencyScenarioArray accruedInterest(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> accruedInterest(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -381,7 +408,7 @@ final class SwapMeasureCalculations {
   // find the notional
   private CurrencyAmount buildLegNotional(ResolvedSwapLeg leg) {
     // check for NotionalPaymentPeriod
-    PaymentPeriod firstPaymentPeriod = leg.getPaymentPeriods().get(0);
+    SwapPaymentPeriod firstPaymentPeriod = leg.getPaymentPeriods().get(0);
     if (firstPaymentPeriod instanceof NotionalPaymentPeriod) {
       NotionalPaymentPeriod pp = (NotionalPaymentPeriod) firstPaymentPeriod;
       return pp.getNotionalAmount().positive();
@@ -419,11 +446,11 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates currency exposure for all scenarios
-  MultiCurrencyValuesArray currencyExposure(
+  MultiCurrencyScenarioArray currencyExposure(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> currencyExposure(trade, marketData.scenario(i).ratesProvider()));
   }
@@ -438,11 +465,11 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates current cash for all scenarios
-  MultiCurrencyValuesArray currentCash(
+  MultiCurrencyScenarioArray currentCash(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return MultiCurrencyValuesArray.of(
+    return MultiCurrencyScenarioArray.of(
         marketData.getScenarioCount(),
         i -> currentCash(trade, marketData.scenario(i).ratesProvider()));
   }

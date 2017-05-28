@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -19,10 +19,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
@@ -40,12 +40,12 @@ public final class CashFlow
   /**
    * The payment date.
    * <p>
-   * This is the date on which the cash flow occurs. 
+   * This is the date on which the cash flow occurs.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate paymentDate;
   /**
-   * The present value of the cash flow. 
+   * The present value of the cash flow.
    * <p>
    * The present value is signed.
    * A negative value indicates a payment while a positive value indicates receipt.
@@ -61,7 +61,7 @@ public final class CashFlow
   @PropertyDefinition(validate = "notNull")
   private final CurrencyAmount forecastValue;
   /**
-   * The discount factor. 
+   * The discount factor.
    * <p>
    * This is the discount factor between valuation date and the payment date.
    * Thus present value is the forecast value multiplied by the discount factor.
@@ -72,7 +72,7 @@ public final class CashFlow
   //-------------------------------------------------------------------------
   /**
    * Creates a {@code CashFlow} representing a single cash flow from
-   * payment date, present value and discount factor. 
+   * payment date, present value and discount factor.
    * 
    * @param paymentDate  the payment date
    * @param presentValue  the present value as a currency amount
@@ -85,7 +85,7 @@ public final class CashFlow
 
   /**
    * Creates a {@code CashFlow} representing a single cash flow from payment date, present value amount, 
-   * discount factor and currency. 
+   * discount factor and currency.
    * 
    * @param paymentDate  the payment date
    * @param currency  the currency
@@ -112,7 +112,7 @@ public final class CashFlow
 
   /**
    * Creates a {@code CashFlow} representing a single cash flow from payment date, forecast value amount,
-   * discount factor and currency. 
+   * discount factor and currency.
    * 
    * @param paymentDate  the payment date
    * @param currency  the currency
@@ -436,7 +436,7 @@ public final class CashFlow
   /**
    * The bean-builder for {@code CashFlow}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<CashFlow> {
+  private static final class Builder extends DirectPrivateBeanBuilder<CashFlow> {
 
     private LocalDate paymentDate;
     private CurrencyAmount presentValue;
@@ -447,6 +447,7 @@ public final class CashFlow
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -484,30 +485,6 @@ public final class CashFlow
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

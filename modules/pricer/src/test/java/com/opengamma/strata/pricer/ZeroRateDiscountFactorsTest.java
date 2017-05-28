@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -28,8 +28,8 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.interpolator.CurveInterpolator;
-import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 
 /**
@@ -52,6 +52,7 @@ public class ZeroRateDiscountFactorsTest {
 
   private static final double SPREAD = 0.05;
   private static final double TOL = 1.0e-12;
+  private static final double TOL_FD = 1.0e-8;
   private static final double EPS = 1.0e-6;
 
   //-------------------------------------------------------------------------
@@ -92,6 +93,14 @@ public class ZeroRateDiscountFactorsTest {
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double expected = Math.exp(-relativeYearFraction * CURVE.yValue(relativeYearFraction));
     assertEquals(test.discountFactor(DATE_AFTER), expected);
+  }
+  
+  public void test_discountFactorTimeDerivative() {
+    DiscountFactors test = DiscountFactors.of(GBP, DATE_VAL, CURVE);
+    double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
+    double expectedP = test.discountFactor(relativeYearFraction + EPS);
+    double expectedM = test.discountFactor(relativeYearFraction - EPS);
+    assertEquals(test.discountFactorTimeDerivative(relativeYearFraction), (expectedP - expectedM) / (2 * EPS), TOL_FD);
   }
 
   //-------------------------------------------------------------------------

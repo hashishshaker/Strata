@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -16,9 +16,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.dsf.Dsf;
-import com.opengamma.strata.product.dsf.DsfTrade;
-import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
 
 /**
  * Test {@link DsfTrade}.

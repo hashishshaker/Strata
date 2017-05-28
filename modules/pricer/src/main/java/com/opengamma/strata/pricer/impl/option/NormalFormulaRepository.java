@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.pricer.impl.option;
@@ -345,7 +345,7 @@ public final class NormalFormulaRepository {
     double factor2 = 1.0d / (1.0d + (1.0d - lnFK * lnFK / 120.0d) / 24.0d * s2t + s2t * s2t / 5670.0d);
     return blackVolatility * factor1 * factor2;
   }
-  
+
   /**
    * Compute the implied volatility using an approximate explicit transformation formula and its derivative 
    * with respect to the input Black volatility.

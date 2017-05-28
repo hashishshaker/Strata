@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -25,13 +25,16 @@ public class BisectionSingleRootFinder extends RealSingleRootFinder {
   private static final double ZERO = 1e-16;
 
   /**
-   * Sets the accuracy to 10<sup>-15</sup>
+   * Creates an instance.
+   * Sets the accuracy to 10<sup>-15</sup>.
    */
   public BisectionSingleRootFinder() {
     this(1e-15);
   }
 
   /**
+   * Creates an instance.
+   * 
    * @param accuracy The required accuracy of the $x$-position of the root
    */
   public BisectionSingleRootFinder(double accuracy) {

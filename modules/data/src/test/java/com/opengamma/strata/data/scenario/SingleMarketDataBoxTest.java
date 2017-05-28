@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -46,7 +46,7 @@ public class SingleMarketDataBoxTest {
 
   public void getScenarioCount() {
     MarketDataBox<Integer> box = MarketDataBox.ofSingleValue(27);
-    assertThat(box.getScenarioCount()).isEqualTo(1);
+    assertThat(box.getScenarioCount()).isEqualTo(-1);
   }
 
   public void map() {

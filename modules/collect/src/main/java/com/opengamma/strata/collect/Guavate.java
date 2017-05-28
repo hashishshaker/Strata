@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -93,7 +93,7 @@ public final class Guavate {
     Spliterator<T> split1 = stream.spliterator();
     Iterator<T> it1 = Spliterators.iterator(split1);
     Iterator<ObjIntPair<T>> it = new Iterator<ObjIntPair<T>>() {
-      int index = 0;
+      private int index;
 
       @Override
       public boolean hasNext() {

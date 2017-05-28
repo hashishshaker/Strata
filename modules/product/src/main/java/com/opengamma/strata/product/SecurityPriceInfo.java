@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -20,10 +20,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -32,11 +32,21 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * Defines the meaning of the security price.
  * <p>
- * This provides information about the price of a security.
+ * A value of a security is measured in terms of a <i>price</i> which is not typically a monetary amount.
+ * Instead the price is an arbitrary number that can be converted to a monetary amount.
+ * The price will move up and down in <i>ticks</i>. This class provides the size and monetary
+ * value of each tick, allowing changes in the price to be converted to a monetary amount.
  * <p>
- * Tick size is the minimum movement in the price of the security.
- * Tick value is the monetary value of the minimum movement in the price of the security.
- * Contract size is the quantity of the underlying present in each derivative contract.
+ * Three properties define the necessary information:
+ * Tick size is the minimum movement in the price of the security (the tick).
+ * Tick value is the monetary value gained or lost when the price changes by one tick.
+ * Contract size is the quantity of the underlying present in each derivative contract,
+ * which acts as a multiplier.
+ * <p>
+ * For example, the price of an ICE Brent Crude future is based on the price of a barrel of crude oil in USD.
+ * The tick size of this contract is 0.01 (equivalent to 1 cent).
+ * The contract size is 1,000 barrels.
+ * Therefore the tick value is 0.01 * 1,000 = 10 USD.
  */
 @BeanDefinition(builderScope = "private")
 public final class SecurityPriceInfo
@@ -70,7 +80,7 @@ public final class SecurityPriceInfo
   /**
    * Multiplier to apply to the price.
    */
-  private final double tradeUnitValue;  // derived, not a property
+  private final transient double tradeUnitValue;  // derived, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -137,6 +147,11 @@ public final class SecurityPriceInfo
     this.tickValue = tickValue;
     this.contractSize = contractSize;
     this.tradeUnitValue = (tickValue.getAmount() * contractSize) / tickSize;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new SecurityPriceInfo(tickSize, tickValue, contractSize);
   }
 
   //-----------------------------------------------------------------------
@@ -301,12 +316,11 @@ public final class SecurityPriceInfo
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("SecurityPriceInfo{");
     buf.append("tickSize").append('=').append(tickSize).append(',').append(' ');
     buf.append("tickValue").append('=').append(tickValue).append(',').append(' ');
-    buf.append("contractSize").append('=').append(contractSize).append(',').append(' ');
-    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency()));
+    buf.append("contractSize").append('=').append(JodaBeanUtils.toString(contractSize));
     buf.append('}');
     return buf.toString();
   }
@@ -451,7 +465,7 @@ public final class SecurityPriceInfo
   /**
    * The bean-builder for {@code SecurityPriceInfo}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<SecurityPriceInfo> {
+  private static final class Builder extends DirectPrivateBeanBuilder<SecurityPriceInfo> {
 
     private double tickSize;
     private CurrencyAmount tickValue;
@@ -461,6 +475,7 @@ public final class SecurityPriceInfo
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -493,30 +508,6 @@ public final class SecurityPriceInfo
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -12,7 +12,8 @@ import com.opengamma.strata.math.MathException;
  * This code is an approximate translation of the equivalent function in the "Public Domain" code from SLATEC, see:
  * http://www.netlib.org/slatec/fnlib/initds.f
  */
-class INITDS {
+// CSOFF: AbbreviationAsWordInName
+final class INITDS {
 
   /**
    * Computes an orthogonal series based on coefficients "os" including sufficient terms to insure that the error is no larger than 'eta'.

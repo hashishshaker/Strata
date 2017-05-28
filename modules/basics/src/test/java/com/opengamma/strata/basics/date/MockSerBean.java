@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.date;
@@ -25,8 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 /**
  * Mock for serialization testing.
  */
-@BeanDefinition
-public class MockSerBean implements Bean {
+@BeanDefinition(style = "minimal")
+public final class MockSerBean implements Bean {
 
   @PropertyDefinition
   private BusinessDayConvention bdConvention;
@@ -86,14 +86,6 @@ public class MockSerBean implements Bean {
     this.bdConvention = bdConvention;
   }
 
-  /**
-   * Gets the the {@code bdConvention} property.
-   * @return the property, not null
-   */
-  public final Property<BusinessDayConvention> bdConvention() {
-    return metaBean().bdConvention().createProperty(this);
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the holidayCalendar.
@@ -109,14 +101,6 @@ public class MockSerBean implements Bean {
    */
   public void setHolidayCalendar(HolidayCalendar holidayCalendar) {
     this.holidayCalendar = holidayCalendar;
-  }
-
-  /**
-   * Gets the the {@code holidayCalendar} property.
-   * @return the property, not null
-   */
-  public final Property<HolidayCalendar> holidayCalendar() {
-    return metaBean().holidayCalendar().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -136,14 +120,6 @@ public class MockSerBean implements Bean {
     this.dayCount = dayCount;
   }
 
-  /**
-   * Gets the the {@code dayCount} property.
-   * @return the property, not null
-   */
-  public final Property<DayCount> dayCount() {
-    return metaBean().dayCount().createProperty(this);
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the objects.
@@ -159,14 +135,6 @@ public class MockSerBean implements Bean {
    */
   public void setObjects(List<Object> objects) {
     this.objects = objects;
-  }
-
-  /**
-   * Gets the the {@code objects} property.
-   * @return the property, not null
-   */
-  public final Property<List<Object>> objects() {
-    return metaBean().objects().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -204,27 +172,19 @@ public class MockSerBean implements Bean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("MockSerBean{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("bdConvention").append('=').append(getBdConvention()).append(',').append(' ');
+    buf.append("holidayCalendar").append('=').append(getHolidayCalendar()).append(',').append(' ');
+    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
+    buf.append("objects").append('=').append(JodaBeanUtils.toString(getObjects()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("bdConvention").append('=').append(JodaBeanUtils.toString(getBdConvention())).append(',').append(' ');
-    buf.append("holidayCalendar").append('=').append(JodaBeanUtils.toString(getHolidayCalendar())).append(',').append(' ');
-    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
-    buf.append("objects").append('=').append(JodaBeanUtils.toString(getObjects())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code MockSerBean}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -264,7 +224,7 @@ public class MockSerBean implements Bean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -295,39 +255,6 @@ public class MockSerBean implements Bean {
     @Override
     public Map<String, MetaProperty<?>> metaPropertyMap() {
       return metaPropertyMap$;
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code bdConvention} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<BusinessDayConvention> bdConvention() {
-      return bdConvention;
-    }
-
-    /**
-     * The meta-property for the {@code holidayCalendar} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<HolidayCalendar> holidayCalendar() {
-      return holidayCalendar;
-    }
-
-    /**
-     * The meta-property for the {@code dayCount} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<DayCount> dayCount() {
-      return dayCount;
-    }
-
-    /**
-     * The meta-property for the {@code objects} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<Object>> objects() {
-      return objects;
     }
 
     //-----------------------------------------------------------------------

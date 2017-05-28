@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.index;
@@ -91,6 +91,13 @@ public interface PriceIndex
    * @return the frequency of publication of the index
    */
   public abstract Frequency getPublicationFrequency();
+
+  /**
+   * Gets the floating rate name for this index.
+   * 
+   * @return the floating rate name
+   */
+  public abstract FloatingRateName getFloatingRateName();
 
   //-------------------------------------------------------------------------
   /**

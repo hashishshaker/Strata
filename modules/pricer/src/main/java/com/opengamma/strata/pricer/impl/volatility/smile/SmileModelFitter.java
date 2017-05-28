@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -24,7 +24,7 @@ import com.opengamma.strata.math.impl.statistics.leastsquare.NonLinearLeastSquar
  * Smile model fitter.
  * <p>
  * Attempts to calibrate a smile model to the implied volatilities of European vanilla options, by minimising the sum of 
- * squares between the market and model implied volatilities. 
+ * squares between the market and model implied volatilities.
  * <p>
  * All the options must be for the same expiry and (implicitly) on the same underlying.
  * 
@@ -40,14 +40,14 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
     }
   };
 
-  private final VolatilityFunctionProvider<T> _model;
-  private final Function<DoubleArray, DoubleArray> _volFunc;
-  private final Function<DoubleArray, DoubleMatrix> _volAdjointFunc;
-  private final DoubleArray _marketValues;
-  private final DoubleArray _errors;
+  private final VolatilityFunctionProvider<T> model;
+  private final Function<DoubleArray, DoubleArray> volFunc;
+  private final Function<DoubleArray, DoubleMatrix> volAdjointFunc;
+  private final DoubleArray marketValues;
+  private final DoubleArray errors;
 
   /**
-   * Constructs smile model fitter from forward, strikes, time to expiry, implied volatilities and error values. 
+   * Constructs smile model fitter from forward, strikes, time to expiry, implied volatilities and error values.
    * <p>
    * {@code strikes}, {@code impliedVols} and {@code error} should be the same length and ordered coherently.
    * 
@@ -73,27 +73,27 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
     ArgChecker.isTrue(n == impliedVols.size(), "vols not the same length as strikes");
     ArgChecker.isTrue(n == error.size(), "errors not the same length as strikes");
 
-    _marketValues = impliedVols;
-    _errors = error;
-    _model = model;
-    _volFunc = new Function<DoubleArray, DoubleArray>() {
+    this.marketValues = impliedVols;
+    this.errors = error;
+    this.model = model;
+    this.volFunc = new Function<DoubleArray, DoubleArray>() {
       @Override
       public DoubleArray apply(DoubleArray x) {
         final T data = toSmileModelData(x);
         double[] res = new double[n];
         for (int i = 0; i < n; ++i) {
-          res[i] = _model.volatility(forward, strikes.get(i), timeToExpiry, data);
+          res[i] = model.volatility(forward, strikes.get(i), timeToExpiry, data);
         }
         return DoubleArray.copyOf(res);
       }
     };
-    _volAdjointFunc = new Function<DoubleArray, DoubleMatrix>() {
+    this.volAdjointFunc = new Function<DoubleArray, DoubleMatrix>() {
       @Override
       public DoubleMatrix apply(DoubleArray x) {
         final T data = toSmileModelData(x);
         double[][] resAdj = new double[n][];
         for (int i = 0; i < n; ++i) {
-          DoubleArray deriv = _model.volatilityAdjoint(forward, strikes.get(i), timeToExpiry, data).getDerivatives();
+          DoubleArray deriv = model.volatilityAdjoint(forward, strikes.get(i), timeToExpiry, data).getDerivatives();
           resAdj[i] = deriv.subArray(2).toArrayUnsafe();
         }
         return DoubleMatrix.copyOf(resAdj);
@@ -102,7 +102,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   }
 
   /**
-   * Solves using the default NonLinearParameterTransforms for the concrete implementation. 
+   * Solves using the default NonLinearParameterTransforms for the concrete implementation.
    * <p>
    * This returns {@link LeastSquareResults}.
    * 
@@ -129,7 +129,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   }
 
   /**
-   * Solve using a user supplied NonLinearParameterTransforms. 
+   * Solve using a user supplied NonLinearParameterTransforms.
    * <p>
    * This returns {@link LeastSquareResults}.
    * 
@@ -138,21 +138,21 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * @return the calibration results
    */
   public LeastSquareResultsWithTransform solve(DoubleArray start, NonLinearParameterTransforms transform) {
-    NonLinearTransformFunction transFunc = new NonLinearTransformFunction(_volFunc, _volAdjointFunc, transform);
-    LeastSquareResults solRes = SOLVER.solve(_marketValues, _errors, transFunc.getFittingFunction(),
+    NonLinearTransformFunction transFunc = new NonLinearTransformFunction(volFunc, volAdjointFunc, transform);
+    LeastSquareResults solRes = SOLVER.solve(marketValues, errors, transFunc.getFittingFunction(),
         transFunc.getFittingJacobian(), transform.transform(start), getConstraintFunction(transform), getMaximumStep());
     return new LeastSquareResultsWithTransform(solRes, transform);
   }
 
   /**
-   * Obtains volatility function of the smile model. 
+   * Obtains volatility function of the smile model.
    * <p>
    * The function is defined in {@link VolatilityFunctionProvider}.
    * 
    * @return the function
    */
   protected Function<DoubleArray, DoubleArray> getModelValueFunction() {
-    return _volFunc;
+    return volFunc;
   }
 
   /**
@@ -163,18 +163,18 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * @return the function
    */
   protected Function<DoubleArray, DoubleMatrix> getModelJacobianFunction() {
-    return _volAdjointFunc;
+    return volAdjointFunc;
   }
 
   /**
    * Obtains the maximum number of iterations.
    * 
-   * @return the maximum number. 
+   * @return the maximum number.
    */
   protected abstract DoubleArray getMaximumStep();
 
   /**
-   * Obtains the nonlinear transformation of parameters from the initial values. 
+   * Obtains the nonlinear transformation of parameters from the initial values.
    * 
    * @param start  the initial values
    * @return the nonlinear transformation
@@ -182,7 +182,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   protected abstract NonLinearParameterTransforms getTransform(DoubleArray start);
 
   /**
-   * Obtains the nonlinear transformation of parameters from the initial values with some parameters fixed. 
+   * Obtains the nonlinear transformation of parameters from the initial values with some parameters fixed.
    * 
    * @param start  the initial values
    * @param fixed  the parameters are fixed
@@ -191,7 +191,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   protected abstract NonLinearParameterTransforms getTransform(DoubleArray start, BitSet fixed);
 
   /**
-   * Obtains {@code SmileModelData} instance from the model parameters. 
+   * Obtains {@code SmileModelData} instance from the model parameters.
    * 
    * @param modelParameters  the model parameters
    * @return the smile model data
@@ -199,7 +199,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   public abstract T toSmileModelData(DoubleArray modelParameters);
 
   /**
-   * Obtains the constraint function. 
+   * Obtains the constraint function.
    * <p>
    * This is defaulted to be "unconstrained".
    * 
@@ -212,12 +212,12 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   }
 
   /**
-   * Obtains the volatility function provider. 
+   * Obtains the volatility function provider.
    * 
    * @return the volatility function provider
    */
   public VolatilityFunctionProvider<T> getModel() {
-    return _model;
+    return model;
   }
 
 }

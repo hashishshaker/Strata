@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -26,6 +26,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.FxRateId;
+import com.opengamma.strata.data.ImmutableMarketData;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.ObservableSource;
 
@@ -48,6 +50,28 @@ public class ImmutableScenarioMarketDataBuilderTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_values() {
+    FxRateId eurGbpId = FxRateId.of(Currency.EUR, Currency.GBP);
+    FxRateId eurUsdId = FxRateId.of(Currency.EUR, Currency.USD);
+    FxRate eurGbpRate1 = FxRate.of(Currency.EUR, Currency.GBP, 0.85);
+    FxRate eurGbpRate2 = FxRate.of(Currency.EUR, Currency.GBP, 0.8);
+    FxRate eurUsdRate2 = FxRate.of(Currency.EUR, Currency.USD, 1.1);
+    Map<FxRateId, FxRate> values1 = ImmutableMap.of(
+        eurGbpId, eurGbpRate1);
+    Map<FxRateId, FxRate> values2 = ImmutableMap.of(
+        eurGbpId, eurGbpRate2,
+        eurUsdId, eurUsdRate2);
+
+    ImmutableScenarioMarketData marketData = ImmutableScenarioMarketData.builder(VAL_DATE)
+        .values(values1)
+        .values(values2)  // replaces values1
+        .build();
+    assertEquals(marketData.getScenarioCount(), 1);
+    assertEquals(marketData.getIds(), ImmutableSet.of(eurGbpId, eurUsdId));
+    assertEquals(marketData.getValue(eurGbpId), MarketDataBox.ofSingleValue(eurGbpRate2));
+    assertEquals(marketData.getValue(eurUsdId), MarketDataBox.ofSingleValue(eurUsdRate2));
+  }
+
   public void test_addSingleAndList() {
     FxRateId eurGbpId = FxRateId.of(Currency.EUR, Currency.GBP);
     FxRateId eurUsdId = FxRateId.of(Currency.EUR, Currency.USD);
@@ -119,9 +143,9 @@ public class ImmutableScenarioMarketDataBuilderTest {
   public void test_addScenarioValueMap() {
     FxRateId eurGbpId = FxRateId.of(Currency.EUR, Currency.GBP);
     FxRateId eurUsdId = FxRateId.of(Currency.EUR, Currency.USD);
-    FxRatesArray eurGbpRates = FxRatesArray.of(Currency.EUR, Currency.GBP, DoubleArray.of(0.79, 0.8, 0.81));
-    FxRatesArray eurUsdRates = FxRatesArray.of(Currency.EUR, Currency.USD, DoubleArray.of(1.09, 1.1, 1.11));
-    Map<FxRateId, FxRatesArray> values = ImmutableMap.of(
+    FxRateScenarioArray eurGbpRates = FxRateScenarioArray.of(Currency.EUR, Currency.GBP, DoubleArray.of(0.79, 0.8, 0.81));
+    FxRateScenarioArray eurUsdRates = FxRateScenarioArray.of(Currency.EUR, Currency.USD, DoubleArray.of(1.09, 1.1, 1.11));
+    Map<FxRateId, FxRateScenarioArray> values = ImmutableMap.of(
         eurGbpId, eurGbpRates,
         eurUsdId, eurUsdRates);
 
@@ -201,7 +225,7 @@ public class ImmutableScenarioMarketDataBuilderTest {
 
   public void test_combinedWithReceiverHasOneScenario() {
     ImmutableScenarioMarketData marketData1 = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
-        .addBox(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
+        .addBox(TEST_ID1, MarketDataBox.ofSingleValue(1.0))
         .build();
 
     ImmutableScenarioMarketData marketData2 = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
@@ -209,7 +233,7 @@ public class ImmutableScenarioMarketDataBuilderTest {
         .build();
 
     ImmutableScenarioMarketData expected = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
-        .addBox(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
+        .addBox(TEST_ID1, MarketDataBox.ofSingleValue(1.0))
         .addBox(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
         .build();
 
@@ -222,15 +246,71 @@ public class ImmutableScenarioMarketDataBuilderTest {
         .build();
 
     ImmutableScenarioMarketData marketData2 = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
-        .addBox(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
+        .addBox(TEST_ID1, MarketDataBox.ofSingleValue(1.0))
         .build();
 
     ImmutableScenarioMarketData expected = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
-        .addBox(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
+        .addBox(TEST_ID1, MarketDataBox.ofSingleValue(1.0))
         .addBox(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
         .build();
 
     assertThat(marketData1.combinedWith(marketData2)).isEqualTo(expected);
+  }
+
+  /**
+   * Tests the combinedWith method when the other set of market data is not an instance of ImmutableScenarioMarketData
+   */
+  public void test_combinedWithDifferentImpl() {
+    LocalDateDoubleTimeSeries timeSeries1 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 1)
+        .put(date(2011, 3, 9), 2)
+        .put(date(2011, 3, 10), 3)
+        .build();
+
+    LocalDateDoubleTimeSeries timeSeries2 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 10)
+        .put(date(2011, 3, 9), 20)
+        .put(date(2011, 3, 10), 30)
+        .build();
+
+    LocalDateDoubleTimeSeries timeSeries2a = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 1000)
+        .put(date(2011, 3, 9), 2000)
+        .put(date(2011, 3, 10), 3000)
+        .build();
+
+    LocalDateDoubleTimeSeries timeSeries3 = LocalDateDoubleTimeSeries.builder()
+        .put(date(2011, 3, 8), 100)
+        .put(date(2011, 3, 9), 200)
+        .put(date(2011, 3, 10), 300)
+        .build();
+
+    MarketData marketData = ImmutableMarketData.builder(LocalDate.of(2011, 3, 8))
+        .addTimeSeries(TEST_ID1, timeSeries1)
+        .addTimeSeries(TEST_ID2, timeSeries2)
+        .addValue(TEST_ID1, 1.1)
+        .addValue(TEST_ID2, 1.2)
+        .build();
+
+    RepeatedScenarioMarketData repeatedScenarioMarketData = RepeatedScenarioMarketData.of(3, marketData);
+
+    ImmutableScenarioMarketData immutableScenarioMarketData = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
+        .addTimeSeries(TEST_ID2, timeSeries2a)
+        .addTimeSeries(TEST_ID3, timeSeries3)
+        .addBox(TEST_ID2, MarketDataBox.ofScenarioValues(2.0, 2.1, 2.2))
+        .addBox(TEST_ID3, MarketDataBox.ofScenarioValues(3.0, 3.1, 3.2))
+        .build();
+
+    ScenarioMarketData combinedData = immutableScenarioMarketData.combinedWith(repeatedScenarioMarketData);
+    assertThat(combinedData.getScenarioCount()).isEqualTo(3);
+    assertThat(combinedData.getValue(TEST_ID1).getValue(0)).isEqualTo(1.1);
+    assertThat(combinedData.getValue(TEST_ID1).getValue(2)).isEqualTo(1.1);
+    assertThat(combinedData.getValue(TEST_ID1).getValue(3)).isEqualTo(1.1);
+    assertThat(combinedData.getValue(TEST_ID2)).isEqualTo(MarketDataBox.ofScenarioValues(2.0, 2.1, 2.2));
+    assertThat(combinedData.getValue(TEST_ID3)).isEqualTo(MarketDataBox.ofScenarioValues(3.0, 3.1, 3.2));
+    assertThat(combinedData.getTimeSeries(TEST_ID1)).isEqualTo(timeSeries1);
+    assertThat(combinedData.getTimeSeries(TEST_ID2)).isEqualTo(timeSeries2a);
+    assertThat(combinedData.getTimeSeries(TEST_ID3)).isEqualTo(timeSeries3);
   }
 
   //-------------------------------------------------------------------------

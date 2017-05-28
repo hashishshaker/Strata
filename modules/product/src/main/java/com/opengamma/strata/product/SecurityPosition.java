@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -49,7 +49,7 @@ public final class SecurityPosition
    * <p>
    * This allows additional information to be attached to the position.
    */
-  @PropertyDefinition(overrideGet = true)
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PositionInfo info;
   /**
    * The identifier of the underlying security.
@@ -191,7 +191,7 @@ public final class SecurityPosition
 
   /**
    * Creates an instance.
-   * @param info  the value of the property
+   * @param info  the value of the property, not null
    * @param securityId  the value of the property, not null
    * @param longQuantity  the value of the property
    * @param shortQuantity  the value of the property
@@ -201,6 +201,7 @@ public final class SecurityPosition
       SecurityId securityId,
       double longQuantity,
       double shortQuantity) {
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(securityId, "securityId");
     ArgChecker.notNegative(longQuantity, "longQuantity");
     ArgChecker.notNegative(shortQuantity, "shortQuantity");
@@ -230,7 +231,7 @@ public final class SecurityPosition
    * Gets the additional position information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the position.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   @Override
   public PositionInfo getInfo() {
@@ -309,13 +310,12 @@ public final class SecurityPosition
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("SecurityPosition{");
     buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("securityId").append('=').append(securityId).append(',').append(' ');
     buf.append("longQuantity").append('=').append(longQuantity).append(',').append(' ');
-    buf.append("shortQuantity").append('=').append(shortQuantity).append(',').append(' ');
-    buf.append("quantity").append('=').append(JodaBeanUtils.toString(getQuantity()));
+    buf.append("shortQuantity").append('=').append(JodaBeanUtils.toString(shortQuantity));
     buf.append('}');
     return buf.toString();
   }
@@ -547,19 +547,31 @@ public final class SecurityPosition
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;
@@ -579,10 +591,11 @@ public final class SecurityPosition
      * Sets the additional position information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the position.
-     * @param info  the new value
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder info(PositionInfo info) {
+      JodaBeanUtils.notNull(info, "info");
       this.info = info;
       return this;
     }

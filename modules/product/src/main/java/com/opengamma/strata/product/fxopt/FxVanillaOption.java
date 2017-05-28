@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -31,6 +31,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.fx.FxSingle;
@@ -42,7 +43,7 @@ import com.opengamma.strata.product.fx.FxSingle;
  * a foreign exchange. The option is European, exercised only on the exercise date.
  * <p>
  * For example, a call on a 'EUR 1.00 / USD -1.41' exchange is the option to
- * perform a foreign exchange on the expiry date, where USD 1.41 is paid to receive EUR 1.00. 
+ * perform a foreign exchange on the expiry date, where USD 1.41 is paid to receive EUR 1.00.
  */
 @BeanDefinition
 public final class FxVanillaOption
@@ -57,21 +58,21 @@ public final class FxVanillaOption
   @PropertyDefinition(validate = "notNull")
   private final LongShort longShort;
   /**
-   * The expiry date of the option.  
+   * The expiry date of the option.
    * <p>
-   * The option is European, and can only be exercised on the expiry date. 
+   * The option is European, and can only be exercised on the expiry date.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate expiryDate;
   /**
-   * The expiry time of the option.  
+   * The expiry time of the option.
    * <p>
    * The expiry time is related to the expiry date and time-zone.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalTime expiryTime;
   /**
-   * The time-zone of the expiry time.  
+   * The time-zone of the expiry time.
    * <p>
    * The expiry time-zone is related to the expiry date and time.
    */
@@ -81,8 +82,6 @@ public final class FxVanillaOption
    * The underlying foreign exchange transaction.
    * <p>
    * At expiry, if the option is in the money, this foreign exchange will occur.
-   * A call option permits the transaction as specified to occur.
-   * A put option permits the inverse transaction to occur.
    */
   @PropertyDefinition(validate = "notNull")
   private final FxSingle underlying;
@@ -94,6 +93,17 @@ public final class FxVanillaOption
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets currency pair of the base currency and counter currency.
+   * <p>
+   * This currency pair is conventional, thus indifferent to the direction of FX.
+   * 
+   * @return the currency pair
+   */
+  public CurrencyPair getCurrencyPair() {
+    return underlying.getCurrencyPair();
+  }
+
   /**
    * Gets the expiry date-time.
    * <p>
@@ -228,8 +238,6 @@ public final class FxVanillaOption
    * Gets the underlying foreign exchange transaction.
    * <p>
    * At expiry, if the option is in the money, this foreign exchange will occur.
-   * A call option permits the transaction as specified to occur.
-   * A put option permits the inverse transaction to occur.
    * @return the value of the property, not null
    */
   public FxSingle getUnderlying() {
@@ -518,19 +526,31 @@ public final class FxVanillaOption
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;
@@ -604,8 +624,6 @@ public final class FxVanillaOption
      * Sets the underlying foreign exchange transaction.
      * <p>
      * At expiry, if the option is in the money, this foreign exchange will occur.
-     * A call option permits the transaction as specified to occur.
-     * A put option permits the inverse transaction to occur.
      * @param underlying  the new value, not null
      * @return this, for chaining, not null
      */

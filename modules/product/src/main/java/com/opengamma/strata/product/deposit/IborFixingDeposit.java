@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -56,7 +56,7 @@ public final class IborFixingDeposit
   /**
    * Whether the Ibor fixing deposit is 'Buy' or 'Sell'.
    * <p>
-   * A value of 'Buy' implies that the floating rate is paid to the counterparty, with the fixed rate being received. 
+   * A value of 'Buy' implies that the floating rate is paid to the counterparty, with the fixed rate being received.
    * A value of 'Sell' implies that the floating rate is received from the counterparty, with the fixed rate being paid.
    */
   @PropertyDefinition(validate = "notNull")
@@ -816,19 +816,31 @@ public final class IborFixingDeposit
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

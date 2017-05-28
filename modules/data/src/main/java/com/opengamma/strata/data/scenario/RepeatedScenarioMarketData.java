@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -22,10 +22,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.base.Preconditions;
 import com.opengamma.strata.collect.ArgChecker;
@@ -115,6 +115,11 @@ final class RepeatedScenarioMarketData
   @SuppressWarnings("unchecked")
   public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
     return underlying.findIds(name);
+  }
+
+  @Override
+  public Set<ObservableId> getTimeSeriesIds() {
+    return underlying.getTimeSeriesIds();
   }
 
   @Override
@@ -225,7 +230,7 @@ final class RepeatedScenarioMarketData
   /**
    * The meta-bean for {@code RepeatedScenarioMarketData}.
    */
-  public static final class Meta extends DirectMetaBean {
+  static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -325,7 +330,7 @@ final class RepeatedScenarioMarketData
   /**
    * The bean-builder for {@code RepeatedScenarioMarketData}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<RepeatedScenarioMarketData> {
+  private static final class Builder extends DirectPrivateBeanBuilder<RepeatedScenarioMarketData> {
 
     private int scenarioCount;
     private MarketData underlying;
@@ -334,6 +339,7 @@ final class RepeatedScenarioMarketData
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -361,30 +367,6 @@ final class RepeatedScenarioMarketData
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

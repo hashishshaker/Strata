@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -39,6 +39,7 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.product.common.PayReceive;
 
 /**
@@ -141,7 +142,7 @@ public final class KnownAmountSwapLeg
    * Converts this swap leg to the equivalent {@code ResolvedSwapLeg}.
    * <p>
    * An {@link ResolvedSwapLeg} represents the same data as this leg, but with
-   * a complete schedule of dates defined using {@link KnownAmountPaymentPeriod}.
+   * a complete schedule of dates defined using {@link KnownAmountSwapPaymentPeriod}.
    * 
    * @param refData  the reference data to use when resolving
    * @return the equivalent resolved swap leg
@@ -152,29 +153,25 @@ public final class KnownAmountSwapLeg
   public ResolvedSwapLeg resolve(ReferenceData refData) {
     Schedule resolvedAccruals = accrualSchedule.createSchedule(refData);
     Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals, refData);
-    List<PaymentPeriod> payPeriods = createPaymentPeriods(resolvedPayments, refData);
-    return ResolvedSwapLeg.builder()
-        .type(getType())
-        .payReceive(payReceive)
-        .paymentPeriods(payPeriods)
-        .build();
+    List<SwapPaymentPeriod> payPeriods = createPaymentPeriods(resolvedPayments, refData);
+    return new ResolvedSwapLeg(getType(), payReceive, payPeriods, ImmutableList.of(), currency);
   }
 
   // create the payment period
-  private List<PaymentPeriod> createPaymentPeriods(Schedule resolvedPayments, ReferenceData refData) {
+  private List<SwapPaymentPeriod> createPaymentPeriods(Schedule resolvedPayments, ReferenceData refData) {
     // resolve amount schedule against payment schedule
-    List<Double> amounts = amount.resolveValues(resolvedPayments.getPeriods());
+    DoubleArray amounts = amount.resolveValues(resolvedPayments);
     // resolve against reference data once
     DateAdjuster paymentDateAdjuster = paymentSchedule.getPaymentDateOffset().resolve(refData);
     // build up payment periods using schedule
-    ImmutableList.Builder<PaymentPeriod> paymentPeriods = ImmutableList.builder();
+    ImmutableList.Builder<SwapPaymentPeriod> paymentPeriods = ImmutableList.builder();
     for (int index = 0; index < resolvedPayments.size(); index++) {
       SchedulePeriod paymentPeriod = resolvedPayments.getPeriod(index);
       LocalDate baseDate = paymentSchedule.getPaymentRelativeTo().selectBaseDate(paymentPeriod);
       LocalDate paymentDate = paymentDateAdjuster.adjust(baseDate);
       double amount = payReceive.normalize(amounts.get(index));
       Payment payment = Payment.of(CurrencyAmount.of(currency, amount), paymentDate);
-      paymentPeriods.add(KnownAmountPaymentPeriod.of(payment, paymentPeriod));
+      paymentPeriods.add(KnownAmountSwapPaymentPeriod.of(payment, paymentPeriod));
     }
     return paymentPeriods.build();
   }
@@ -351,16 +348,13 @@ public final class KnownAmountSwapLeg
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("KnownAmountSwapLeg{");
     buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
     buf.append("accrualSchedule").append('=').append(accrualSchedule).append(',').append(' ');
     buf.append("paymentSchedule").append('=').append(paymentSchedule).append(',').append(' ');
     buf.append("amount").append('=').append(amount).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate()));
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency));
     buf.append('}');
     return buf.toString();
   }
@@ -652,19 +646,31 @@ public final class KnownAmountSwapLeg
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

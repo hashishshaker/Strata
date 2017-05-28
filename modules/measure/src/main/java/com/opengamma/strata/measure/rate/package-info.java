@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -11,4 +11,3 @@
  * These supply FX rates, discount curves and forward curves.
  */
 package com.opengamma.strata.measure.rate;
-

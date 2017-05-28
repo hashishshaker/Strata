@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -22,10 +22,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
@@ -39,6 +39,7 @@ import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveInfoType;
+import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
@@ -82,7 +83,7 @@ public final class SimpleIborIndexRates
   /**
    * The day count convention of the curve.
    */
-  private final DayCount dayCount;  // cached, not a property
+  private final transient DayCount dayCount;  // cached, not a property
 
   /**
    * Obtains an instance from a curve, with an empty time-series of fixings.
@@ -90,6 +91,7 @@ public final class SimpleIborIndexRates
    * The curve is specified by an instance of {@link Curve}, such as {@link InterpolatedNodalCurve}.
    * The curve must have x-values of {@linkplain ValueType#YEAR_FRACTION year fractions} with
    * the day count specified. The y-values must be {@linkplain ValueType#FORWARD_RATE forward rates}.
+   * A suitable metadata instance for the curve can be created by {@link Curves#forwardRates(String, DayCount)}.
    * In the curve the Ibor rates are indexed by the maturity date.
    * 
    * @param index  the index
@@ -149,6 +151,11 @@ public final class SimpleIborIndexRates
     this.curve = curve;
     this.fixings = fixings;
     this.dayCount = dayCount;
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new SimpleIborIndexRates(index, valuationDate, curve, fixings);
   }
 
   //-------------------------------------------------------------------------
@@ -518,7 +525,7 @@ public final class SimpleIborIndexRates
   /**
    * The bean-builder for {@code SimpleIborIndexRates}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<SimpleIborIndexRates> {
+  private static final class Builder extends DirectPrivateBeanBuilder<SimpleIborIndexRates> {
 
     private IborIndex index;
     private LocalDate valuationDate;
@@ -529,6 +536,7 @@ public final class SimpleIborIndexRates
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -566,30 +574,6 @@ public final class SimpleIborIndexRates
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

@@ -1,9 +1,12 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.market.param;
+
+import static com.opengamma.strata.basics.currency.MultiCurrencyAmount.toMultiCurrencyAmount;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,10 +29,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
@@ -257,6 +260,25 @@ public final class CurrencyParameterSensitivities
     return new CurrencyParameterSensitivities(ImmutableList.copyOf(mutable));
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Splits this sensitivity instance.
+   * <p>
+   * This examines each individual sensitivity to see if it can be {@link CurrencyParameterSensitivity#split() split}.
+   * If any can be split, the result will contain the combination of the split sensitivities.
+   * 
+   * @return this sensitivity, with any combined sensitivities split
+   */
+  public CurrencyParameterSensitivities split() {
+    if (!sensitivities.stream().anyMatch(s -> s.getParameterSplit().isPresent())) {
+      return this;
+    }
+    return of(sensitivities.stream()
+        .flatMap(s -> s.split().stream())
+        .collect(toImmutableList()));
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Returns the total of the sensitivity values.
    * <p>
@@ -286,7 +308,7 @@ public final class CurrencyParameterSensitivities
   public MultiCurrencyAmount total() {
     return sensitivities.stream()
         .map(CurrencyParameterSensitivity::total)
-        .collect(MultiCurrencyAmount.collector());
+        .collect(toMultiCurrencyAmount());
   }
 
   //-------------------------------------------------------------------------
@@ -294,7 +316,7 @@ public final class CurrencyParameterSensitivities
    * Returns an instance with the sensitivity values multiplied by the specified factor.
    * <p>
    * The result will consist of the same entries, but with each sensitivity value multiplied.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param factor  the multiplicative factor
    * @return an instance based on this one, with each sensitivity multiplied by the factor
@@ -307,7 +329,7 @@ public final class CurrencyParameterSensitivities
    * Returns an instance with the specified operation applied to the sensitivity values.
    * <p>
    * The result will consist of the same entries, but with the operator applied to each sensitivity value.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * <p>
    * This is used to apply a mathematical operation to the sensitivity values.
    * For example, the operator could multiply the sensitivities by a constant, or take the inverse.
@@ -528,7 +550,7 @@ public final class CurrencyParameterSensitivities
   /**
    * The bean-builder for {@code CurrencyParameterSensitivities}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<CurrencyParameterSensitivities> {
+  private static final class Builder extends DirectPrivateBeanBuilder<CurrencyParameterSensitivities> {
 
     private List<CurrencyParameterSensitivity> sensitivities = ImmutableList.of();
 
@@ -536,6 +558,7 @@ public final class CurrencyParameterSensitivities
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -559,30 +582,6 @@ public final class CurrencyParameterSensitivities
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

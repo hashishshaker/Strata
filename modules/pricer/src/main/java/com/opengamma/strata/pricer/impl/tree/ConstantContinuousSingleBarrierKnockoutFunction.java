@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.pricer.impl.tree;
@@ -18,20 +18,20 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.product.common.PutCall;
-import com.opengamma.strata.product.fxopt.BarrierType;
+import com.opengamma.strata.product.option.BarrierType;
 
 /**
  * Single barrier knock-out option function.
  * <p>
- * The barrier is continuous and the level is constant. 
+ * The barrier is continuous and the level is constant.
  */
 @BeanDefinition(builderScope = "private")
 public final class ConstantContinuousSingleBarrierKnockoutFunction
@@ -48,7 +48,7 @@ public final class ConstantContinuousSingleBarrierKnockoutFunction
   @PropertyDefinition(overrideGet = true)
   private final double timeToExpiry;
   /**
-   * The sign. 
+   * The sign.
    * <p>
    * The sign is +1 for call and -1 for put.
    */
@@ -59,7 +59,7 @@ public final class ConstantContinuousSingleBarrierKnockoutFunction
    * The number of time steps.
    */
   @PropertyDefinition(overrideGet = true)
-  final int numberOfSteps;
+  private final int numberOfSteps;
 
   /**
    * The barrier type.
@@ -68,13 +68,13 @@ public final class ConstantContinuousSingleBarrierKnockoutFunction
   private final BarrierType barrierType;
 
   /**
-   * The constant barrier level. 
+   * The constant barrier level.
    */
   @PropertyDefinition
   private final double barrierLevel;
 
   /**
-   * The rebate. 
+   * The rebate.
    * <p>
    * The rebate amounts for individual time layer.
    * The size must be equal to {@code numberOfSteps + 1} 
@@ -84,7 +84,7 @@ public final class ConstantContinuousSingleBarrierKnockoutFunction
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance. 
+   * Obtains an instance.
    * 
    * @param strike  the strike
    * @param timeToExpiry  the time to expiry
@@ -489,7 +489,7 @@ public final class ConstantContinuousSingleBarrierKnockoutFunction
   /**
    * The bean-builder for {@code ConstantContinuousSingleBarrierKnockoutFunction}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<ConstantContinuousSingleBarrierKnockoutFunction> {
+  private static final class Builder extends DirectPrivateBeanBuilder<ConstantContinuousSingleBarrierKnockoutFunction> {
 
     private double strike;
     private double timeToExpiry;
@@ -503,6 +503,7 @@ public final class ConstantContinuousSingleBarrierKnockoutFunction
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -555,30 +556,6 @@ public final class ConstantContinuousSingleBarrierKnockoutFunction
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

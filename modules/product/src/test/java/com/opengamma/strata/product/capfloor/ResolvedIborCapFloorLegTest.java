@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -92,6 +92,8 @@ public class ResolvedIborCapFloorLegTest {
     assertEquals(test.getPayReceive(), RECEIVE);
     assertEquals(test.getStartDate(), PERIOD_1.getStartDate());
     assertEquals(test.getEndDate(), PERIOD_4.getEndDate());
+    assertEquals(test.getFinalPeriod(), PERIOD_4);
+    assertEquals(test.getFinalFixingDateTime(), PERIOD_4.getFixingDateTime());
     assertEquals(test.getCurrency(), EUR);
     assertEquals(test.getIndex(), EUR_EURIBOR_3M);
   }

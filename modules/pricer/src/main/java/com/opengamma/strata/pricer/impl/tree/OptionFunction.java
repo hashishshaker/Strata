@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.pricer.impl.tree;
@@ -56,8 +56,8 @@ public interface OptionFunction {
   /**
    * Computes payoff at expiry for trinomial tree.
    * <p>
-   * The payoff values for individual nodes at expiry are computed from state values at the final layer. 
-   * For example, the state values represent underlying prices of an option at respective nodes. 
+   * The payoff values for individual nodes at expiry are computed from state values at the final layer.
+   * For example, the state values represent underlying prices of an option at respective nodes.
    * 
    * @param stateValue  the state values
    * @return the payoff at expiry
@@ -69,7 +69,7 @@ public interface OptionFunction {
    * <p>
    * Given a set of option values in the (i+1)-th layer, option values in the i-th layer are derived.
    * For an option with path-dependence, {@link #getNextOptionValues(double, DoubleMatrix, DoubleArray, DoubleArray, int)} 
-   * should be overridden rather than this method. 
+   * should be overridden rather than this method.
    * <p>
    * The size of {@code values} must be (2*i+3). However, this is not checked because of its repeated usage.
    * 
@@ -96,7 +96,7 @@ public interface OptionFunction {
       int i) {
 
     int nNodes = 2 * i + 1;
-    double[] probsAtNode = new double[] {downProbability, middleProbability, upProbability };
+    double[] probsAtNode = new double[] {downProbability, middleProbability, upProbability};
     double[][] probs = new double[nNodes][];
     Arrays.fill(probs, probsAtNode);
     DoubleArray stateValue = DoubleArray.of(nNodes, k -> spot * Math.pow(downFactor, i - k) * Math.pow(middleFactor, k));
@@ -110,7 +110,7 @@ public interface OptionFunction {
    * The down, middle and up probabilities of the j-th lowest node are stored in the {i,0}, {i,1}, {i,2} components of  
    * {@code transitionProbability}, respectively.
    * <p>
-   * For an option with path-dependence, this method should be overridden. 
+   * For an option with path-dependence, this method should be overridden.
    * 
    * @param discountFactor  the discount factor between the two layers
    * @param transitionProbability  the transition probability
@@ -128,7 +128,7 @@ public interface OptionFunction {
 
     int nNodes = 2 * i + 1;
     return DoubleArray.of(nNodes, j -> discountFactor * (transitionProbability.get(j, 2) * value.get(j + 2) +
-            transitionProbability.get(j, 1) * value.get(j + 1) + transitionProbability.get(j, 0) * value.get(j)));
+        transitionProbability.get(j, 1) * value.get(j + 1) + transitionProbability.get(j, 0) * value.get(j)));
   }
 
 }

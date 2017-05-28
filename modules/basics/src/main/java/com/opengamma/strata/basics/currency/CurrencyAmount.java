@@ -1,11 +1,12 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.currency;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
@@ -25,9 +26,9 @@ import com.opengamma.strata.collect.ArgChecker;
  * It is specifically named "CurrencyAmount" and not "Money" to indicate that
  * it simply holds a currency and an amount. By contrast, naming it "Money"
  * would imply it was a suitable choice for accounting purposes, which it is not.
- * <p>
  * This design approach has been chosen primarily for performance reasons.
  * Using a {@code BigDecimal} is markedly slower.
+ * See the {@link Money} class for the alternative that uses {@link BigDecimal}.
  * <p>
  * A {@code double} is a 64 bit floating point value suitable for most calculations.
  * Floating point maths is
@@ -51,11 +52,13 @@ public final class CurrencyAmount
 
   /**
    * The currency.
+   * <p>
    * For example, in the value 'GBP 12.34' the currency is 'GBP'.
    */
   private final Currency currency;
   /**
    * The amount of the currency.
+   * <p>
    * For example, in the value 'GBP 12.34' the amount is 12.34.
    */
   private final double amount;
@@ -103,7 +106,7 @@ public final class CurrencyAmount
    * Parses the string to produce a {@code CurrencyAmount}.
    * <p>
    * This parses the {@code toString} format of '${currency} ${amount}'.
-   * 
+   *
    * @param amountStr  the amount string
    * @return the currency amount
    * @throws IllegalArgumentException if the amount cannot be parsed
@@ -127,7 +130,7 @@ public final class CurrencyAmount
   //-------------------------------------------------------------------------
   /**
    * Creates an instance.
-   * 
+   *
    * @param currency  the currency
    * @param amount  the amount
    */
@@ -141,7 +144,7 @@ public final class CurrencyAmount
    * Gets the currency.
    * <p>
    * For example, in the value 'GBP 12.34' the currency is 'GBP'.
-   * 
+   *
    * @return the currency
    */
   public Currency getCurrency() {
@@ -152,7 +155,7 @@ public final class CurrencyAmount
    * Gets the amount of the currency.
    * <p>
    * For example, in the value 'GBP 12.34' the amount is 12.34.
-   * 
+   *
    * @return the amount
    */
   public double getAmount() {
@@ -166,7 +169,7 @@ public final class CurrencyAmount
    * This adds the specified amount to this monetary amount, returning a new object.
    * The addition simply uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToAdd  the amount to add, in the same currency
    * @return an amount based on this with the specified amount added
@@ -184,7 +187,7 @@ public final class CurrencyAmount
    * This adds the specified amount to this monetary amount, returning a new object.
    * The addition simply uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToAdd  the amount to add
    * @return an amount based on this with the specified amount added
@@ -199,7 +202,7 @@ public final class CurrencyAmount
    * This subtracts the specified amount to this monetary amount, returning a new object.
    * The addition simply uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToSubtract  the amount to subtract, in the same currency
    * @return an amount based on this with the specified amount subtracted
@@ -217,7 +220,7 @@ public final class CurrencyAmount
    * This subtracts the specified amount to this monetary amount, returning a new object.
    * The addition simply uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param amountToSubtract  the amount to subtract
    * @return an amount based on this with the specified amount subtracted
@@ -233,7 +236,7 @@ public final class CurrencyAmount
    * This takes this amount and multiplies it by the specified value.
    * The multiplication simply uses standard {@code double} arithmetic.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param valueToMultiplyBy  the scalar amount to multiply by
    * @return an amount based on this with the amount multiplied
@@ -263,14 +266,15 @@ public final class CurrencyAmount
   /**
    * Returns a copy of this {@code CurrencyAmount} with the amount negated.
    * <p>
-   * This takes this amount and negates it.
+   * This takes this amount and negates it. If the amount is 0.0 or -0.0 the negated amount is 0.0.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @return an amount based on this with the amount negated
    */
   public CurrencyAmount negated() {
-    return new CurrencyAmount(currency, -amount);
+    // Zero is treated as a special case to avoid creating -0.0 which produces surprising equality behaviour
+    return new CurrencyAmount(currency, amount == 0d ? 0d : -amount);
   }
 
   /**
@@ -278,7 +282,7 @@ public final class CurrencyAmount
    * <p>
    * The result of this method will always be positive, where the amount is equal to {@code Math.abs(amount)}.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @return a currency amount based on this where the amount is positive
    */
@@ -291,7 +295,7 @@ public final class CurrencyAmount
    * <p>
    * The result of this method will always be negative, equal to {@code -Math.abs(amount)}.
    * <p>
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @return a currency amount based on this where the amount is negative
    */
@@ -300,6 +304,18 @@ public final class CurrencyAmount
   }
 
   //-------------------------------------------------------------------------
+
+  /**
+   * Converts the current instance of {@link CurrencyAmount} to the equivalent {@link Money} instance.
+   * This will result into loss of precision in the amount, since {@link Money} is storing the amount
+   * rounded to the currency specification.
+   *
+   * @return The newly created instance of {@link Money}.
+   */
+  public Money toMoney() {
+    return Money.of(this.getCurrency(), this.getAmount());
+  }
+
   /**
    * Converts this amount to an equivalent amount the specified currency.
    * <p>
@@ -308,7 +324,7 @@ public final class CurrencyAmount
    * <p>
    * For example, if this represents 'GBP 100' and this method is called with
    * arguments {@code (USD, 1.6)} then the result will be 'USD 160'.
-   * 
+   *
    * @param resultCurrency  the currency of the result
    * @param fxRate  the FX rate from this currency to the result currency
    * @return the converted instance, which should be expressed in the specified currency
@@ -329,7 +345,7 @@ public final class CurrencyAmount
    * <p>
    * The result will be expressed in terms of the given currency.
    * If conversion is needed, the provider will be used to supply the FX rate.
-   * 
+   *
    * @param resultCurrency  the currency of the result
    * @param rateProvider  the provider of FX rates
    * @return the converted instance, in the specified currency
@@ -349,7 +365,7 @@ public final class CurrencyAmount
    * Compares this currency amount to another.
    * <p>
    * This compares currencies alphabetically, then by amount.
-   * 
+   *
    * @param other  the other amount
    * @return negative if less, zero if equal, positive if greater
    */
@@ -361,9 +377,10 @@ public final class CurrencyAmount
         .result();
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Checks if this currency amount equals another.
-   * 
+   *
    * @param obj  the other amount, null returns false
    * @return true if equal
    */
@@ -382,7 +399,7 @@ public final class CurrencyAmount
 
   /**
    * Returns a suitable hash code for the currency.
-   * 
+   *
    * @return the hash code
    */
   @Override
@@ -396,7 +413,7 @@ public final class CurrencyAmount
    * <p>
    * The format is the currency code, followed by a space, followed by the
    * amount: '${currency} ${amount}'.
-   * 
+   *
    * @return the currency amount
    */
   @Override

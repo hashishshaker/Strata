@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.market.amount;
@@ -18,9 +18,9 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.product.common.PayReceive;
-import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
+import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 
 /**
  * Test {@link SwapLegAmount}.
@@ -31,7 +31,7 @@ public class SwapLegAmountTest {
   private static final CurrencyAmount CURRENCY_AMOUNT = CurrencyAmount.of(Currency.USD, 123.45);
 
   public void test_of() {
-    PaymentPeriod pp = mock(PaymentPeriod.class);
+    SwapPaymentPeriod pp = mock(SwapPaymentPeriod.class);
     when(pp.getCurrency()).thenReturn(Currency.GBP);
     ResolvedSwapLeg leg = ResolvedSwapLeg.builder()
         .type(SwapLegType.FIXED)

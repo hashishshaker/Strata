@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.report.framework.expression;
@@ -37,7 +37,7 @@ import com.opengamma.strata.report.ReportCalculationResults;
  * </ul>
  * The result of evaluating the expression is the index name.
  */
-public class ValuePathEvaluator {
+public final class ValuePathEvaluator {
 
   /** The separator used in the value path. */
   private static final String PATH_SEPARATOR = "\\.";

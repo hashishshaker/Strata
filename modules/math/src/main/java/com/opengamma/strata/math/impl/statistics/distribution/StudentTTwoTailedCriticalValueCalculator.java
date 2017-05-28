@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.statistics.distribution;
@@ -12,8 +12,9 @@ import com.opengamma.strata.collect.ArgChecker;
 import cern.jet.random.engine.RandomEngine;
 
 /**
- * 
+ * StudentT calculator.
  */
+// CSOFF: JavadocMethod
 public class StudentTTwoTailedCriticalValueCalculator implements Function<Double, Double> {
 
   private final Function<Double, Double> _calc;

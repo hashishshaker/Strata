@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -16,6 +16,7 @@ import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
  * This class is a wrapper for the <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/linear/SingularValueDecompositionImpl.html">Commons Math library implementation</a>
  * of singular value decomposition.
  */
+// CSOFF: AbbreviationAsWordInName
 public class SVDecompositionCommons extends Decomposition<SVDecompositionResult> {
 
   @Override

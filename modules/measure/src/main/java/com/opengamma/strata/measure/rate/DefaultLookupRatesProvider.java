@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -7,7 +7,10 @@ package com.opengamma.strata.measure.rate;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
+import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -36,16 +39,18 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.MarketDataName;
+import com.opengamma.strata.data.MarketDataNotFoundException;
+import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveId;
-import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
-import com.opengamma.strata.pricer.fx.DiscountFxIndexRates;
+import com.opengamma.strata.pricer.fx.ForwardFxIndexRates;
 import com.opengamma.strata.pricer.fx.FxForwardRates;
 import com.opengamma.strata.pricer.fx.FxIndexRates;
 import com.opengamma.strata.pricer.rate.IborIndexRates;
+import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.OvernightIndexRates;
 import com.opengamma.strata.pricer.rate.PriceIndexValues;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -57,7 +62,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  */
 @BeanDefinition(style = "light")
 final class DefaultLookupRatesProvider
-    implements RatesProvider, ImmutableBean {
+    implements RatesProvider, ImmutableBean, Serializable {
 
   /**
    * The lookup.
@@ -72,7 +77,7 @@ final class DefaultLookupRatesProvider
   /**
    * The FX rate provider.
    */
-  private final FxRateProvider fxRateProvider;  // derived
+  private final transient FxRateProvider fxRateProvider;  // derived
 
   //-------------------------------------------------------------------------
   /**
@@ -94,6 +99,11 @@ final class DefaultLookupRatesProvider
     this.lookup = ArgChecker.notNull(lookup, "lookup");
     this.marketData = ArgChecker.notNull(marketData, "marketData");
     this.fxRateProvider = lookup.fxRateProvider(marketData);
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new DefaultLookupRatesProvider(lookup, marketData);
   }
 
   //-------------------------------------------------------------------------
@@ -163,7 +173,7 @@ final class DefaultLookupRatesProvider
   public DiscountFactors discountFactors(Currency currency) {
     CurveId curveId = lookup.getDiscountCurves().get(currency);
     if (curveId == null) {
-      throw new IllegalArgumentException(lookup.msgCurrencyNotFound(currency));
+      throw new MarketDataNotFoundException(lookup.msgCurrencyNotFound(currency));
     }
     Curve curve = marketData.getValue(curveId);
     return DiscountFactors.of(currency, getValuationDate(), curve);
@@ -173,7 +183,7 @@ final class DefaultLookupRatesProvider
   @Override
   public FxIndexRates fxIndexRates(FxIndex index) {
     FxForwardRates fxForwardRates = fxForwardRates(index.getCurrencyPair());
-    return DiscountFxIndexRates.of(index, fxForwardRates, timeSeries(index));
+    return ForwardFxIndexRates.of(index, fxForwardRates, timeSeries(index));
   }
 
   //-------------------------------------------------------------------------
@@ -190,7 +200,7 @@ final class DefaultLookupRatesProvider
   public IborIndexRates iborIndexRates(IborIndex index) {
     CurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
-      throw new IllegalArgumentException(lookup.msgIndexNotFound(index));
+      throw new MarketDataNotFoundException(lookup.msgIndexNotFound(index));
     }
     Curve curve = marketData.getValue(curveId);
     return IborIndexRates.of(index, getValuationDate(), curve, timeSeries(index));
@@ -201,7 +211,7 @@ final class DefaultLookupRatesProvider
   public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
     CurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
-      throw new IllegalArgumentException(lookup.msgIndexNotFound(index));
+      throw new MarketDataNotFoundException(lookup.msgIndexNotFound(index));
     }
     Curve curve = marketData.getValue(curveId);
     return OvernightIndexRates.of(index, getValuationDate(), curve, timeSeries(index));
@@ -212,13 +222,46 @@ final class DefaultLookupRatesProvider
   public PriceIndexValues priceIndexValues(PriceIndex index) {
     CurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
-      throw new IllegalArgumentException(lookup.msgIndexNotFound(index));
+      throw new MarketDataNotFoundException(lookup.msgIndexNotFound(index));
     }
     Curve curve = marketData.getValue(curveId);
-    if (!(curve instanceof InterpolatedNodalCurve)) {
-      throw new IllegalArgumentException("Curve must be an InterpolatedNodalCurve: " + index);
+    return PriceIndexValues.of(index, getValuationDate(), curve, timeSeries(index));
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ImmutableRatesProvider toImmutableRatesProvider() {
+    // discount curves
+    Map<Currency, Curve> dscMap = new HashMap<>();
+    for (Currency currency : lookup.getDiscountCurrencies()) {
+      CurveId curveId = lookup.getDiscountCurves().get(currency);
+      if (curveId != null && marketData.containsValue(curveId)) {
+        dscMap.put(currency, marketData.getValue(curveId));
+      }
     }
-    return PriceIndexValues.of(index, getValuationDate(), (InterpolatedNodalCurve) curve, timeSeries(index));
+    // forward curves
+    Map<Index, Curve> fwdMap = new HashMap<>();
+    for (Index index : lookup.getForwardIndices()) {
+      CurveId curveId = lookup.getForwardCurves().get(index);
+      if (curveId != null && marketData.containsValue(curveId)) {
+        fwdMap.put(index, marketData.getValue(curveId));
+      }
+    }
+    // time-series
+    Map<Index, LocalDateDoubleTimeSeries> tsMap = new HashMap<>();
+    for (ObservableId id : marketData.getTimeSeriesIds()) {
+      if (id instanceof IndexQuoteId) {
+        IndexQuoteId indexId = (IndexQuoteId) id;
+        tsMap.put(indexId.getIndex(), marketData.getTimeSeries(id));
+      }
+    }
+    // build result
+    return ImmutableRatesProvider.builder(getValuationDate())
+        .discountCurves(dscMap)
+        .indexCurves(fwdMap)
+        .timeSeries(tsMap)
+        .fxRateProvider(fxRateProvider)
+        .build();
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -226,7 +269,7 @@ final class DefaultLookupRatesProvider
   /**
    * The meta-bean for {@code DefaultLookupRatesProvider}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(DefaultLookupRatesProvider.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(DefaultLookupRatesProvider.class);
 
   /**
    * The meta-bean for {@code DefaultLookupRatesProvider}.
@@ -239,6 +282,11 @@ final class DefaultLookupRatesProvider
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public MetaBean metaBean() {

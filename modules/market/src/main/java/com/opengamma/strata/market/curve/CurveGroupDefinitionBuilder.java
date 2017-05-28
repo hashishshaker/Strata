@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -33,7 +33,11 @@ public final class CurveGroupDefinitionBuilder {
   /**
    * The definitions specifying how the curves are calibrated.
    */
-  private final Map<CurveName, NodalCurveDefinition> curveDefinitions;
+  private final Map<CurveName, CurveDefinition> curveDefinitions;
+  /**
+   * The definitions specifying which seasonality should be used some some price index curves.
+   */
+  private final Map<CurveName, SeasonalityDefinition> seasonalityDefinitions;
   /**
    * Flag indicating if the Jacobian matrices should be computed and stored in metadata or not.
    * The default value is 'true'.
@@ -43,22 +47,25 @@ public final class CurveGroupDefinitionBuilder {
    * Flag indicating if present value sensitivity to market quotes should be computed and stored in metadata or not.
    * The default value is 'false'.
    */
-  private boolean computePvSensitivityToMarketQuote = false;
+  private boolean computePvSensitivityToMarketQuote;
 
   CurveGroupDefinitionBuilder() {
     this.entries = new LinkedHashMap<>();
     this.curveDefinitions = new LinkedHashMap<>();
+    this.seasonalityDefinitions = new LinkedHashMap<>();
   }
 
   CurveGroupDefinitionBuilder(
       CurveGroupName name,
       Map<CurveName, CurveGroupEntry> entries,
-      Map<CurveName, NodalCurveDefinition> curveDefinitions,
+      Map<CurveName, CurveDefinition> curveDefinitions,
+      Map<CurveName, SeasonalityDefinition> seasonalityDefinitions,
       boolean computeJacobian,
       boolean computePvSensitivityToMarketQuote) {
     this.name = name;
     this.entries = entries;
     this.curveDefinitions = curveDefinitions;
+    this.seasonalityDefinitions = seasonalityDefinitions;
     this.computeJacobian = computeJacobian;
     this.computePvSensitivityToMarketQuote = computePvSensitivityToMarketQuote;
   }
@@ -111,7 +118,7 @@ public final class CurveGroupDefinitionBuilder {
    * @return this builder
    */
   public CurveGroupDefinitionBuilder addDiscountCurve(
-      NodalCurveDefinition curveDefinition,
+      CurveDefinition curveDefinition,
       Currency currency,
       Currency... otherCurrencies) {
 
@@ -149,6 +156,7 @@ public final class CurveGroupDefinitionBuilder {
     return mergeEntry(entry);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Adds the definition of a forward curve to the curve group definition.
    *
@@ -158,9 +166,9 @@ public final class CurveGroupDefinitionBuilder {
    * @return this builder
    */
   public CurveGroupDefinitionBuilder addForwardCurve(
-      NodalCurveDefinition curveDefinition,
-      RateIndex index,
-      RateIndex... otherIndices) {
+      CurveDefinition curveDefinition,
+      Index index,
+      Index... otherIndices) {
 
     ArgChecker.notNull(curveDefinition, "curveDefinition");
     ArgChecker.notNull(index, "index");
@@ -182,7 +190,11 @@ public final class CurveGroupDefinitionBuilder {
    * @param otherIndices  the additional indices for which the curve provides forward rates
    * @return this builder
    */
-  public CurveGroupDefinitionBuilder addForwardCurve(CurveName curveName, RateIndex index, RateIndex... otherIndices) {
+  public CurveGroupDefinitionBuilder addForwardCurve(
+      CurveName curveName,
+      Index index,
+      Index... otherIndices) {
+
     ArgChecker.notNull(curveName, "curveName");
     ArgChecker.notNull(index, "index");
 
@@ -193,6 +205,7 @@ public final class CurveGroupDefinitionBuilder {
     return mergeEntry(entry);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Adds the definition of a curve to the curve group definition which is used to provide
    * discount rates and forward rates.
@@ -204,7 +217,7 @@ public final class CurveGroupDefinitionBuilder {
    * @return this builder
    */
   public CurveGroupDefinitionBuilder addCurve(
-      NodalCurveDefinition curveDefinition,
+      CurveDefinition curveDefinition,
       Currency currency,
       RateIndex index,
       RateIndex... otherIndices) {
@@ -247,7 +260,22 @@ public final class CurveGroupDefinitionBuilder {
     return mergeEntry(entry);
   }
 
-  private CurveGroupDefinitionBuilder merge(CurveGroupEntry newEntry, NodalCurveDefinition curveDefinition) {
+  /**
+   * Adds a seasonality to the curve group definition.
+   * 
+   * @param curveName  the name of the curve
+   * @param seasonalityDefinition  the seasonality associated to the curve
+   * @return this builder
+   */
+  public CurveGroupDefinitionBuilder addSeasonality(
+      CurveName curveName,
+      SeasonalityDefinition seasonalityDefinition) {
+
+    seasonalityDefinitions.put(curveName, seasonalityDefinition);
+    return this;
+  }
+
+  private CurveGroupDefinitionBuilder merge(CurveGroupEntry newEntry, CurveDefinition curveDefinition) {
     curveDefinitions.put(curveDefinition.getName(), curveDefinition);
     return mergeEntry(newEntry);
   }
@@ -281,6 +309,7 @@ public final class CurveGroupDefinitionBuilder {
         name,
         entries.values(),
         curveDefinitions.values(),
+        seasonalityDefinitions,
         computeJacobian || computePvSensitivityToMarketQuote,
         computePvSensitivityToMarketQuote);
   }

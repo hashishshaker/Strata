@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -29,18 +29,21 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.amount.CashFlows;
+import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
-import com.opengamma.strata.market.interpolator.CurveInterpolator;
-import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountFactors;
+import com.opengamma.strata.pricer.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.IborIndexRates;
@@ -48,6 +51,7 @@ import com.opengamma.strata.pricer.rate.IborRateSensitivity;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RateComputationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.rate.SimpleIborIndexRates;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.fra.Fra;
@@ -139,7 +143,7 @@ public class DiscountingFraProductPricerTest {
 
   //-------------------------------------------------------------------------
   /**
-   * Test present value for ISDA FRA Discounting method. 
+   * Test present value for ISDA FRA Discounting method.
    */
   public void test_presentValue_ISDA() {
     SimpleRatesProvider prov = createProvider(RFRA);
@@ -155,7 +159,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test present value for NONE FRA Discounting method. 
+   * Test present value for NONE FRA Discounting method.
    */
   public void test_presentValue_NONE() {
     SimpleRatesProvider prov = createProvider(RFRA_NONE);
@@ -167,7 +171,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test present value for ISDA FRA Discounting method. 
+   * Test present value for ISDA FRA Discounting method.
    */
   public void test_presentValue_AFMA() {
     SimpleRatesProvider prov = createProvider(RFRA_AFMA);
@@ -300,7 +304,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test present value sensitivity for NONE FRA discounting method. 
+   * Test present value sensitivity for NONE FRA discounting method.
    */
   public void test_presentValueSensitivity_NONE() {
     RateComputationFn<RateComputation> mockObs = mock(RateComputationFn.class);
@@ -342,7 +346,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test present value sensitivity for AFMA FRA discounting method. 
+   * Test present value sensitivity for AFMA FRA discounting method.
    */
   public void test_presentValueSensitivity_AFMA() {
     RateComputationFn<RateComputation> mockObs = mock(RateComputationFn.class);
@@ -385,7 +389,7 @@ public class DiscountingFraProductPricerTest {
 
   //-------------------------------------------------------------------------
   /**
-   * Test par rate for ISDA FRA Discounting method. 
+   * Test par rate for ISDA FRA Discounting method.
    */
   public void test_parRate_ISDA() {
     ResolvedFra fraExp = RFRA;
@@ -404,7 +408,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test par rate for NONE FRA Discounting method. 
+   * Test par rate for NONE FRA Discounting method.
    */
   public void test_parRate_NONE() {
     ResolvedFra fraExp = RFRA_NONE;
@@ -419,7 +423,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test par rate for AFMA FRA Discounting method. 
+   * Test par rate for AFMA FRA Discounting method.
    */
   public void test_parRate_AFMA() {
     ResolvedFra fraExp = RFRA_AFMA;
@@ -434,7 +438,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test par spread for ISDA FRA Discounting method. 
+   * Test par spread for ISDA FRA Discounting method.
    */
   public void test_parSpread_ISDA() {
     ResolvedFra fraExp = RFRA;
@@ -452,7 +456,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test par spread for NONE FRA Discounting method. 
+   * Test par spread for NONE FRA Discounting method.
    */
   public void test_parSpread_NONE() {
     ResolvedFra fraExp = RFRA_NONE;
@@ -466,7 +470,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test par spread for AFMA FRA Discounting method. 
+   * Test par spread for AFMA FRA Discounting method.
    */
   public void test_parSpread_AFMA() {
     ResolvedFra fraExp = RFRA_AFMA;
@@ -502,7 +506,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test par spread sensitivity for ISDA FRA Discounting method. 
+   * Test par spread sensitivity for ISDA FRA Discounting method.
    */
   public void test_parSpreadSensitivity_ISDA() {
     PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(RFRA, IMM_PROV);
@@ -523,7 +527,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test par spread sensitivity for NONE FRA Discounting method. 
+   * Test par spread sensitivity for NONE FRA Discounting method.
    */
   public void test_parSpreadSensitivity_NONE() {
     PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(RFRA_NONE, IMM_PROV);
@@ -536,7 +540,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   /**
-   * Test par spread sensitivity for AFMA FRA Discounting method. 
+   * Test par spread sensitivity for AFMA FRA Discounting method.
    */
   public void test_parSpreadSensitivity_AFMA() {
     PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(RFRA_AFMA, IMM_PROV);
@@ -607,7 +611,7 @@ public class DiscountingFraProductPricerTest {
     assertEquals(explain.get(ExplainKey.START_DATE).get(), fraExp.getStartDate());
     assertEquals(explain.get(ExplainKey.END_DATE).get(), fraExp.getEndDate());
     assertEquals(explain.get(ExplainKey.ACCRUAL_YEAR_FRACTION).get(), fraExp.getYearFraction());
-    assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get(), (Integer) (int) daysBetween);
+    assertEquals(explain.get(ExplainKey.DAYS).get(), (Integer) (int) daysBetween);
     assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
     assertEquals(explain.get(ExplainKey.NOTIONAL).get().getAmount(), fraExp.getNotional(), TOLERANCE);
     assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), fraExp.getNotional(), TOLERANCE);
@@ -618,6 +622,7 @@ public class DiscountingFraProductPricerTest {
     assertEquals(explainObs.get(ExplainKey.INDEX).get(), floatingRate.getIndex());
     assertEquals(explainObs.get(ExplainKey.FIXING_DATE).get(), floatingRate.getFixingDate());
     assertEquals(explainObs.get(ExplainKey.INDEX_VALUE).get(), FORWARD_RATE, TOLERANCE);
+    assertEquals(explainObs.get(ExplainKey.FROM_FIXING_SERIES).isPresent(), false);
     assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE);
     assertEquals(explain.get(ExplainKey.FIXED_RATE).get(), fraExp.getFixedRate(), TOLERANCE);
     assertEquals(explain.get(ExplainKey.PAY_OFF_RATE).get(), FORWARD_RATE, TOLERANCE);
@@ -636,17 +641,13 @@ public class DiscountingFraProductPricerTest {
   //-------------------------------------------------------------------------
   // creates a simple provider
   private SimpleRatesProvider createProvider(ResolvedFra fraExp) {
-    DiscountFactors mockDf = mock(DiscountFactors.class);
-    IborIndexRates mockIbor = mock(IborIndexRates.class);
+    DiscountFactors mockDf = SimpleDiscountFactors.of(
+        GBP, VAL_DATE, ConstantCurve.of(Curves.discountFactors("DSC", DAY_COUNT), DISCOUNT_FACTOR));
+    LocalDateDoubleTimeSeries timeSeries = LocalDateDoubleTimeSeries.of(VAL_DATE, FORWARD_RATE);
+    IborIndexRates mockIbor = SimpleIborIndexRates.of(
+        GBP_LIBOR_3M, VAL_DATE, ConstantCurve.of(Curves.forwardRates("L3M", DAY_COUNT), FORWARD_RATE), timeSeries);
     SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE, mockDf);
     prov.setIborRates(mockIbor);
-
-    IborIndexObservation obs = ((IborRateComputation) fraExp.getFloatingRate()).getObservation();
-    IborRateSensitivity sens = IborRateSensitivity.of(obs, 1d);
-    when(mockIbor.ratePointSensitivity(obs)).thenReturn(sens);
-    when(mockIbor.rate(obs)).thenReturn(FORWARD_RATE);
-
-    when(mockDf.discountFactor(fraExp.getPaymentDate())).thenReturn(DISCOUNT_FACTOR);
     return prov;
   }
 

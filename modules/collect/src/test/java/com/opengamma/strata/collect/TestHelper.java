@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -432,7 +432,7 @@ public class TestHelper {
   public static synchronized List<LogRecord> caputureLog(Class<?> loggerClass, Runnable runner) {
     assertNotNull(loggerClass, "caputureLog() called with null Class");
     assertNotNull(runner, "caputureLog() called with null Runnable");
-    
+
     Logger logger = Logger.getLogger(loggerClass.getName());
     LogHandler handler = new LogHandler();
     try {
@@ -630,6 +630,7 @@ public class TestHelper {
   }
 
   // cover parts of a bean that are property-based
+  @SuppressWarnings("deprecation")
   private static void coverProperties(Bean bean) {
     MetaBean metaBean = bean.metaBean();
     Map<String, MetaProperty<?>> metaPropMap = metaBean.metaPropertyMap();
@@ -697,6 +698,7 @@ public class TestHelper {
   }
 
   // cover parts of a bean that are not property-based
+  @SuppressWarnings("deprecation")
   private static void coverNonProperties(Bean bean) {
     MetaBean metaBean = bean.metaBean();
     assertFalse(metaBean.metaPropertyExists(""));

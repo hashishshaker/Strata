@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -18,10 +18,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.data.NamedMarketDataId;
@@ -32,7 +32,7 @@ import com.opengamma.strata.data.ObservableSource;
  * <p>
  * This is used when there is a need to obtain an instance of {@link Curve}.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", cacheHashCode = true)
 public final class CurveId
     implements NamedMarketDataId<Curve>, ImmutableBean, Serializable {
 
@@ -117,6 +117,11 @@ public final class CurveId
    */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The cached hash code, using the racy single-check idiom.
+   */
+  private int cachedHashCode;
+
   private CurveId(
       CurveGroupName curveGroupName,
       CurveName curveName,
@@ -188,10 +193,14 @@ public final class CurveId
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(curveGroupName);
-    hash = hash * 31 + JodaBeanUtils.hashCode(curveName);
-    hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
+    int hash = cachedHashCode;
+    if (hash == 0) {
+      hash = getClass().hashCode();
+      hash = hash * 31 + JodaBeanUtils.hashCode(curveGroupName);
+      hash = hash * 31 + JodaBeanUtils.hashCode(curveName);
+      hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
+      cachedHashCode = hash;
+    }
     return hash;
   }
 
@@ -328,7 +337,7 @@ public final class CurveId
   /**
    * The bean-builder for {@code CurveId}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<CurveId> {
+  private static final class Builder extends DirectPrivateBeanBuilder<CurveId> {
 
     private CurveGroupName curveGroupName;
     private CurveName curveName;
@@ -338,6 +347,7 @@ public final class CurveId
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -370,30 +380,6 @@ public final class CurveId
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

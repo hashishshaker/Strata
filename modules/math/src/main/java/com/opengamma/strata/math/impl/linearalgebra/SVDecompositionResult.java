@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -10,6 +10,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 /**
  * Contains the results of SV matrix decomposition.
  */
+// CSOFF: AbbreviationAsWordInName
 public interface SVDecompositionResult extends DecompositionResult {
 
   /**

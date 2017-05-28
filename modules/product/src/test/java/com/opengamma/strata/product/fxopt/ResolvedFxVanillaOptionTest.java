@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -54,6 +54,7 @@ public class ResolvedFxVanillaOptionTest {
     assertEquals(test.getPutCall(), CALL);
     assertEquals(test.getStrike(), STRIKE);
     assertEquals(test.getUnderlying(), FX);
+    assertEquals(test.getCurrencyPair(), FX.getCurrencyPair());
   }
 
   public void test_builder_inverseFx() {

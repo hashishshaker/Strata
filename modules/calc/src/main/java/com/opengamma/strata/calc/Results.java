@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -19,17 +19,22 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 
 /**
- * Results of performing calculations for a set of targets over a set of scenarios.
+ * Calculation results of performing calculations for a set of targets and columns.
+ * <p>
+ * This defines a grid of results where the grid contains a row for each target and a column for each measure.
+ * Each result may be a single value or a multi-scenario value.
+ * A multi-scenario value will implement {@link ScenarioArray} unless it has been aggregated.
  */
 @BeanDefinition(builderScope = "private")
 public final class Results implements ImmutableBean {
@@ -60,11 +65,11 @@ public final class Results implements ImmutableBean {
   /**
    * The number of rows.
    */
-  private final int rowCount;  // derived, not a property
+  private final transient int rowCount;  // derived, not a property
   /**
    * The number of columns.
    */
-  private final int columnCount;  // derived, not a property
+  private final transient int columnCount;  // derived, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -99,6 +104,11 @@ public final class Results implements ImmutableBean {
     }
   }
 
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new Results(columns, cells);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the number of rows in the results.
@@ -122,11 +132,19 @@ public final class Results implements ImmutableBean {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the results for a target and column for a set of scenarios.
+   * Returns the results for a target and column index.
+   * <p>
+   * The result may be a single value or a multi-scenario value.
+   * A multi-scenario value will implement {@link ScenarioArray} unless it has been aggregated.
+   * <p>
+   * If the calculation did not complete successfully, a failure result will be returned
+   * explaining the problem. Callers must check whether the result is a success or failure
+   * before examining the result value.
    *
    * @param rowIndex   the index of the row containing the results for a target
    * @param columnIndex  the index of the column
-   * @return the results for the specified row and column for a set of scenarios
+   * @return the result for the specified row and column for a set of scenarios
+   * @throws IllegalArgumentException if the row or column index is invalid
    */
   public Result<?> get(int rowIndex, int columnIndex) {
     if (rowIndex < 0 || rowIndex >= rowCount) {
@@ -149,6 +167,88 @@ public final class Results implements ImmutableBean {
     return Messages.format(
         "Column index must be greater than or equal to zero and less than the column count ({}), but it was {}",
         columnIndex);
+  }
+
+  /**
+   * Returns the results for a target and column index, casting the result to a known type.
+   * <p>
+   * The result may be a single value or a multi-scenario value.
+   * A multi-scenario value will implement {@link ScenarioArray} unless it has been aggregated.
+   * <p>
+   * If the calculation did not complete successfully, a failure result will be returned
+   * explaining the problem. Callers must check whether the result is a success or failure
+   * before examining the result value.
+   *
+   * @param <T>  the result type
+   * @param rowIndex   the index of the row containing the results for a target
+   * @param columnIndex  the index of the column
+   * @param type  the result type
+   * @return the result for the specified row and column for a set of scenarios, cast to the specified type
+   * @throws IllegalArgumentException if the row or column index is invalid
+   * @throws ClassCastException if the result is not of the specified type
+   */
+  public <T> Result<T> get(int rowIndex, int columnIndex, Class<T> type) {
+    return cast(get(rowIndex, columnIndex), type);
+  }
+
+  /**
+   * Returns the results for a target and column name.
+   * <p>
+   * The result may be a single value or a multi-scenario value.
+   * A multi-scenario value will implement {@link ScenarioArray} unless it has been aggregated.
+   * <p>
+   * If the calculation did not complete successfully, a failure result will be returned
+   * explaining the problem. Callers must check whether the result is a success or failure
+   * before examining the result value.
+   *
+   * @param rowIndex   the index of the row containing the results for a target
+   * @param columnName  the name of the column
+   * @return the result for the specified row and column for a set of scenarios
+   * @throws IllegalArgumentException if the row index or column name is invalid
+   */
+  public Result<?> get(int rowIndex, ColumnName columnName) {
+    for (int i = 0; i < columns.size(); i++) {
+      if (columns.get(i).getName().equals(columnName)) {
+        return get(rowIndex, i);
+      }
+    }
+    throw new IllegalArgumentException(invalidColumnNameMessage(columnName));
+  }
+
+  private String invalidColumnNameMessage(ColumnName columnName) {
+    return Messages.format("Column name not found: {}", columnName);
+  }
+
+  /**
+   * Returns the results for a target and column name, casting the result to a known type.
+   * <p>
+   * The result may be a single value or a multi-scenario value.
+   * A multi-scenario value will implement {@link ScenarioArray} unless it has been aggregated.
+   * <p>
+   * If the calculation did not complete successfully, a failure result will be returned
+   * explaining the problem. Callers must check whether the result is a success or failure
+   * before examining the result value.
+   *
+   * @param <T>  the result type
+   * @param rowIndex   the index of the row containing the results for a target
+   * @param columnName  the name of the column
+   * @param type  the result type
+   * @return the result for the specified row and column for a set of scenarios, cast to the specified type
+   * @throws IllegalArgumentException if the row index or column name is invalid
+   * @throws ClassCastException if the result is not of the specified type
+   */
+  public <T> Result<T> get(int rowIndex, ColumnName columnName, Class<T> type) {
+    return cast(get(rowIndex, columnName), type);
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T> Result<T> cast(Result<?> result, Class<T> type) {
+    // cannot use result.map() as we want the exception to be thrown
+    if (result.isFailure() || type.isInstance(result.getValue())) {
+      return (Result<T>) result;
+    }
+    throw new ClassCastException(Messages.format(
+        "Result queried with type '{}' but was '{}'", type.getName(), result.getValue().getClass().getName()));
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -349,7 +449,7 @@ public final class Results implements ImmutableBean {
   /**
    * The bean-builder for {@code Results}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<Results> {
+  private static final class Builder extends DirectPrivateBeanBuilder<Results> {
 
     private List<ColumnHeader> columns = ImmutableList.of();
     private List<? extends Result<?>> cells = ImmutableList.of();
@@ -358,6 +458,7 @@ public final class Results implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -386,30 +487,6 @@ public final class Results implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

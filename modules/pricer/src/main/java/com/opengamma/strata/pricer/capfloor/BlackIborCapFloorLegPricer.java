@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -14,13 +14,13 @@ public class BlackIborCapFloorLegPricer
     extends VolatilityIborCapFloorLegPricer {
 
   /**
-   * Default implementation. 
+   * Default implementation.
    */
   public static final BlackIborCapFloorLegPricer DEFAULT =
       new BlackIborCapFloorLegPricer(BlackIborCapletFloorletPeriodPricer.DEFAULT);
 
   /**
-   * Creates an instance. 
+   * Creates an instance.
    * 
    * @param periodPricer  the pricer for {@link IborCapletFloorletPeriod}.
    */

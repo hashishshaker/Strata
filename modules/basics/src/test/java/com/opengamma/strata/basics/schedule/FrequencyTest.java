@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -96,6 +96,8 @@ public class FrequencyTest {
     assertEquals(TERM.isTerm(), true);
     assertEquals(TERM.toString(), "Term");
     assertEquals(Frequency.parse("Term"), TERM);
+    assertEquals(Frequency.parse("0T"), TERM);
+    assertEquals(Frequency.parse("1T"), TERM);
   }
 
   public void test_of_notZero() {

@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.matrix;
@@ -17,6 +17,7 @@ import com.opengamma.strata.math.impl.linearalgebra.TridiagonalMatrix;
  * This includes only some of the multiplications.
  * For more advanced operations, such as calculating the inverse, use {@link CommonsMatrixAlgebra}.
  */
+// CSOFF: AbbreviationAsWordInName
 public class OGMatrixAlgebra extends MatrixAlgebra {
 
   /**

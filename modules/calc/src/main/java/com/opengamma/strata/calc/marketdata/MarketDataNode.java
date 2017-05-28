@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -36,7 +36,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
  * representing another curve, or possibly an FX rate, and the curve and FX rate nodes would themselves
  * depend on market data values.
  */
-class MarketDataNode {
+final class MarketDataNode {
 
   /** The type of market data represented by the node, either a single value or a time series of values. */
   enum DataType {

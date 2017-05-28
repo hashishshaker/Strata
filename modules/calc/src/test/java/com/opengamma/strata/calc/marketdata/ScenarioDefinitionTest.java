@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -147,7 +147,7 @@ public class ScenarioDefinitionTest {
 
     @Override
     public int hashCode() {
-      return Objects.hash(new Object[]{values});
+      return Objects.hash(new Object[] {values});
     }
 
     @Override
@@ -197,4 +197,3 @@ public class ScenarioDefinitionTest {
     }
   }
 }
-

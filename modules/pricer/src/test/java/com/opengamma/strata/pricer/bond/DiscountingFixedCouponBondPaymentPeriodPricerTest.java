@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -22,11 +22,12 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.LegalEntityGroup;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
-import com.opengamma.strata.market.interpolator.CurveInterpolator;
-import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
@@ -160,8 +161,7 @@ public class DiscountingFixedCouponBondPaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.UNADJUSTED_START_DATE).get(), START);
     assertEquals(explain.get(ExplainKey.END_DATE).get(), END_ADJUSTED);
     assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), END);
-    assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get().intValue(),
-        (int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
+    assertEquals(explain.get(ExplainKey.DAYS).get().intValue(), (int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
     assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DSC_FACTORS.discountFactor(END_ADJUSTED));
     assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(),
         FIXED_RATE * NOTIONAL * YEAR_FRACTION, NOTIONAL * TOL);
@@ -180,8 +180,7 @@ public class DiscountingFixedCouponBondPaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.UNADJUSTED_START_DATE).get(), START);
     assertEquals(explain.get(ExplainKey.END_DATE).get(), END_ADJUSTED);
     assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), END);
-    assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get().intValue(),
-        (int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
+    assertEquals(explain.get(ExplainKey.DAYS).get().intValue(), (int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
     assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
   }
@@ -198,8 +197,7 @@ public class DiscountingFixedCouponBondPaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.UNADJUSTED_START_DATE).get(), START);
     assertEquals(explain.get(ExplainKey.END_DATE).get(), END_ADJUSTED);
     assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), END);
-    assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get().intValue(),
-        (int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
+    assertEquals(explain.get(ExplainKey.DAYS).get().intValue(), (int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
     assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(),
         DSC_FACTORS.discountFactorWithSpread(END_ADJUSTED, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
     assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(),
@@ -221,8 +219,7 @@ public class DiscountingFixedCouponBondPaymentPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.UNADJUSTED_START_DATE).get(), START);
     assertEquals(explain.get(ExplainKey.END_DATE).get(), END_ADJUSTED);
     assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), END);
-    assertEquals(explain.get(ExplainKey.ACCRUAL_DAYS).get().intValue(),
-        (int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
+    assertEquals(explain.get(ExplainKey.DAYS).get().intValue(), (int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
     assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
   }

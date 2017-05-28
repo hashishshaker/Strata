@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -19,12 +19,13 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
@@ -40,32 +41,31 @@ public final class RepoCurveDiscountFactors
     implements ImmutableBean, Serializable {
 
   /**
-   * The underlying discount factors for a single currency. 
+   * The underlying discount factors for a single currency.
    * <p>
-   * This contains curve, curve currency, valuation date and day count convention. 
+   * This contains curve, curve currency, valuation date and day count convention.
    * The discount factor, its point sensitivity and curve sensitivity are computed by this {@code DiscountFactors}.
    */
   @PropertyDefinition(validate = "notNull")
   private final DiscountFactors discountFactors;
   /**
-   * The bond group. 
+   * The repo group.
    * <p>
-   * This defines the bond group that the discount factors are for.
-   * The bond group typically represents the legal entity and bond security. 
+   * This defines the group that the discount factors are for.
    */
   @PropertyDefinition(validate = "notNull")
-  private final BondGroup bondGroup;
+  private final RepoGroup repoGroup;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance based on discount factors and bond group.
+   * Obtains an instance based on discount factors and group.
    * 
    * @param discountFactors  the discount factors
-   * @param bondGroup  the bond group
+   * @param group  the group
    * @return the repo curve discount factors
    */
-  public static RepoCurveDiscountFactors of(DiscountFactors discountFactors, BondGroup bondGroup) {
-    return new RepoCurveDiscountFactors(discountFactors, bondGroup);
+  public static RepoCurveDiscountFactors of(DiscountFactors discountFactors, RepoGroup group) {
+    return new RepoCurveDiscountFactors(discountFactors, group);
   }
 
   //-------------------------------------------------------------------------
@@ -140,7 +140,7 @@ public final class RepoCurveDiscountFactors
    */
   public RepoCurveZeroRateSensitivity zeroRatePointSensitivity(LocalDate date, Currency sensitivityCurrency) {
     ZeroRateSensitivity zeroRateSensitivity = discountFactors.zeroRatePointSensitivity(date, sensitivityCurrency);
-    return RepoCurveZeroRateSensitivity.of(zeroRateSensitivity, bondGroup);
+    return RepoCurveZeroRateSensitivity.of(zeroRateSensitivity, repoGroup);
   }
 
   /**
@@ -178,11 +178,11 @@ public final class RepoCurveDiscountFactors
 
   private RepoCurveDiscountFactors(
       DiscountFactors discountFactors,
-      BondGroup bondGroup) {
+      RepoGroup repoGroup) {
     JodaBeanUtils.notNull(discountFactors, "discountFactors");
-    JodaBeanUtils.notNull(bondGroup, "bondGroup");
+    JodaBeanUtils.notNull(repoGroup, "repoGroup");
     this.discountFactors = discountFactors;
-    this.bondGroup = bondGroup;
+    this.repoGroup = repoGroup;
   }
 
   @Override
@@ -214,14 +214,13 @@ public final class RepoCurveDiscountFactors
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the bond group.
+   * Gets the repo group.
    * <p>
-   * This defines the bond group that the discount factors are for.
-   * The bond group typically represents the legal entity and bond security.
+   * This defines the group that the discount factors are for.
    * @return the value of the property, not null
    */
-  public BondGroup getBondGroup() {
-    return bondGroup;
+  public RepoGroup getRepoGroup() {
+    return repoGroup;
   }
 
   //-----------------------------------------------------------------------
@@ -233,7 +232,7 @@ public final class RepoCurveDiscountFactors
     if (obj != null && obj.getClass() == this.getClass()) {
       RepoCurveDiscountFactors other = (RepoCurveDiscountFactors) obj;
       return JodaBeanUtils.equal(discountFactors, other.discountFactors) &&
-          JodaBeanUtils.equal(bondGroup, other.bondGroup);
+          JodaBeanUtils.equal(repoGroup, other.repoGroup);
     }
     return false;
   }
@@ -242,7 +241,7 @@ public final class RepoCurveDiscountFactors
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(discountFactors);
-    hash = hash * 31 + JodaBeanUtils.hashCode(bondGroup);
+    hash = hash * 31 + JodaBeanUtils.hashCode(repoGroup);
     return hash;
   }
 
@@ -251,7 +250,7 @@ public final class RepoCurveDiscountFactors
     StringBuilder buf = new StringBuilder(96);
     buf.append("RepoCurveDiscountFactors{");
     buf.append("discountFactors").append('=').append(discountFactors).append(',').append(' ');
-    buf.append("bondGroup").append('=').append(JodaBeanUtils.toString(bondGroup));
+    buf.append("repoGroup").append('=').append(JodaBeanUtils.toString(repoGroup));
     buf.append('}');
     return buf.toString();
   }
@@ -272,17 +271,17 @@ public final class RepoCurveDiscountFactors
     private final MetaProperty<DiscountFactors> discountFactors = DirectMetaProperty.ofImmutable(
         this, "discountFactors", RepoCurveDiscountFactors.class, DiscountFactors.class);
     /**
-     * The meta-property for the {@code bondGroup} property.
+     * The meta-property for the {@code repoGroup} property.
      */
-    private final MetaProperty<BondGroup> bondGroup = DirectMetaProperty.ofImmutable(
-        this, "bondGroup", RepoCurveDiscountFactors.class, BondGroup.class);
+    private final MetaProperty<RepoGroup> repoGroup = DirectMetaProperty.ofImmutable(
+        this, "repoGroup", RepoCurveDiscountFactors.class, RepoGroup.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "discountFactors",
-        "bondGroup");
+        "repoGroup");
 
     /**
      * Restricted constructor.
@@ -295,8 +294,8 @@ public final class RepoCurveDiscountFactors
       switch (propertyName.hashCode()) {
         case -91613053:  // discountFactors
           return discountFactors;
-        case 914689404:  // bondGroup
-          return bondGroup;
+        case -393084371:  // repoGroup
+          return repoGroup;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -326,11 +325,11 @@ public final class RepoCurveDiscountFactors
     }
 
     /**
-     * The meta-property for the {@code bondGroup} property.
+     * The meta-property for the {@code repoGroup} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<BondGroup> bondGroup() {
-      return bondGroup;
+    public MetaProperty<RepoGroup> repoGroup() {
+      return repoGroup;
     }
 
     //-----------------------------------------------------------------------
@@ -339,8 +338,8 @@ public final class RepoCurveDiscountFactors
       switch (propertyName.hashCode()) {
         case -91613053:  // discountFactors
           return ((RepoCurveDiscountFactors) bean).getDiscountFactors();
-        case 914689404:  // bondGroup
-          return ((RepoCurveDiscountFactors) bean).getBondGroup();
+        case -393084371:  // repoGroup
+          return ((RepoCurveDiscountFactors) bean).getRepoGroup();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -360,15 +359,16 @@ public final class RepoCurveDiscountFactors
   /**
    * The bean-builder for {@code RepoCurveDiscountFactors}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<RepoCurveDiscountFactors> {
+  private static final class Builder extends DirectPrivateBeanBuilder<RepoCurveDiscountFactors> {
 
     private DiscountFactors discountFactors;
-    private BondGroup bondGroup;
+    private RepoGroup repoGroup;
 
     /**
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -377,8 +377,8 @@ public final class RepoCurveDiscountFactors
       switch (propertyName.hashCode()) {
         case -91613053:  // discountFactors
           return discountFactors;
-        case 914689404:  // bondGroup
-          return bondGroup;
+        case -393084371:  // repoGroup
+          return repoGroup;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -390,8 +390,8 @@ public final class RepoCurveDiscountFactors
         case -91613053:  // discountFactors
           this.discountFactors = (DiscountFactors) newValue;
           break;
-        case 914689404:  // bondGroup
-          this.bondGroup = (BondGroup) newValue;
+        case -393084371:  // repoGroup
+          this.repoGroup = (RepoGroup) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -400,34 +400,10 @@ public final class RepoCurveDiscountFactors
     }
 
     @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
-      return this;
-    }
-
-    @Override
     public RepoCurveDiscountFactors build() {
       return new RepoCurveDiscountFactors(
           discountFactors,
-          bondGroup);
+          repoGroup);
     }
 
     //-----------------------------------------------------------------------
@@ -436,7 +412,7 @@ public final class RepoCurveDiscountFactors
       StringBuilder buf = new StringBuilder(96);
       buf.append("RepoCurveDiscountFactors.Builder{");
       buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(discountFactors)).append(',').append(' ');
-      buf.append("bondGroup").append('=').append(JodaBeanUtils.toString(bondGroup));
+      buf.append("repoGroup").append('=').append(JodaBeanUtils.toString(repoGroup));
       buf.append('}');
       return buf.toString();
     }

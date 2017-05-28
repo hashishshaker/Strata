@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -27,6 +27,10 @@ import com.opengamma.strata.product.bond.ResolvedFixedCouponBondTrade;
  * Pricer for for rate fixed coupon bond trades.
  * <p>
  * This function provides the ability to price a {@link ResolvedFixedCouponBondTrade}.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
+ * For example, a price of 99.32% is represented in Strata by 0.9932.
  */
 public class DiscountingFixedCouponBondTradePricer {
 
@@ -67,10 +71,10 @@ public class DiscountingFixedCouponBondTradePricer {
    * The present value of the trade is the value on the valuation date.
    * The result is expressed using the payment currency of the bond.
    * <p>
-   * Coupon payments of the underlying product are considered based on the settlement date of the trade. 
+   * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @return the present value of the fixed coupon bond trade
    */
   public CurrencyAmount presentValue(ResolvedFixedCouponBondTrade trade, LegalEntityDiscountingProvider provider) {
@@ -88,10 +92,10 @@ public class DiscountingFixedCouponBondTradePricer {
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic
    * compounded rates of the discounting curve.
    * <p>
-   * Coupon payments of the underlying product are considered based on the settlement date of the trade. 
+   * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
@@ -126,10 +130,10 @@ public class DiscountingFixedCouponBondTradePricer {
    * The present value of the trade is the value on the valuation date.
    * The result is expressed using the payment currency of the bond.
    * <p>
-   * Coupon payments of the underlying product are considered based on the settlement date of the trade. 
+   * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @param refData  the reference data used to calculate the settlement date
    * @param cleanPrice  the clean price
    * @return the present value of the fixed coupon bond trade
@@ -173,10 +177,10 @@ public class DiscountingFixedCouponBondTradePricer {
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic
    * compounded rates of the discounting curve.
    * <p>
-   * Coupon payments of the underlying product are considered based on the settlement date of the trade. 
+   * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @param refData  the reference data used to calculate the settlement date
    * @param cleanPrice  the clean price
    * @param zSpread  the z-spread
@@ -237,10 +241,10 @@ public class DiscountingFixedCouponBondTradePricer {
    * The present value sensitivity of the trade is the sensitivity of the present value to
    * the underlying curves.
    * <p>
-   * Coupon payments of the underlying product are considered based on the settlement date of the trade. 
+   * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @return the present value curve sensitivity of the trade
    */
   public PointSensitivities presentValueSensitivity(
@@ -262,10 +266,10 @@ public class DiscountingFixedCouponBondTradePricer {
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic
    * compounded rates of the discounting curve.
    * <p>
-   * Coupon payments of the underlying product are considered based on the settlement date of the trade. 
+   * Coupon payments of the underlying product are considered based on the settlement date of the trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
@@ -299,7 +303,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * Calculates the currency exposure of the fixed coupon bond trade.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @return the currency exposure of the fixed coupon bond trade
    */
   public MultiCurrencyAmount currencyExposure(ResolvedFixedCouponBondTrade trade, LegalEntityDiscountingProvider provider) {
@@ -311,7 +315,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * Calculates the currency exposure of the fixed coupon bond trade with z-spread.
    * 
    * @param trade  the trade
-   * @param provider  the rates provider
+   * @param provider  the discounting provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
@@ -382,7 +386,7 @@ public class DiscountingFixedCouponBondTradePricer {
     PointSensitivityBuilder pt = paymentPricer.presentValueSensitivity(
         upfrontPayment, discountFactors.getDiscountFactors());
     if (pt instanceof ZeroRateSensitivity) {
-      return RepoCurveZeroRateSensitivity.of((ZeroRateSensitivity) pt, discountFactors.getBondGroup());
+      return RepoCurveZeroRateSensitivity.of((ZeroRateSensitivity) pt, discountFactors.getRepoGroup());
     }
     return pt; // NoPointSensitivity
   }

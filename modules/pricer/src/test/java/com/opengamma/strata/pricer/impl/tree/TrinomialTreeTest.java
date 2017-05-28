@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.pricer.impl.tree;
@@ -22,7 +22,7 @@ import com.opengamma.strata.product.common.PutCall;
 /**
  * Test {@link TrinomialTree}.
  * <p>
- * Further tests are done for implementations of {@code OptionFunction}. See their test classes. 
+ * Further tests are done for implementations of {@code OptionFunction}. See their test classes.
  */
 @Test
 public class TrinomialTreeTest {

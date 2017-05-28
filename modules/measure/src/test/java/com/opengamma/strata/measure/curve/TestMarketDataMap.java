@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -89,6 +89,11 @@ public final class TestMarketDataMap implements ScenarioMarketData {
         .filter(id -> ((NamedMarketDataId<?>) id).getMarketDataName().equals(name))
         .map(id -> (MarketDataId<T>) id)
         .collect(toImmutableSet());
+  }
+
+  @Override
+  public Set<ObservableId> getTimeSeriesIds() {
+    return timeSeriesMap.keySet();
   }
 
   @Override

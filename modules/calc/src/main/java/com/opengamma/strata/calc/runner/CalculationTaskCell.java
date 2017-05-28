@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -138,7 +138,11 @@ public final class CalculationTaskCell implements ImmutableBean {
       ReferenceData refData) {
 
     // the result is only converted if it is a success and both the measure and value are convertible
-    if (measure.isCurrencyConvertible() && result.isSuccess() && result.getValue() instanceof ScenarioFxConvertible) {
+    if (measure.isCurrencyConvertible() &&
+        !reportingCurrency.isNone() &&
+        result.isSuccess() &&
+        result.getValue() instanceof ScenarioFxConvertible) {
+
       ScenarioFxConvertible<?> convertible = (ScenarioFxConvertible<?>) result.getValue();
       return convertCurrency(task, convertible, fxProvider, refData);
     }
@@ -178,7 +182,7 @@ public final class CalculationTaskCell implements ImmutableBean {
   /**
    * The meta-bean for {@code CalculationTaskCell}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(CalculationTaskCell.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(CalculationTaskCell.class);
 
   /**
    * The meta-bean for {@code CalculationTaskCell}.

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -19,10 +19,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -159,6 +159,11 @@ public final class BuiltScenarioMarketData
   @Override
   public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
     return underlying.findIds(name);
+  }
+
+  @Override
+  public Set<ObservableId> getTimeSeriesIds() {
+    return underlying.getTimeSeriesIds();
   }
 
   @Override
@@ -399,7 +404,7 @@ public final class BuiltScenarioMarketData
   /**
    * The bean-builder for {@code BuiltScenarioMarketData}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<BuiltScenarioMarketData> {
+  private static final class Builder extends DirectPrivateBeanBuilder<BuiltScenarioMarketData> {
 
     private ImmutableScenarioMarketData underlying;
     private Map<? extends MarketDataId<?>, Failure> valueFailures = ImmutableMap.of();
@@ -409,6 +414,7 @@ public final class BuiltScenarioMarketData
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -442,30 +448,6 @@ public final class BuiltScenarioMarketData
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

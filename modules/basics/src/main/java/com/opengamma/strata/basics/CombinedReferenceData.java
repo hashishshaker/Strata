@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -62,7 +62,7 @@ final class CombinedReferenceData
   /**
    * The meta-bean for {@code CombinedReferenceData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(CombinedReferenceData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(CombinedReferenceData.class);
 
   /**
    * The meta-bean for {@code CombinedReferenceData}.

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -11,7 +11,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.strata.product.fxopt.SimpleConstantContinuousBarrier;
+import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 
 /**
  * The price function to compute the price of one-touch or no-touch (cash-or-nothing) option in the Black world.
@@ -32,7 +32,7 @@ public class BlackOneTouchCashPriceFormulaRepository {
   private static final double SMALL = 1.0e-6;
 
   /**
-   * Computes the price of a one-touch/no-touch option. 
+   * Computes the price of a one-touch/no-touch option.
    * 
    * @param spot  the spot 
    * @param timeToExpiry  the time to expiry 
@@ -71,15 +71,16 @@ public class BlackOneTouchCashPriceFormulaRepository {
     double x2 = Math.log(spot / h) / lognormalVolT + m1;
     double y2 = Math.log(h / spot) / lognormalVolT + m1;
     double z = Math.log(h / spot) / lognormalVolT + lambda * lognormalVolT;
-    double xE = isKnockIn ? getF(spot, z, lognormalVolT, h, mu, lambda, eta) :
+    double xE = isKnockIn ?
+        getF(spot, z, lognormalVolT, h, mu, lambda, eta) :
         getE(spot, df2, x2, y2, lognormalVolT, h, mu, eta);
     return xE;
   }
 
   /**
-   * Computes the price and derivatives of a one-touch/no-touch option. 
+   * Computes the price and derivatives of a one-touch/no-touch option.
    * <p>
-   * The derivatives are [0] spot, [1] rate, [2] cost-of-carry, [3] volatility, [4] timeToExpiry, [5] spot twice. 
+   * The derivatives are [0] spot, [1] rate, [2] cost-of-carry, [3] volatility, [4] timeToExpiry, [5] spot twice.
    * 
    * @param spot  the spot 
    * @param timeToExpiry  the time to expiry 
@@ -170,10 +171,9 @@ public class BlackOneTouchCashPriceFormulaRepository {
     double m1Bar = x2Bar + y2Bar;
     muBar += +lognormalVolT * m1Bar + mu / lambda * lambdaBar;
     lognormalVolTBar +=
-        + (lambda - Math.log(h / spot) / (lognormalVolT * lognormalVolT)) * zBar
-        - Math.log(h / spot) / (lognormalVolT * lognormalVolT) * y2Bar
-        - Math.log(spot / h) / (lognormalVolT * lognormalVolT) * x2Bar
-        + (1 + mu) * m1Bar;
+        +(lambda - Math.log(h / spot) / (lognormalVolT * lognormalVolT)) * zBar -
+            Math.log(h / spot) / (lognormalVolT * lognormalVolT) * y2Bar -
+            Math.log(spot / h) / (lognormalVolT * lognormalVolT) * x2Bar + (1 + mu) * m1Bar;
     double lognormalVolSqBar = -costOfCarry / (lognormalVolSq * lognormalVolSq) * muBar - rate /
         (lognormalVolSq * lognormalVolSq) / lambda * lambdaBar;
     derivatives[0] += dxyds * x2Bar - dxyds * y2Bar - dxyds * zBar;
@@ -181,10 +181,8 @@ public class BlackOneTouchCashPriceFormulaRepository {
     derivatives[2] = muBar / lognormalVolSq;
     derivatives[3] = 2d * lognormalVol * lognormalVolSqBar + Math.sqrt(timeToExpiry) * lognormalVolTBar;
     derivatives[4] = -rate * df2 * df2Bar + lognormalVolTBar * lognormalVolT * 0.5 / timeToExpiry;
-    derivatives[5] += -dxyds * x2Bar / spot + dxyds * y2Bar / spot + dxyds * zBar / spot
-        + dxyds * dxyds * x2SqBar
-        + dxyds * dxyds * y2SqBar - 2d * dxyds * y2sBar
-        + dxyds * dxyds * zSqBar - 2d * dxyds * zsBar;
+    derivatives[5] += -dxyds * x2Bar / spot + dxyds * y2Bar / spot + dxyds * zBar / spot + dxyds * dxyds * x2SqBar +
+        dxyds * dxyds * y2SqBar - 2d * dxyds * y2sBar + dxyds * dxyds * zSqBar - 2d * dxyds * zsBar;
     return ValueDerivatives.of(price, DoubleArray.ofUnsafe(derivatives));
   }
 
@@ -199,8 +197,7 @@ public class BlackOneTouchCashPriceFormulaRepository {
       double mu,
       double eta) {
 
-    return df2 * (NORMAL.getCDF(eta * (x - lognormalVolT))
-        - Math.pow(h / s, 2d * mu) * NORMAL.getCDF(eta * (y - lognormalVolT)));
+    return df2 * (NORMAL.getCDF(eta * (x - lognormalVolT)) - Math.pow(h / s, 2d * mu) * NORMAL.getCDF(eta * (y - lognormalVolT)));
   }
 
   private double getF(
@@ -212,8 +209,8 @@ public class BlackOneTouchCashPriceFormulaRepository {
       double lambda,
       double eta) {
 
-    return Math.pow(h / s, mu + lambda) * NORMAL.getCDF(eta * z)
-        + Math.pow(h / s, mu - lambda) * NORMAL.getCDF(eta * (z - 2d * lambda * lognormalVolT));
+    return Math.pow(h / s, mu + lambda) * NORMAL.getCDF(eta * z) +
+        Math.pow(h / s, mu - lambda) * NORMAL.getCDF(eta * (z - 2d * lambda * lognormalVolT));
   }
 
   //-------------------------------------------------------------------------
@@ -253,8 +250,8 @@ public class BlackOneTouchCashPriceFormulaRepository {
     return e;
   }
 
-  // The firstDerivatives are [0] s, [1] z, [2] lognormalVolT, [3] mu, [4] lambda. 
-  // The second derivatives are [0] s twice, [1] z twice, [2] s and z. 
+  // The firstDerivatives are [0] s, [1] z, [2] lognormalVolT, [3] mu, [4] lambda.
+  // The second derivatives are [0] s twice, [1] z twice, [2] s and z.
   private double getFAdjoint(
       double s,
       double z,
@@ -283,8 +280,8 @@ public class BlackOneTouchCashPriceFormulaRepository {
     firstDerivatives[2] = -n2df * eta * 2 * lambda * n2Bar; //lognormalVolT
     firstDerivatives[3] = hsMuPLa * Math.log(h / s) * hsMuPLaBar + hsMuMLa * Math.log(h / s) * hsMuMLaBar; // mu
     firstDerivatives[4] = hsMuPLa * Math.log(h / s) * hsMuPLaBar - hsMuMLa * Math.log(h / s) * hsMuMLaBar; // lambda
-    secondDerivatives[0] = hsMuPLa * hsMuPLaBar * (mu + lambda) * (mu + lambda + 1d) / (s * s)
-        + hsMuMLa * hsMuMLaBar * (mu - lambda) * (mu - lambda + 1d) / (s * s);
+    secondDerivatives[0] = hsMuPLa * hsMuPLaBar * (mu + lambda) * (mu + lambda + 1d) / (s * s) +
+        hsMuMLa * hsMuMLaBar * (mu - lambda) * (mu - lambda + 1d) / (s * s);
     secondDerivatives[1] = -z * n1df * eta * n1Bar - (z - 2 * lambda * lognormalVolT) * n2df * eta * n2Bar;
     secondDerivatives[2] = -n1df * n1Bar * (mu + lambda) * eta / s - n2df * n2Bar * (mu - lambda) * eta / s;
     return f;

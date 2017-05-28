@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.examples.report;
@@ -47,7 +47,7 @@ import com.opengamma.strata.report.trade.TradeReportTemplate;
 /**
  * Tool for running a report from the command line.
  */
-public class ReportRunnerTool implements AutoCloseable {
+public final class ReportRunnerTool implements AutoCloseable {
 
   /**
    * The calculation runner.

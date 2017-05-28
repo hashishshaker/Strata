@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -19,12 +19,13 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.market.curve.LegalEntityGroup;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
@@ -40,15 +41,15 @@ public final class IssuerCurveDiscountFactors
     implements ImmutableBean, Serializable {
 
   /**
-   * The underlying discount factors for a single currency. 
+   * The underlying discount factors for a single currency.
    * <p>
-   * This contains curve, curve currency, valuation date and day count convention. 
+   * This contains curve, curve currency, valuation date and day count convention.
    * The discount factor, its point sensitivity and curve sensitivity are computed by this {@code DiscountFactors}.
    */
   @PropertyDefinition(validate = "notNull")
   private final DiscountFactors discountFactors;
   /**
-   * The legal entity group. 
+   * The legal entity group.
    * <p>
    * The group defines the legal entity that the discount factors are for.
    */
@@ -358,7 +359,7 @@ public final class IssuerCurveDiscountFactors
   /**
    * The bean-builder for {@code IssuerCurveDiscountFactors}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<IssuerCurveDiscountFactors> {
+  private static final class Builder extends DirectPrivateBeanBuilder<IssuerCurveDiscountFactors> {
 
     private DiscountFactors discountFactors;
     private LegalEntityGroup legalEntityGroup;
@@ -367,6 +368,7 @@ public final class IssuerCurveDiscountFactors
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -394,30 +396,6 @@ public final class IssuerCurveDiscountFactors
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

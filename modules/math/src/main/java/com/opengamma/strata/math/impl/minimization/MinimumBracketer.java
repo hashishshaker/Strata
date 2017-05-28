@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -13,6 +13,7 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * 
  */
+//CSOFF: JavadocMethod
 public abstract class MinimumBracketer {
   private static final double ZERO = 1e-15;
   /**

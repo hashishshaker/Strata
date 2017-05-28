@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -48,6 +48,10 @@ public final class CurveInfoType<T>
    */
   public static final CurveInfoType<DoubleArray> PV_SENSITIVITY_TO_MARKET_QUOTE =
       CurveInfoType.of("PVSensitivityToMarketQuote");
+  /**
+   * Key used to access information about the index factor.
+   */
+  public static final CurveInfoType<Double> CDS_INDEX_FACTOR = CurveInfoType.of("CdsIndexFactor");
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

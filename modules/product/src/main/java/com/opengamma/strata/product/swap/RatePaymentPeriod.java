@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -48,7 +48,7 @@ import com.opengamma.strata.collect.Messages;
  * Any combination of accrual periods is supported in the data model, however
  * there is no guarantee that exotic combinations will price sensibly.
  */
-@BeanDefinition
+@BeanDefinition(constructorScope = "package")
 public final class RatePaymentPeriod
     implements NotionalPaymentPeriod, ImmutableBean, Serializable {
 
@@ -240,7 +240,17 @@ public final class RatePaymentPeriod
     return new RatePaymentPeriod.Builder();
   }
 
-  private RatePaymentPeriod(
+  /**
+   * Creates an instance.
+   * @param paymentDate  the value of the property, not null
+   * @param accrualPeriods  the value of the property, not empty
+   * @param dayCount  the value of the property, not null
+   * @param currency  the value of the property, not null
+   * @param fxReset  the value of the property
+   * @param notional  the value of the property
+   * @param compoundingMethod  the value of the property, not null
+   */
+  RatePaymentPeriod(
       LocalDate paymentDate,
       List<RateAccrualPeriod> accrualPeriods,
       DayCount dayCount,
@@ -714,19 +724,31 @@ public final class RatePaymentPeriod
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

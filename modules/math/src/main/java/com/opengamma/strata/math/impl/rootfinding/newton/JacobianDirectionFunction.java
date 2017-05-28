@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
@@ -18,6 +18,11 @@ public class JacobianDirectionFunction implements NewtonRootFinderDirectionFunct
 
   private final Decomposition<?> _decomposition;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param decomposition  the decomposition
+   */
   public JacobianDirectionFunction(Decomposition<?> decomposition) {
     ArgChecker.notNull(decomposition, "decomposition");
     _decomposition = decomposition;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -15,17 +15,20 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableValidator;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.ResolvedProduct;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
@@ -48,22 +51,30 @@ public final class ResolvedIborCapFloor
   /**
    * The Ibor cap/floor leg of the product.
    * <p>
-   * This is associated with periodic payments based on Ibor rate. 
-   * The payments are Ibor caplets or Ibor floorlets. 
+   * This is associated with periodic payments based on Ibor rate.
+   * The payments are Ibor caplets or Ibor floorlets.
    */
   @PropertyDefinition(validate = "notNull")
   private final ResolvedIborCapFloorLeg capFloorLeg;
   /**
-   * The optional pay leg of the product. 
+   * The optional pay leg of the product.
    * <p>
-   * These periodic payments are not made for typical cap/floor products. Instead the premium is paid upfront. 
+   * These periodic payments are not made for typical cap/floor products. Instead the premium is paid upfront.
    */
   @PropertyDefinition(get = "optional")
   private final ResolvedSwapLeg payLeg;
+  /**
+   * The set of currencies.
+   */
+  private final transient ImmutableSet<Currency> currencies;  // not a property, derived and cached from input data
+  /**
+   * The set of indices.
+   */
+  private final transient ImmutableSet<Index> indices;  // not a property, derived and cached from input data
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from a cap/floor leg with no pay leg. 
+   * Obtains an instance from a cap/floor leg with no pay leg.
    * <p>
    * The pay leg is absent in the resulting cap/floor.
    * 
@@ -76,7 +87,7 @@ public final class ResolvedIborCapFloor
   }
 
   /**
-   * Obtains an instance from a cap/floor leg and a pay leg. 
+   * Obtains an instance from a cap/floor leg and a pay leg.
    * 
    * @param capFloorLeg  the cap/floor leg
    * @param payLeg  the pay leg
@@ -89,13 +100,68 @@ public final class ResolvedIborCapFloor
   }
 
   //-------------------------------------------------------------------------
-  @ImmutableValidator
-  private void validate() {
-    if (getPayLeg().isPresent()) {
+  @ImmutableConstructor
+  private ResolvedIborCapFloor(ResolvedIborCapFloorLeg capFloorLeg, ResolvedSwapLeg payLeg) {
+    JodaBeanUtils.notNull(capFloorLeg, "capFloorLeg");
+    if (payLeg != null) {
       ArgChecker.isFalse(
           payLeg.getPayReceive().equals(capFloorLeg.getPayReceive()),
-          "Two legs should have different Pay/Receive flags");
+          "Legs must have different Pay/Receive flag, but both were {}", payLeg.getPayReceive());
     }
+    this.capFloorLeg = capFloorLeg;
+    this.payLeg = payLeg;
+    this.currencies = buildCurrencies(capFloorLeg, payLeg);
+    this.indices = buildIndices(capFloorLeg, payLeg);
+  }
+
+  // collect the set of currencies
+  private static ImmutableSet<Currency> buildCurrencies(ResolvedIborCapFloorLeg capFloorLeg, ResolvedSwapLeg payLeg) {
+    ImmutableSet.Builder<Currency> builder = ImmutableSet.builder();
+    builder.add(capFloorLeg.getCurrency());
+    if (payLeg != null) {
+      builder.add(payLeg.getCurrency());
+    }
+    return builder.build();
+  }
+
+  // collect the set of indices
+  private static ImmutableSet<Index> buildIndices(ResolvedIborCapFloorLeg capFloorLeg, ResolvedSwapLeg payLeg) {
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    builder.add(capFloorLeg.getIndex());
+    if (payLeg != null) {
+      payLeg.collectIndices(builder);
+    }
+    return builder.build();
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new ResolvedIborCapFloor(capFloorLeg, payLeg);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns the set of payment currencies referred to by the cap/floor.
+   * <p>
+   * This returns the complete set of payment currencies for the cap/floor.
+   * This will typically return one currency, but could return two.
+   * 
+   * @return the set of payment currencies referred to by this swap
+   */
+  public ImmutableSet<Currency> allPaymentCurrencies() {
+    return currencies;
+  }
+
+  /**
+   * Returns the set of indices referred to by the cap/floor.
+   * <p>
+   * A cap/floor will typically refer to one index, such as 'GBP-LIBOR-3M'.
+   * Calling this method will return the complete list of indices.
+   * 
+   * @return the set of indices referred to by this cap/floor
+   */
+  public ImmutableSet<Index> allIndices() {
+    return indices;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -116,15 +182,6 @@ public final class ResolvedIborCapFloor
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-
-  private ResolvedIborCapFloor(
-      ResolvedIborCapFloorLeg capFloorLeg,
-      ResolvedSwapLeg payLeg) {
-    JodaBeanUtils.notNull(capFloorLeg, "capFloorLeg");
-    this.capFloorLeg = capFloorLeg;
-    this.payLeg = payLeg;
-    validate();
-  }
 
   @Override
   public ResolvedIborCapFloor.Meta metaBean() {
@@ -300,7 +357,7 @@ public final class ResolvedIborCapFloor
   /**
    * The bean-builder for {@code ResolvedIborCapFloor}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<ResolvedIborCapFloor> {
+  private static final class Builder extends DirectPrivateBeanBuilder<ResolvedIborCapFloor> {
 
     private ResolvedIborCapFloorLeg capFloorLeg;
     private ResolvedSwapLeg payLeg;
@@ -309,6 +366,7 @@ public final class ResolvedIborCapFloor
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -336,30 +394,6 @@ public final class ResolvedIborCapFloor
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

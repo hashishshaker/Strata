@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -62,4 +62,3 @@
  * The cell in the report will contain name of the index referenced by the FRA.
  */
 package com.opengamma.strata.report;
-

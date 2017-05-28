@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -89,7 +89,7 @@ public final class IborFixingDepositTemplate
    * Obtains a template based on the specified index.
    * <p>
    * The period from the start date to the end date will be the tenor of the index.
-   * The convention will be created based on the index. 
+   * The convention will be created based on the index.
    * 
    * @param index  the index that defines the market convention
    * @return the template
@@ -102,7 +102,7 @@ public final class IborFixingDepositTemplate
    * Obtains a template based on the specified period and index.
    * <p>
    * The period from the start date to the end is specified.
-   * The convention will be created based on the index. 
+   * The convention will be created based on the index.
    * 
    * @param depositPeriod  the period between the start date and the end date
    * @param index  the index that defines the market convention
@@ -428,19 +428,31 @@ public final class IborFixingDepositTemplate
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

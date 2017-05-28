@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl;
@@ -14,6 +14,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * A collection of basic useful maths functions.
  */
 public final class FunctionUtils {
+// CSOFF: JavadocMethod
 
   /**
    * Restricted constructor.

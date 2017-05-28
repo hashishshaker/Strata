@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
@@ -23,9 +23,10 @@ import com.opengamma.strata.math.impl.rootfinding.VectorRootFinder;
 /**
  * Base implementation for all Newton-Raphson style multi-dimensional root finding (i.e. using the Jacobian matrix as a basis for some iterative process)
  */
+// CSOFF: JavadocMethod
 public class NewtonVectorRootFinder extends VectorRootFinder {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(NewtonVectorRootFinder.class);
+  private static final Logger log = LoggerFactory.getLogger(NewtonVectorRootFinder.class);
   private static final double ALPHA = 1e-4;
   private static final double BETA = 1.5;
   private static final int FULL_RECALC_FREQ = 20;
@@ -65,7 +66,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
    *@param function a vector function (i.e. vector to vector) 
    *@param jacobianFunction calculates the Jacobian
   * @param startPosition where to start the root finder for.
-  *  Note if multiple roots exist which one if found (if at all) will depend on startPosition 
+  *   Note if multiple roots exist which one if found (if at all) will depend on startPosition 
   * @return the vector root of the collection of functions 
    */
 
@@ -112,7 +113,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
           }
           String msg = "Failed to converge in backtracking, even after a Jacobian recalculation." +
               getErrorMessage(data, jacobianFunction);
-          s_logger.info(msg);
+          log.info(msg);
           throw new MathException(msg);
         }
       }

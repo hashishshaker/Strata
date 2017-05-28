@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -39,7 +39,7 @@ public class SabrSwaptionRawDataSensitivityCalculator {
    * {@link SabrParametersSwaptionVolatilities}.
    * The sensitivities to the SABR parameters passed in should be compatible with the SABR parameters in term of data order.
    * <p>
-   * Only the sensitivity to the SABR parameters for which there is a data sensitivity are taken into account. 
+   * Only the sensitivity to the SABR parameters for which there is a data sensitivity are taken into account.
    * At least one of the four parameter must have such sensitivities.
    * 
    * @param paramSensitivities  the curve SABR parameter sensitivities
@@ -99,7 +99,7 @@ public class SabrSwaptionRawDataSensitivityCalculator {
       double[] sensitivityRawArray) {
 
     int nbSurfaceNode = sensitivityInfoParam.size();
-    ArgChecker.isTrue(s.getSensitivity().size() == nbSurfaceNode, 
+    ArgChecker.isTrue(s.getSensitivity().size() == nbSurfaceNode,
         "sensitivity and surface info are not of the same size");
     for (int loopnode = 0; loopnode < nbSurfaceNode; loopnode++) {
       double sum = sensitivityInfoParam.get(loopnode).sum();

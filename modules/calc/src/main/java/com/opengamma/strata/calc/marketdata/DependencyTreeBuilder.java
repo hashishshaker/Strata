@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -30,7 +30,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
  *
  * @see MarketDataNode
  */
-class DependencyTreeBuilder {
+final class DependencyTreeBuilder {
 
   /** The market data supplied by the user. */
   private final ScenarioMarketData suppliedData;

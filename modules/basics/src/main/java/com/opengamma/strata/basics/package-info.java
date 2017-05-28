@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -13,4 +13,3 @@
  * which is keyed by {@link com.opengamma.strata.basics.ReferenceDataId ReferenceDataId}.
  */
 package com.opengamma.strata.basics;
-

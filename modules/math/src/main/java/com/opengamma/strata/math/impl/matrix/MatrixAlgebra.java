@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.matrix;
@@ -272,7 +272,7 @@ public abstract class MatrixAlgebra {
   public abstract DoubleMatrix getTranspose(Matrix m);
 
   /**
-   * Compute $A^T A$, where A is a matrix
+   * Compute $A^T A$, where A is a matrix.
    * @param a The matrix
    * @return The result of $A^T A$
    */

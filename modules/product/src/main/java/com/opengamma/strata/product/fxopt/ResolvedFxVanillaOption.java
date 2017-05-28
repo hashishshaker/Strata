@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -29,6 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.product.ResolvedProduct;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.common.PutCall;
@@ -82,6 +83,17 @@ public final class ResolvedFxVanillaOption
 
   //-------------------------------------------------------------------------
   /**
+   * Gets currency pair of the base currency and counter currency.
+   * <p>
+   * This currency pair is conventional, thus indifferent to the direction of FX.
+   * 
+   * @return the currency pair
+   */
+  public CurrencyPair getCurrencyPair() {
+    return underlying.getCurrencyPair();
+  }
+
+  /**
    * Gets the expiry date of the option.
    * 
    * @return the expiry date
@@ -91,7 +103,7 @@ public final class ResolvedFxVanillaOption
   }
 
   /**
-   * Gets the strike rate. 
+   * Gets the strike rate.
    * 
    * @return the strike
    */
@@ -103,7 +115,7 @@ public final class ResolvedFxVanillaOption
   /**
    * Returns the put/call flag.
    * <p>
-   * This is the put/call for the base currency. 
+   * This is the put/call for the base currency.
    * If the amount for the base currency is positive, the option is a call on the base currency (put on counter currency). 
    * If the amount for the base currency is negative, the option is a put on the base currency (call on counter currency).
    * 
@@ -114,7 +126,7 @@ public final class ResolvedFxVanillaOption
   }
 
   /**
-   * Get the counter currency of the underlying FX transaction. 
+   * Get the counter currency of the underlying FX transaction.
    * 
    * @return the counter currency
    */
@@ -439,19 +451,31 @@ public final class ResolvedFxVanillaOption
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

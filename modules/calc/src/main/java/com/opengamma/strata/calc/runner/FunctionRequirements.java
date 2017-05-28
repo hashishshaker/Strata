@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -45,7 +45,7 @@ public final class FunctionRequirements implements ImmutableBean {
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableSet<? extends MarketDataId<?>> valueRequirements;
-  /** 
+  /**
    * The market data identifiers of the time-series of required for the calculation.
    */
   @PropertyDefinition(validate = "notNull")
@@ -455,19 +455,31 @@ public final class FunctionRequirements implements ImmutableBean {
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -51,7 +51,7 @@ final class NameFilter<T>
   /**
    * The meta-bean for {@code NameFilter}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(NameFilter.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(NameFilter.class);
 
   /**
    * The meta-bean for {@code NameFilter}.

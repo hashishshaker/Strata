@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -36,8 +36,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecuritizedProduct;
+import com.opengamma.strata.product.SecurityId;
 
 /**
  * A futures contract, based on a basket of fixed coupon bonds.
@@ -45,6 +45,11 @@ import com.opengamma.strata.product.SecuritizedProduct;
  * A bond future is a financial instrument that is based on the future value of
  * a basket of fixed coupon bonds. The profit or loss of a bond future is settled daily.
  * This class represents the structure of a single futures contract.
+ * 
+ * <h4>Price</h4>
+ * Strata uses <i>decimal prices</i> for bond futures in the trade model, pricers and market data.
+ * This is coherent with the pricing of {@link FixedCouponBond}. The bond futures delivery is a bond
+ * for an amount computed from the bond future price, a conversion factor and the accrued interest.
  */
 @SuppressWarnings("unchecked")
 @BeanDefinition(constructorScope = "package")
@@ -160,7 +165,7 @@ public final class BondFuture
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the notional of underlying fixed coupon bonds. 
+   * Obtains the notional of underlying fixed coupon bonds.
    * <p>
    * All of the bonds in the delivery basket have the same notional.
    * 
@@ -171,7 +176,7 @@ public final class BondFuture
   }
 
   /**
-   * Obtains the currency of the underlying fixed coupon bonds. 
+   * Obtains the currency of the underlying fixed coupon bonds.
    * <p>
    * All of the bonds in the delivery basket have the same currency.
    * 
@@ -798,19 +803,31 @@ public final class BondFuture
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

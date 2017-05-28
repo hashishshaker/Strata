@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
@@ -17,6 +17,11 @@ public class InverseJacobianDirectionFunction implements NewtonRootFinderDirecti
 
   private final MatrixAlgebra _algebra;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param algebra  the matrix
+   */
   public InverseJacobianDirectionFunction(MatrixAlgebra algebra) {
     ArgChecker.notNull(algebra, "algebra");
     _algebra = algebra;

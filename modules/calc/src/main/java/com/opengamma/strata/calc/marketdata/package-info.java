@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -11,4 +11,3 @@
  * It provides two "build" methods that process a set of requirements to produce market data.
  */
 package com.opengamma.strata.calc.marketdata;
-

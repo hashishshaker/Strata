@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -15,9 +15,9 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.TestHelper;
-import com.opengamma.strata.product.fxopt.BarrierType;
-import com.opengamma.strata.product.fxopt.KnockType;
-import com.opengamma.strata.product.fxopt.SimpleConstantContinuousBarrier;
+import com.opengamma.strata.product.option.BarrierType;
+import com.opengamma.strata.product.option.KnockType;
+import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 
 /**
  * Test {@link BlackOneTouchCashPriceFormulaRepository}.
@@ -37,7 +37,7 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
   private static final SimpleConstantContinuousBarrier BARRIER_UP_OUT =
       SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_OUT, 110);
   private static final SimpleConstantContinuousBarrier[] BARRIERS =
-      new SimpleConstantContinuousBarrier[] {BARRIER_UP_IN, BARRIER_UP_OUT, BARRIER_DOWN_IN, BARRIER_DOWN_OUT };
+      new SimpleConstantContinuousBarrier[] {BARRIER_UP_IN, BARRIER_UP_OUT, BARRIER_DOWN_IN, BARRIER_DOWN_OUT};
   private static final double SPOT = 105;
   private static final double RATE_DOM = 0.05; // Domestic rate
   private static final double RATE_FOR = 0.02; // Foreign rate
@@ -62,7 +62,7 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
   }
 
   /**
-   * Upper barrier level is very high. 
+   * Upper barrier level is very high.
    */
   public void largeBarrierTest() {
     SimpleConstantContinuousBarrier in = SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_IN, 1.0e4);
@@ -74,7 +74,7 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
   }
 
   /**
-   * Lower barrier level is very small.  
+   * Lower barrier level is very small.
    */
   public void smallBarrierTest() {
     SimpleConstantContinuousBarrier in =
@@ -88,7 +88,7 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
   }
 
   /**
-   * Greeks against finite difference approximation. 
+   * Greeks against finite difference approximation.
    */
   public void greekfdTest() {
     for (SimpleConstantContinuousBarrier barrier : BARRIERS) {
@@ -128,7 +128,7 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
   }
 
   /**
-   * smoothly connected to limiting cases. 
+   * smoothly connected to limiting cases.
    */
   public void smallsigmaTTest() {
     for (SimpleConstantContinuousBarrier barrier : BARRIERS) {
@@ -148,7 +148,7 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
   }
 
   /**
-   * Barrier event has occured already. 
+   * Barrier event has occured already.
    */
   public void illegalBarrierLevelTest() {
     assertThrowsIllegalArg(() -> PRICER.price(BARRIER_UP_IN.getBarrierLevel() + 0.1, EXPIRY_TIME, COST_OF_CARRY,
@@ -161,7 +161,7 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
         COST_OF_CARRY, RATE_DOM, VOLATILITY, BARRIER_DOWN_OUT));
   }
 
-//-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   private void assertRelative(double val1, double val2) {
     assertEquals(val1, val2, Math.max(Math.abs(val2), 1d) * TOL);
   }

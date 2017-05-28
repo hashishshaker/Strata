@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -15,4 +15,3 @@
  * It provides four "calculate" methods taking the trades, measures, market data and calculation rules.
  */
 package com.opengamma.strata.calc;
-

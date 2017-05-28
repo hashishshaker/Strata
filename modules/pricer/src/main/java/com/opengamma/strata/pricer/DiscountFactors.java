@@ -1,23 +1,24 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.pricer;
 
+import static com.opengamma.strata.pricer.SimpleDiscountFactors.EFFECTIVE_ZERO;
+
 import java.time.LocalDate;
 import java.util.Optional;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveInfoType;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
@@ -72,18 +73,6 @@ public interface DiscountFactors
    */
   public abstract Currency getCurrency();
 
-  /**
-   * Finds the market data structure underlying this instance with the specified name.
-   * <p>
-   * This is most commonly used to find a {@link Curve} using a {@link CurveName}.
-   * If the market data cannot be found, empty is returned.
-   * 
-   * @param <T>  the type of the market data value
-   * @param name  the name to find
-   * @return the market data value, empty if not found
-   */
-  public abstract <T> Optional<T> findData(MarketDataName<T> name);
-
   //-------------------------------------------------------------------------
   @Override
   public abstract DiscountFactors withParameter(int parameterIndex, double newValue);
@@ -131,6 +120,17 @@ public interface DiscountFactors
    * @throws RuntimeException if the value cannot be obtained
    */
   public abstract double discountFactor(double yearFraction);
+  
+  /**
+   * Returns the discount factor derivative with respect to the year fraction or time.
+   * <p>
+   * The year fraction must be based on {@code #relativeYearFraction(LocalDate)}.
+   * 
+   * @param yearFraction  the year fraction 
+   * @return the discount factor derivative
+   * @throws RuntimeException if the value cannot be obtained
+   */
+  public abstract double discountFactorTimeDerivative(double yearFraction);
 
   /**
    * Gets the discount factor for the specified date with z-spread.
@@ -139,7 +139,7 @@ public interface DiscountFactors
    * when comparing the valuation date to the specified date.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic
-   * compounded rates of the discounting curve. 
+   * compounded rates of the discounting curve.
    * <p>
    * If the valuation date is on or after the specified date, the discount factor is 1.
    * 
@@ -167,7 +167,7 @@ public interface DiscountFactors
    * when comparing the valuation date to the specified date.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic
-   * compounded rates of the discounting curve. 
+   * compounded rates of the discounting curve.
    * <p>
    * If the valuation date is on or after the specified date, the discount factor is 1.
    * <p>
@@ -180,17 +180,31 @@ public interface DiscountFactors
    * @return the discount factor
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double discountFactorWithSpread(
+  public default double discountFactorWithSpread(
       double yearFraction,
       double zSpread,
       CompoundedRateType compoundedRateType,
-      int periodsPerYear);
+      int periodsPerYear) {
+
+    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
+      return 1d;
+    }
+    double df = discountFactor(yearFraction);
+    if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
+      ArgChecker.notNegativeOrZero(periodsPerYear, "periodPerYear");
+      double ratePeriodicAnnualPlusOne =
+          Math.pow(df, -1.0 / periodsPerYear / yearFraction) + zSpread / periodsPerYear;
+      return Math.pow(ratePeriodicAnnualPlusOne, -periodsPerYear * yearFraction);
+    } else {
+      return df * Math.exp(-zSpread * yearFraction);
+    }
+  }
 
   /**
    * Gets the continuously compounded zero rate for the specified date.
    * <p>
    * The continuously compounded zero rate is coherent to {@link #discountFactor(LocalDate)} along with 
-   * year fraction which is computed internally in each implementation. 
+   * year fraction which is computed internally in each implementation.
    * 
    * @param date  the date to discount to
    * @return the zero rate
@@ -296,7 +310,7 @@ public interface DiscountFactors
    * The sensitivity refers to the result of {@link #discountFactorWithSpread(LocalDate, double, CompoundedRateType, int)}.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic
-   * compounded rates of the discounting curve. 
+   * compounded rates of the discounting curve.
    * 
    * @param date  the date to discount to
    * @param zSpread  the z-spread
@@ -323,7 +337,7 @@ public interface DiscountFactors
    * The sensitivity refers to the result of {@link #discountFactorWithSpread(LocalDate, double, CompoundedRateType, int)}.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic
-   * compounded rates of the discounting curve. 
+   * compounded rates of the discounting curve.
    * <p>
    * The year fraction must be based on {@code #relativeYearFraction(LocalDate)}.
    * 
@@ -352,7 +366,7 @@ public interface DiscountFactors
    * The sensitivity refers to the result of {@link #discountFactorWithSpread(LocalDate, double, CompoundedRateType, int)}.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic
-   * compounded rates of the discounting curve. 
+   * compounded rates of the discounting curve.
    * <p>
    * This method allows the currency of the sensitivity to differ from the currency of the market data.
    * 
@@ -384,7 +398,7 @@ public interface DiscountFactors
    * The sensitivity refers to the result of {@link #discountFactorWithSpread(LocalDate, double, CompoundedRateType, int)}.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic
-   * compounded rates of the discounting curve. 
+   * compounded rates of the discounting curve.
    * <p>
    * This method allows the currency of the sensitivity to differ from the currency of the market data.
    * <p>
@@ -398,12 +412,27 @@ public interface DiscountFactors
    * @return the point sensitivity of the zero rate
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract ZeroRateSensitivity zeroRatePointSensitivityWithSpread(
+  public default ZeroRateSensitivity zeroRatePointSensitivityWithSpread(
       double yearFraction,
       Currency sensitivityCurrency,
       double zSpread,
       CompoundedRateType compoundedRateType,
-      int periodsPerYear);
+      int periodsPerYear) {
+
+    ZeroRateSensitivity sensi = zeroRatePointSensitivity(yearFraction, sensitivityCurrency);
+    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
+      return sensi;
+    }
+    double factor;
+    if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
+      double df = discountFactor(yearFraction);
+      double dfRoot = Math.pow(df, -1d / periodsPerYear / yearFraction);
+      factor = dfRoot / df / Math.pow(dfRoot + zSpread / periodsPerYear, periodsPerYear * yearFraction + 1d);
+    } else {
+      factor = Math.exp(-zSpread * yearFraction);
+    }
+    return sensi.multipliedBy(factor);
+  }
 
   //-------------------------------------------------------------------------
   /**

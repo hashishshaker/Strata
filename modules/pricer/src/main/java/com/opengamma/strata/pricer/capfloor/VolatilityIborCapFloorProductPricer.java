@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -40,7 +40,7 @@ public class VolatilityIborCapFloorProductPricer {
   private final DiscountingSwapLegPricer payLegPricer;
 
   /**
-   * Creates an instance. 
+   * Creates an instance.
    * 
    * @param capFloorLegPricer  the pricer for {@link IborCapFloorLeg}
    * @param payLegPricer  the pricer for {@link SwapLeg}
@@ -53,18 +53,27 @@ public class VolatilityIborCapFloorProductPricer {
     this.payLegPricer = ArgChecker.notNull(payLegPricer, "payLegPricer");
   }
 
+  /**
+   * Gets the pay leg pricer.
+   * 
+   * @return the pay leg pricer
+   */
+  protected DiscountingSwapLegPricer getPayLegPricer() {
+    return payLegPricer;
+  }
+
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value of the cap/floor product.
+   * Calculates the present value of the Ibor cap/floor product.
    * <p>
    * The present value of the product is the value on the valuation date.
    * <p>
-   * Cap/floor leg and pay leg are typically in the same currency. Thus the present value is expressed as a 
-   * single currency amount in most cases.
+   * The cap/floor leg and pay leg are typically in the same currency, thus the
+   * present value gamma is expressed as a single currency amount in most cases.
    * 
-   * @param capFloor  the cap/floor product
+   * @param capFloor  the Ibor cap/floor product
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the present value
    */
   public MultiCurrencyAmount presentValue(
@@ -81,17 +90,18 @@ public class VolatilityIborCapFloorProductPricer {
     return MultiCurrencyAmount.of(pvCapFloorLeg).plus(pvPayLeg);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Calculates the present value delta of the cap/floor product.
+   * Calculates the present value delta of the Ibor cap/floor product.
    * <p>
    * The present value of the product is the sensitivity value on the valuation date.
    * <p>
-   * Cap/floor leg and pay leg are typically in the same currency. Thus the present value delta is expressed as a 
-   * single currency amount in most cases.
+   * The cap/floor leg and pay leg are typically in the same currency, thus the
+   * present value gamma is expressed as a single currency amount in most cases.
    * 
-   * @param capFloor  the cap/floor product
+   * @param capFloor  the Ibor cap/floor product
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the present value delta
    */
   public MultiCurrencyAmount presentValueDelta(
@@ -104,17 +114,18 @@ public class VolatilityIborCapFloorProductPricer {
     return MultiCurrencyAmount.of(pvCapFloorLeg);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Calculates the present value gamma of the cap/floor product.
+   * Calculates the present value gamma of the Ibor cap/floor product.
    * <p>
    * The present value of the product is the sensitivity value on the valuation date.
    * <p>
-   * Cap/floor leg and pay leg are typically in the same currency. Thus the present value gamma is expressed as a 
-   * single currency amount in most cases.
+   * The cap/floor leg and pay leg are typically in the same currency, thus the
+   * present value gamma is expressed as a single currency amount in most cases.
    * 
-   * @param capFloor  the cap/floor product
+   * @param capFloor  the Ibor cap/floor product
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the present value gamma
    */
   public MultiCurrencyAmount presentValueGamma(
@@ -127,17 +138,18 @@ public class VolatilityIborCapFloorProductPricer {
     return MultiCurrencyAmount.of(pvCapFloorLeg);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Calculates the present value theta of the cap/floor product.
+   * Calculates the present value theta of the Ibor cap/floor product.
    * <p>
    * The present value of the product is the sensitivity value on the valuation date.
    * <p>
-   * Cap/floor leg and pay leg are typically in the same currency. Thus the present value theta is expressed as a 
-   * single currency amount in most cases.
+   * The cap/floor leg and pay leg are typically in the same currency, thus the
+   * present value gamma is expressed as a single currency amount in most cases.
    * 
-   * @param capFloor  the cap/floor product
+   * @param capFloor  the Ibor cap/floor product
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the present value theta
    */
   public MultiCurrencyAmount presentValueTheta(
@@ -150,23 +162,25 @@ public class VolatilityIborCapFloorProductPricer {
     return MultiCurrencyAmount.of(pvCapFloorLeg);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Calculates the present value curve sensitivity of the cap/floor product.
+   * Calculates the present value rates sensitivity of the Ibor cap/floor product.
    * <p>
-   * The present value sensitivity of the product is the sensitivity of the present value to the underlying curves.
+   * The present value rates sensitivity of the product is the sensitivity
+   * of the present value to the underlying curves.
    * 
-   * @param capFloor  the cap/floor product
+   * @param capFloor  the Ibor cap/floor product
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivity(
+  public PointSensitivityBuilder presentValueSensitivityRates(
       ResolvedIborCapFloor capFloor,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
     PointSensitivityBuilder pvSensiCapFloorLeg =
-        capFloorLegPricer.presentValueSensitivity(capFloor.getCapFloorLeg(), ratesProvider, volatilities);
+        capFloorLegPricer.presentValueSensitivityRates(capFloor.getCapFloorLeg(), ratesProvider, volatilities);
     if (!capFloor.getPayLeg().isPresent()) {
       return pvSensiCapFloorLeg;
     }
@@ -175,33 +189,34 @@ public class VolatilityIborCapFloorProductPricer {
     return pvSensiCapFloorLeg.combinedWith(pvSensiPayLeg);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Calculates the present value volatility sensitivity of the cap/floor product.
+   * Calculates the present value volatility sensitivity of the Ibor cap/floor product.
    * <p>
-   * The present value volatility sensitivity of the product is the sensitivity of the present value to the volatility 
-   * values.
+   * The present value volatility sensitivity of the product is the sensitivity
+   * of the present value to the volatility values.
    * 
-   * @param capFloor  the cap/floor product
+   * @param capFloor  the Ibor cap/floor product
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivityVolatility(
+  public PointSensitivityBuilder presentValueSensitivityModelParamsVolatility(
       ResolvedIborCapFloor capFloor,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
-    return capFloorLegPricer.presentValueSensitivityVolatility(
+    return capFloorLegPricer.presentValueSensitivityModelParamsVolatility(
         capFloor.getCapFloorLeg(), ratesProvider, volatilities);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the currency exposure of the cap/floor product.
+   * Calculates the currency exposure of the Ibor cap/floor product.
    * 
-   * @param capFloor  the cap/floor product
+   * @param capFloor  the Ibor cap/floor product
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(
@@ -218,12 +233,13 @@ public class VolatilityIborCapFloorProductPricer {
     return cePayLeg.plus(ceCapFloorLeg);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Calculates the current cash of the cap/floor product.
+   * Calculates the current cash of the Ibor cap/floor product.
    * 
-   * @param capFloor  the cap/floor product
+   * @param capFloor  the Ibor cap/floor product
    * @param ratesProvider  the rates provider
-   * @param volatilities  the caplet/floorlet volatilities
+   * @param volatilities  the volatilities
    * @return the current cash
    */
   public MultiCurrencyAmount currentCash(

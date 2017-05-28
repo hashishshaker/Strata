@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -6,7 +6,6 @@
 package com.opengamma.strata.product.swap.type;
 
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
-
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
@@ -20,7 +19,7 @@ import com.opengamma.strata.basics.index.PriceIndices;
  */
 @Test
 public class FixedInflationSwapConventionsTest {
-  
+
   //-------------------------------------------------------------------------
   @DataProvider(name = "floatLeg")
   static Object[][] data_float_leg() {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -108,7 +108,7 @@ public final class TradeCounterpartyCalculationParameter
   /**
    * The meta-bean for {@code TradeCounterpartyCalculationParameter}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(TradeCounterpartyCalculationParameter.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(TradeCounterpartyCalculationParameter.class);
 
   /**
    * The meta-bean for {@code TradeCounterpartyCalculationParameter}.

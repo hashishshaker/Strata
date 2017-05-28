@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.market.surface;
@@ -29,7 +29,7 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
 /**
- * The deformed surface. 
+ * The deformed surface.
  * <p>
  * The deformation is applied to {@code Surface}, and defined in terms of {@code Function}, which returns z-value and 
  * sensitivities to the nodes of the original surface.
@@ -50,16 +50,16 @@ public final class DeformedSurface
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final SurfaceMetadata metadata;
   /**
-   * The original surface. 
+   * The original surface.
    * <p>
    * The underlying surface which receives the deformation defined by {@code deformationFunction}.
    */
   @PropertyDefinition(validate = "notNull")
   private final Surface originalSurface;
   /**
-   * The deformation function. 
+   * The deformation function.
    * <p>
-   * The deformation to the original surface is define by this function. 
+   * The deformation to the original surface is define by this function.
    * The function takes {@code DoublesPair} of x-value and y-value, then returns {@code ValueDerivatives} 
    * which contains z-value for the specified x,y values, and node sensitivities to the original surface.
    */
@@ -102,10 +102,10 @@ public final class DeformedSurface
   public UnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
     return getMetadata().getParameterMetadata().isPresent() ?
         UnitParameterSensitivity.of(
-            getMetadata().getSurfaceName(), 
-            getMetadata().getParameterMetadata().get(), 
-            deformationFunction.apply(DoublesPair.of(x, y)).getDerivatives())
-        : UnitParameterSensitivity.of(
+            getMetadata().getSurfaceName(),
+            getMetadata().getParameterMetadata().get(),
+            deformationFunction.apply(DoublesPair.of(x, y)).getDerivatives()) :
+        UnitParameterSensitivity.of(
             getMetadata().getSurfaceName(),
             deformationFunction.apply(DoublesPair.of(x, y)).getDerivatives());
   }
@@ -449,19 +449,31 @@ public final class DeformedSurface
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

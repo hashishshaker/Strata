@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -20,10 +21,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -32,6 +33,7 @@ import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
@@ -75,11 +77,11 @@ public final class DiscountFxForwardRates
   /**
    * The valuation date.
    */
-  private final LocalDate valuationDate;  // not a property, derived and cached from input data
+  private final transient LocalDate valuationDate;  // not a property, derived and cached from input data
   /**
    * The parameter combiner.
    */
-  private final ParameterizedDataCombiner paramCombiner;  // not a property
+  private final transient ParameterizedDataCombiner paramCombiner;  // not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -136,10 +138,22 @@ public final class DiscountFxForwardRates
     this.paramCombiner = ParameterizedDataCombiner.of(baseCurrencyDiscountFactors, counterCurrencyDiscountFactors);
   }
 
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new DiscountFxForwardRates(currencyPair, fxRateProvider, baseCurrencyDiscountFactors, counterCurrencyDiscountFactors);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public LocalDate getValuationDate() {
     return valuationDate;
+  }
+
+  @Override
+  public <T> Optional<T> findData(MarketDataName<T> name) {
+    return baseCurrencyDiscountFactors.findData(name)
+        .map(Optional::of)
+        .orElse(counterCurrencyDiscountFactors.findData(name));
   }
 
   @Override
@@ -241,7 +255,7 @@ public final class DiscountFxForwardRates
   @Override
   public MultiCurrencyAmount currencyExposure(FxForwardSensitivity pointSensitivity) {
     ArgChecker.isTrue(pointSensitivity.getCurrency().equals(pointSensitivity.getReferenceCurrency()),
-        "Currency exposure definited only when sensitiivty currency equal reference currency");
+        "Currency exposure defined only when sensitivity currency equal reference currency");
     Currency ccyRef = pointSensitivity.getReferenceCurrency();
     CurrencyPair pair = pointSensitivity.getCurrencyPair();
     double s = pointSensitivity.getSensitivity();
@@ -522,7 +536,7 @@ public final class DiscountFxForwardRates
   /**
    * The bean-builder for {@code DiscountFxForwardRates}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<DiscountFxForwardRates> {
+  private static final class Builder extends DirectPrivateBeanBuilder<DiscountFxForwardRates> {
 
     private CurrencyPair currencyPair;
     private FxRateProvider fxRateProvider;
@@ -533,6 +547,7 @@ public final class DiscountFxForwardRates
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -570,30 +585,6 @@ public final class DiscountFxForwardRates
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

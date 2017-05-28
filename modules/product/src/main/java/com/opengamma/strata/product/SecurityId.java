@@ -1,13 +1,12 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.product;
 
 import java.io.Serializable;
 
-import org.joda.beans.PropertyDefinition;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
@@ -36,7 +35,6 @@ public final class SecurityId
   /**
    * The identifier, expressed as a standard two-part identifier.
    */
-  @PropertyDefinition(validate = "notNull")
   private final StandardId standardId;
 
   //-------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
-import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
@@ -28,29 +27,29 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.interpolator.CurveInterpolator;
-import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.curve.LegalEntityGroup;
+import com.opengamma.strata.market.curve.RepoGroup;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.PriceIndexValues;
-import com.opengamma.strata.pricer.rate.SimplePriceIndexValues;
 
 /**
- * The data set for testing capital indexed bonds. 
+ * The data set for testing capital indexed bonds.
  */
 public class CapitalIndexedBondCurveDataSet {
 
-  private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT");
-  private static final LegalEntityGroup GROUP_ISSUER = LegalEntityGroup.of("GOVT");
-  private static final BondGroup GROUP_REPO = BondGroup.of("GOVT BONDS");
+  public static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT");
+  public static final LegalEntityGroup GROUP_ISSUER = LegalEntityGroup.of("GOVT");
+  public static final RepoGroup GROUP_REPO = RepoGroup.of("GOVT BONDS");
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final CurveName ISSUER_CURVE_NAME = CurveName.of("issuerCurve");
   private static final CurveName REPO_CURVE_NAME = CurveName.of("repoCurve");
 
-  private static final InterpolatedNodalCurve ISSUER_CURVE;
-  private static final InterpolatedNodalCurve REPO_CURVE;
-  private static final InterpolatedNodalCurve CPI_CURVE;
+  public static final InterpolatedNodalCurve ISSUER_CURVE;
+  public static final InterpolatedNodalCurve REPO_CURVE;
+  public static final InterpolatedNodalCurve CPI_CURVE;
   private static final InterpolatedNodalCurve RPI_CURVE;
   private static final InterpolatedNodalCurve CPIJ_CURVE;
   static {
@@ -94,64 +93,58 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-   * Obtains an immutable rates providers with valuation date and time series. 
+   * Obtains an immutable rates providers with valuation date and time series.
    * <p>
-   * The time series must contain historical data for the price index. 
+   * The time series must contain historical data for the price index.
    * 
    * @param valuationDate  the valuation date
    * @param timeSeries  the time series
    * @return the rates provider
    */
   public static ImmutableRatesProvider getRatesProvider(LocalDate valuationDate, LocalDateDoubleTimeSeries timeSeries) {
-    PriceIndexValues indexCurve = SimplePriceIndexValues.of(US_CPI_U, valuationDate, CPI_CURVE, timeSeries);
-    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(US_CPI_U, indexCurve);
     return ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(FxMatrix.empty())
-        .priceIndexValues(map)
+        .priceIndexCurve(US_CPI_U, CPI_CURVE)
         .timeSeries(US_CPI_U, timeSeries)
         .build();
   }
 
   /**
-   * Obtains an immutable rates providers with valuation date and time series. 
+   * Obtains an immutable rates providers with valuation date and time series.
    * <p>
-   * The time series must contain historical data for the price index. 
+   * The time series must contain historical data for the price index.
    * 
    * @param valuationDate  the valuation date
    * @param timeSeries  the time series
    * @return the rates provider
    */
   public static ImmutableRatesProvider getRatesProviderGb(LocalDate valuationDate, LocalDateDoubleTimeSeries timeSeries) {
-    PriceIndexValues indexCurve = SimplePriceIndexValues.of(GB_RPI, valuationDate, RPI_CURVE, timeSeries);
-    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, indexCurve);
     return ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(FxMatrix.empty())
-        .priceIndexValues(map)
+        .priceIndexCurve(GB_RPI, RPI_CURVE)
         .timeSeries(GB_RPI, timeSeries)
         .build();
   }
 
   /**
-   * Obtains an immutable rates providers with valuation date and time series. 
+   * Obtains an immutable rates providers with valuation date and time series.
    * <p>
-   * The time series must contain historical data for the price index. 
+   * The time series must contain historical data for the price index.
    * 
    * @param valuationDate  the valuation date
    * @param timeSeries  the time series
    * @return the rates provider
    */
   public static ImmutableRatesProvider getRatesProviderJp(LocalDate valuationDate, LocalDateDoubleTimeSeries timeSeries) {
-    PriceIndexValues indexCurve = SimplePriceIndexValues.of(JP_CPI_EXF, valuationDate, CPIJ_CURVE, timeSeries);
-    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(JP_CPI_EXF, indexCurve);
     return ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(FxMatrix.empty())
-        .priceIndexValues(map)
+        .priceIndexCurve(JP_CPI_EXF, CPIJ_CURVE)
         .timeSeries(JP_CPI_EXF, timeSeries)
         .build();
   }
 
   /**
-   * Obtains legal entity discounting rates provider from valuation date. 
+   * Obtains legal entity discounting rates provider from valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return the discounting rates provider
@@ -159,18 +152,18 @@ public class CapitalIndexedBondCurveDataSet {
   public static LegalEntityDiscountingProvider getLegalEntityDiscountingProvider(LocalDate valuationDate) {
     DiscountFactors dscIssuer = ZeroRateDiscountFactors.of(USD, valuationDate, ISSUER_CURVE);
     DiscountFactors dscRepo = ZeroRateDiscountFactors.of(USD, valuationDate, REPO_CURVE);
-    return LegalEntityDiscountingProvider.builder()
+    return ImmutableLegalEntityDiscountingProvider.builder()
         .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
             Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER, USD), dscIssuer))
-        .legalEntityMap(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID, GROUP_ISSUER))
-        .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
-            Pair.<BondGroup, Currency>of(GROUP_REPO, USD), dscRepo))
-        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ISSUER_ID, GROUP_REPO))
+        .issuerCurveGroups(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID, GROUP_ISSUER))
+        .repoCurves(ImmutableMap.<Pair<RepoGroup, Currency>, DiscountFactors>of(
+            Pair.<RepoGroup, Currency>of(GROUP_REPO, USD), dscRepo))
+        .repoCurveGroups(ImmutableMap.<StandardId, RepoGroup>of(ISSUER_ID, GROUP_REPO))
         .build();
   }
 
   /**
-   * Obtains legal entity discounting rates provider from valuation date. 
+   * Obtains legal entity discounting rates provider from valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return the discounting rates provider
@@ -178,18 +171,18 @@ public class CapitalIndexedBondCurveDataSet {
   public static LegalEntityDiscountingProvider getLegalEntityDiscountingProviderGb(LocalDate valuationDate) {
     DiscountFactors dscIssuer = ZeroRateDiscountFactors.of(GBP, valuationDate, ISSUER_CURVE);
     DiscountFactors dscRepo = ZeroRateDiscountFactors.of(GBP, valuationDate, REPO_CURVE);
-    return LegalEntityDiscountingProvider.builder()
+    return ImmutableLegalEntityDiscountingProvider.builder()
         .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
             Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER, GBP), dscIssuer))
-        .legalEntityMap(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID, GROUP_ISSUER))
-        .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
-            Pair.<BondGroup, Currency>of(GROUP_REPO, GBP), dscRepo))
-        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ISSUER_ID, GROUP_REPO))
+        .issuerCurveGroups(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID, GROUP_ISSUER))
+        .repoCurves(ImmutableMap.<Pair<RepoGroup, Currency>, DiscountFactors>of(
+            Pair.<RepoGroup, Currency>of(GROUP_REPO, GBP), dscRepo))
+        .repoCurveGroups(ImmutableMap.<StandardId, RepoGroup>of(ISSUER_ID, GROUP_REPO))
         .build();
   }
 
   /**
-   * Obtains legal entity discounting rates provider from valuation date. 
+   * Obtains legal entity discounting rates provider from valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return the discounting rates provider
@@ -197,18 +190,18 @@ public class CapitalIndexedBondCurveDataSet {
   public static LegalEntityDiscountingProvider getLegalEntityDiscountingProviderJp(LocalDate valuationDate) {
     DiscountFactors dscIssuer = ZeroRateDiscountFactors.of(JPY, valuationDate, ISSUER_CURVE);
     DiscountFactors dscRepo = ZeroRateDiscountFactors.of(JPY, valuationDate, REPO_CURVE);
-    return LegalEntityDiscountingProvider.builder()
+    return ImmutableLegalEntityDiscountingProvider.builder()
         .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
             Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER, JPY), dscIssuer))
-        .legalEntityMap(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID, GROUP_ISSUER))
-        .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
-            Pair.<BondGroup, Currency>of(GROUP_REPO, JPY), dscRepo))
-        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ISSUER_ID, GROUP_REPO))
+        .issuerCurveGroups(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID, GROUP_ISSUER))
+        .repoCurves(ImmutableMap.<Pair<RepoGroup, Currency>, DiscountFactors>of(
+            Pair.<RepoGroup, Currency>of(GROUP_REPO, JPY), dscRepo))
+        .repoCurveGroups(ImmutableMap.<StandardId, RepoGroup>of(ISSUER_ID, GROUP_REPO))
         .build();
   }
 
   /**
-   * Obtains issuer curve discount factors form valuation date. 
+   * Obtains issuer curve discount factors form valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return the discount factors
@@ -228,7 +221,7 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-   * Obtains time series of price index up to valuation date. 
+   * Obtains time series of price index up to valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return the time series
@@ -290,7 +283,7 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-   * Obtains time series of price index up to valuation date. 
+   * Obtains time series of price index up to valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return the time series
@@ -314,7 +307,7 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-   * Obtains time series of price index up to valuation date. 
+   * Obtains time series of price index up to valuation date.
    * 
    * @param valuationDate  the valuation date
    * @return the time series

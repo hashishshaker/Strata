@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -29,7 +29,7 @@ public final class SsviVolatilityFunction
     extends VolatilityFunctionProvider<SsviFormulaData> implements ImmutableBean, Serializable {
 
   /**
-   * Default implementation. 
+   * Default implementation.
    */
   public static final SsviVolatilityFunction DEFAULT = new SsviVolatilityFunction();
 
@@ -116,7 +116,7 @@ public final class SsviVolatilityFunction
   /**
    * The meta-bean for {@code SsviVolatilityFunction}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(SsviVolatilityFunction.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(SsviVolatilityFunction.class);
 
   /**
    * The meta-bean for {@code SsviVolatilityFunction}.

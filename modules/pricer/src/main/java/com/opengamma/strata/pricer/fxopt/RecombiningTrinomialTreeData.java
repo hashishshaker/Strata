@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.pricer.fxopt;
@@ -19,10 +19,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.ArgChecker;
@@ -30,7 +30,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
- * Recombining trinomial tree data. 
+ * Recombining trinomial tree data.
  * <p>
  * This includes state values and transition probabilities for all of the nodes,
  * as well as discount factors and time (time from valuation date) for individual time steps.
@@ -39,34 +39,34 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 public final class RecombiningTrinomialTreeData implements ImmutableBean, Serializable {
 
   /**
-   * The state value. 
+   * The state value.
    * <p>
    * The {@code (i,j)} component of this matrix represents the underlying asset price at the {@code j}-th lowest node 
-   * at the {@code i}-th time layer. 
+   * at the {@code i}-th time layer.
    */
   @PropertyDefinition
   private final DoubleMatrix stateValue;
   /**
-   * The transition probability. 
+   * The transition probability.
    * <p>
    * The {@code i}-th element of the list represents the transition probability values for the nodes 
-   * at the {@code i}-th time layer. 
+   * at the {@code i}-th time layer.
    * The matrix is {@code (2*i+1)} times {@code 3}, and its {@code j}-th row involves [0] down probability, 
-   * [1] middle probability and [2] up probability for the {@code j}-th lowest node. 
+   * [1] middle probability and [2] up probability for the {@code j}-th lowest node.
    */
   @PropertyDefinition
   private final ImmutableList<DoubleMatrix> transitionProbability;
   /**
-   * The discount factor. 
+   * The discount factor.
    * <p>
-   * The {@code i}-th element is the discount factor between the {@code i}-th layer and the {@code (i+1)}-th layer. 
+   * The {@code i}-th element is the discount factor between the {@code i}-th layer and the {@code (i+1)}-th layer.
    */
   @PropertyDefinition
   private final DoubleArray discountFactor;
   /**
    * The time.
    * <p>
-   * The {@code i}-th element is the year fraction between the {@code 0}-th time layer and the {@code i}-th layer.   
+   * The {@code i}-th element is the year fraction between the {@code 0}-th time layer and the {@code i}-th layer.
    */
   @PropertyDefinition
   private final DoubleArray time;
@@ -105,7 +105,7 @@ public final class RecombiningTrinomialTreeData implements ImmutableBean, Serial
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the number of time steps. 
+   * Obtains the number of time steps.
    * 
    * @return the number of time steps
    */
@@ -114,7 +114,7 @@ public final class RecombiningTrinomialTreeData implements ImmutableBean, Serial
   }
 
   /**
-   * Obtains the state values at the {@code i}-th time layer
+   * Obtains the state values at the {@code i}-th time layer.
    * 
    * @param i  the layer
    * @return the state values
@@ -124,7 +124,7 @@ public final class RecombiningTrinomialTreeData implements ImmutableBean, Serial
   }
 
   /**
-   * Obtains the transition probability values at the {@code i}-th time layer
+   * Obtains the transition probability values at the {@code i}-th time layer.
    * 
    * @param i  the layer
    * @return the transition probability
@@ -144,7 +144,7 @@ public final class RecombiningTrinomialTreeData implements ImmutableBean, Serial
   }
 
   /**
-   * Obtains the spot. 
+   * Obtains the spot.
    * 
    * @return the spot
    */
@@ -153,7 +153,7 @@ public final class RecombiningTrinomialTreeData implements ImmutableBean, Serial
   }
 
   /**
-   * Obtains the time for the {@code i}-th layer. 
+   * Obtains the time for the {@code i}-th layer.
    * <p>
    * The time is the year fraction between the {@code 0}-th layer and the {@code i}-th layer.
    * 
@@ -436,7 +436,7 @@ public final class RecombiningTrinomialTreeData implements ImmutableBean, Serial
   /**
    * The bean-builder for {@code RecombiningTrinomialTreeData}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<RecombiningTrinomialTreeData> {
+  private static final class Builder extends DirectPrivateBeanBuilder<RecombiningTrinomialTreeData> {
 
     private DoubleMatrix stateValue;
     private List<DoubleMatrix> transitionProbability;
@@ -447,6 +447,7 @@ public final class RecombiningTrinomialTreeData implements ImmutableBean, Serial
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -485,30 +486,6 @@ public final class RecombiningTrinomialTreeData implements ImmutableBean, Serial
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

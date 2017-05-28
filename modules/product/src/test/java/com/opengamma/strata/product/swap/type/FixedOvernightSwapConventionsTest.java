@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -153,7 +153,7 @@ public class FixedOvernightSwapConventionsTest {
         {FixedOvernightSwapConventions.JPY_FIXED_1Y_TONAR_OIS, Tenor.TENOR_18M},
     };
   }
-  
+
   @Test(dataProvider = "stubOn")
   public void test_stub_overnight(FixedOvernightSwapConvention convention, Tenor tenor) {
     LocalDate tradeDate = LocalDate.of(2015, 10, 20);

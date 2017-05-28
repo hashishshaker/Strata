@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.pricer.fxopt;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
@@ -19,14 +24,15 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.interpolator.CurveExtrapolator;
-import com.opengamma.strata.market.interpolator.CurveExtrapolators;
-import com.opengamma.strata.market.interpolator.CurveInterpolator;
-import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
+import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -39,6 +45,7 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.fx.ResolvedFxSingle;
 import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOption;
+import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOptionTrade;
 
 /**
  * Test {@link VannaVolgaFxVanillaOptionProductPricer}.
@@ -57,7 +64,6 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
   private static final ImmutableRatesProvider RATES_PROVIDER_AFTER =
       RatesProviderFxDataSets.createProviderEurUsdActActIsda(AFTER.toLocalDate());
 
-  private static final String NAME = "smileEurUsd";
   private static final DoubleArray TIME_TO_EXPIRY = DoubleArray.of(0.0001, 0.25205479452054796, 0.5013698630136987,
       1.0015120892282356, 2.0, 5.001512089228235);
   private static final DoubleArray ATM = DoubleArray.of(0.11, 0.115, 0.12, 0.12, 0.125, 0.13);
@@ -68,14 +74,14 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
     {0.002 }, {0.003 }, {0.004 }, {0.0045 }, {0.0045 }, {0.0045 } });
   private static final CurveInterpolator INTERP_STRIKE = CurveInterpolators.DOUBLE_QUADRATIC;
   private static final CurveExtrapolator EXTRAP_STRIKE = CurveExtrapolators.LINEAR;
-  private static final InterpolatedSmileDeltaTermStructureStrikeInterpolation SMILE_TERM =
-      InterpolatedSmileDeltaTermStructureStrikeInterpolation.of(NAME, TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL,
-          STRANGLE, EXTRAP_STRIKE, INTERP_STRIKE, EXTRAP_STRIKE);
+  private static final InterpolatedStrikeSmileDeltaTermStructure SMILE_TERM =
+      InterpolatedStrikeSmileDeltaTermStructure.of(
+          TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE, ACT_ACT_ISDA, INTERP_STRIKE, EXTRAP_STRIKE, EXTRAP_STRIKE);
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(EUR, USD);
-  private static final BlackVolatilitySmileFxProvider VOL_PROVIDER =
-      BlackVolatilitySmileFxProvider.of(SMILE_TERM, CURRENCY_PAIR, ACT_ACT_ISDA, VAL_DATETIME);
-  private static final BlackVolatilitySmileFxProvider VOL_PROVIDER_AFTER =
-      BlackVolatilitySmileFxProvider.of(SMILE_TERM, CURRENCY_PAIR, ACT_ACT_ISDA, AFTER);
+  private static final BlackFxOptionSmileVolatilities VOLS =
+      BlackFxOptionSmileVolatilities.of(FxOptionVolatilitiesName.of("Test"), CURRENCY_PAIR, VAL_DATETIME, SMILE_TERM);
+  private static final BlackFxOptionSmileVolatilities VOLS_AFTER =
+      BlackFxOptionSmileVolatilities.of(FxOptionVolatilitiesName.of("Test"), CURRENCY_PAIR, AFTER, SMILE_TERM);
 
   private static final int NB_STRIKES = 11;
   private static final double STRIKE_MIN = 1.00;
@@ -106,6 +112,7 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
   private static final double TOL = 1.0e-13;
   private static final double FD_EPS = 1.0e-7;
   private static final VannaVolgaFxVanillaOptionProductPricer PRICER = VannaVolgaFxVanillaOptionProductPricer.DEFAULT;
+  private static final VannaVolgaFxVanillaOptionTradePricer TRADE_PRICER = VannaVolgaFxVanillaOptionTradePricer.DEFAULT;
   private static final DiscountingFxSingleProductPricer FX_PRICER = DiscountingFxSingleProductPricer.DEFAULT;
   private static final RatesFiniteDifferenceSensitivityCalculator FD_CAL =
       new RatesFiniteDifferenceSensitivityCalculator(FD_EPS);
@@ -114,14 +121,19 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_price_presentValue() {
     for (int i = 0; i < NB_STRIKES; ++i) {
-      double computedPriceCall = PRICER.price(CALLS[i], RATES_PROVIDER, VOL_PROVIDER);
-      CurrencyAmount computedCall = PRICER.presentValue(CALLS[i], RATES_PROVIDER, VOL_PROVIDER);
-      double timeToExpiry = VOL_PROVIDER.relativeTime(EXPIRY);
+      ResolvedFxVanillaOption call = CALLS[i];
+      ResolvedFxVanillaOptionTrade callTrade = ResolvedFxVanillaOptionTrade.builder()
+          .product(call)
+          .premium(Payment.of(EUR, 0, VAL_DATE))
+          .build();
+      double computedPriceCall = PRICER.price(call, RATES_PROVIDER, VOLS);
+      CurrencyAmount computedCall = PRICER.presentValue(call, RATES_PROVIDER, VOLS);
+      double timeToExpiry = VOLS.relativeTime(EXPIRY);
       FxRate forward = FX_PRICER.forwardFxRate(UNDERLYING[i], RATES_PROVIDER);
       double forwardRate = forward.fxRate(CURRENCY_PAIR);
-      double strikeRate = CALLS[i].getStrike();
-      SmileDeltaParameters smileAtTime = VOL_PROVIDER.getSmile().smileForTime(timeToExpiry);
-      double[] strikes = smileAtTime.getStrike(forwardRate).toArray();
+      double strikeRate = call.getStrike();
+      SmileDeltaParameters smileAtTime = VOLS.getSmile().smileForExpiry(timeToExpiry);
+      double[] strikes = smileAtTime.strike(forwardRate).toArray();
       double[] vols = smileAtTime.getVolatility().toArray();
       double df = RATES_PROVIDER.discountFactor(USD, PAY);
       double[] weights = weights(forwardRate, strikeRate, strikes, timeToExpiry, vols[1]);
@@ -134,19 +146,34 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
       expectedPriceCall *= df;
       assertEquals(computedPriceCall, expectedPriceCall, TOL);
       assertEquals(computedCall.getAmount(), expectedPriceCall * NOTIONAL, TOL * NOTIONAL);
+      // test against trade pricer
+      assertEquals(computedCall, TRADE_PRICER.presentValue(callTrade, RATES_PROVIDER, VOLS).getAmount(USD));
     }
   }
 
   public void test_price_presentValue_afterExpiry() {
     for (int i = 0; i < NB_STRIKES; ++i) {
-      double computedPriceCall = PRICER.price(CALLS[i], RATES_PROVIDER_AFTER, VOL_PROVIDER_AFTER);
-      CurrencyAmount computedCall = PRICER.presentValue(CALLS[i], RATES_PROVIDER_AFTER, VOL_PROVIDER_AFTER);
+      ResolvedFxVanillaOption call = CALLS[i];
+      ResolvedFxVanillaOptionTrade callTrade = ResolvedFxVanillaOptionTrade.builder()
+          .product(call)
+          .premium(Payment.of(EUR, 0, VOLS_AFTER.getValuationDate()))
+          .build();
+      double computedPriceCall = PRICER.price(call, RATES_PROVIDER_AFTER, VOLS_AFTER);
+      CurrencyAmount computedCall = PRICER.presentValue(call, RATES_PROVIDER_AFTER, VOLS_AFTER);
       assertEquals(computedPriceCall, 0d, TOL);
       assertEquals(computedCall.getAmount(), 0d, TOL);
-      double computedPricePut = PRICER.price(PUTS[i], RATES_PROVIDER_AFTER, VOL_PROVIDER_AFTER);
-      CurrencyAmount computedPut = PRICER.presentValue(PUTS[i], RATES_PROVIDER_AFTER, VOL_PROVIDER_AFTER);
+      ResolvedFxVanillaOption put = PUTS[i];
+      ResolvedFxVanillaOptionTrade putTrade = ResolvedFxVanillaOptionTrade.builder()
+          .product(put)
+          .premium(Payment.of(EUR, 0, VOLS_AFTER.getValuationDate()))
+          .build();
+      double computedPricePut = PRICER.price(put, RATES_PROVIDER_AFTER, VOLS_AFTER);
+      CurrencyAmount computedPut = PRICER.presentValue(put, RATES_PROVIDER_AFTER, VOLS_AFTER);
       assertEquals(computedPricePut, 0d, TOL);
       assertEquals(computedPut.getAmount(), 0d, TOL);
+      // test against trade pricer
+      assertEquals(computedCall, TRADE_PRICER.presentValue(callTrade, RATES_PROVIDER_AFTER, VOLS_AFTER).getAmount(USD));
+      assertEquals(computedPut, TRADE_PRICER.presentValue(putTrade, RATES_PROVIDER_AFTER, VOLS_AFTER).getAmount(USD));
     }
   }
 
@@ -154,22 +181,22 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
   public void test_presentValueSensitivity() {
     for (int i = 0; i < NB_STRIKES; ++i) {
       ResolvedFxVanillaOption option = CALLS[i];
-      PointSensitivityBuilder point = PRICER.presentValueSensitivityStickyStrike(option, RATES_PROVIDER, VOL_PROVIDER);
+      PointSensitivityBuilder point = PRICER.presentValueSensitivityRatesStickyStrike(option, RATES_PROVIDER, VOLS);
       CurrencyParameterSensitivities sensiComputed = RATES_PROVIDER.parameterSensitivity(point.build());
-      double timeToExpiry = VOL_PROVIDER.relativeTime(EXPIRY);
+      double timeToExpiry = VOLS.relativeTime(EXPIRY);
       double forwardRate = FX_PRICER.forwardFxRate(UNDERLYING[i], RATES_PROVIDER).fxRate(CURRENCY_PAIR);
       double strikeRate = option.getStrike();
-      SmileDeltaParameters smileAtTime = VOL_PROVIDER.getSmile().smileForTime(timeToExpiry);
+      SmileDeltaParameters smileAtTime = VOLS.getSmile().smileForExpiry(timeToExpiry);
       double[] vols = smileAtTime.getVolatility().toArray();
       double df = RATES_PROVIDER.discountFactor(USD, PAY);
       CurrencyParameterSensitivities sensiExpected =
-          FD_CAL.sensitivity(RATES_PROVIDER, p -> PRICER.presentValue(option, p, VOL_PROVIDER));
+          FD_CAL.sensitivity(RATES_PROVIDER, p -> PRICER.presentValue(option, p, VOLS));
       CurrencyParameterSensitivities sensiRes = FD_CAL.sensitivity(RATES_PROVIDER,
           new Function<ImmutableRatesProvider, CurrencyAmount>() {
             @Override
             public CurrencyAmount apply(ImmutableRatesProvider p) {
               double fwd = FX_PRICER.forwardFxRate(option.getUnderlying(), p).fxRate(CURRENCY_PAIR);
-              double[] strs = smileAtTime.getStrike(fwd).toArray();
+              double[] strs = smileAtTime.strike(fwd).toArray();
               double[] wghts = weights(fwd, strikeRate, strs, timeToExpiry, vols[1]);
               double res = 0d;
               for (int j = 0; j < 3; ++j) {
@@ -187,10 +214,10 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
   public void test_presentValueSensitivity_afterExpiry() {
     for (int i = 0; i < NB_STRIKES; ++i) {
       PointSensitivityBuilder computedCall =
-          PRICER.presentValueSensitivityStickyStrike(CALLS[i], RATES_PROVIDER_AFTER, VOL_PROVIDER_AFTER);
+          PRICER.presentValueSensitivityRatesStickyStrike(CALLS[i], RATES_PROVIDER_AFTER, VOLS_AFTER);
       assertEquals(computedCall, PointSensitivityBuilder.none());
       PointSensitivityBuilder computedPut =
-          PRICER.presentValueSensitivityStickyStrike(PUTS[i], RATES_PROVIDER_AFTER, VOL_PROVIDER_AFTER);
+          PRICER.presentValueSensitivityRatesStickyStrike(PUTS[i], RATES_PROVIDER_AFTER, VOLS_AFTER);
       assertEquals(computedPut, PointSensitivityBuilder.none());
     }
   }
@@ -199,13 +226,13 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
   public void test_presentValueSensitivityVolatility() {
     for (int i = 0; i < NB_STRIKES; ++i) {
       PointSensitivities computedCall =
-          PRICER.presentValueSensitivityVolatility(CALLS[i], RATES_PROVIDER, VOL_PROVIDER).build();
-      double timeToExpiry = VOL_PROVIDER.relativeTime(EXPIRY);
+          PRICER.presentValueSensitivityModelParamsVolatility(CALLS[i], RATES_PROVIDER, VOLS).build();
+      double timeToExpiry = VOLS.relativeTime(EXPIRY);
       FxRate forward = FX_PRICER.forwardFxRate(UNDERLYING[i], RATES_PROVIDER);
       double forwardRate = forward.fxRate(CURRENCY_PAIR);
       double strikeRate = CALLS[i].getStrike();
-      SmileDeltaParameters smileAtTime = VOL_PROVIDER.getSmile().smileForTime(timeToExpiry);
-      double[] strikes = smileAtTime.getStrike(forwardRate).toArray();
+      SmileDeltaParameters smileAtTime = VOLS.getSmile().smileForExpiry(timeToExpiry);
+      double[] strikes = smileAtTime.strike(forwardRate).toArray();
       double[] vols = smileAtTime.getVolatility().toArray();
       double df = RATES_PROVIDER.discountFactor(USD, PAY);
       double[] weights = weights(forwardRate, strikeRate, strikes, timeToExpiry, vols[1]);
@@ -227,7 +254,7 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
         assertEquals(sensi.getForward(), forwardRate, TOL);
         assertEquals(sensi.getCurrency(), USD);
         assertEquals(sensi.getCurrencyPair(), CURRENCY_PAIR);
-        assertEquals(sensi.getExpiryDateTime(), EXPIRY);
+        assertEquals(sensi.getExpiry(), timeToExpiry);
       }
     }
   }
@@ -235,10 +262,10 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
   public void test_presentValueSensitivityVolatility_afterExpiry() {
     for (int i = 0; i < NB_STRIKES; ++i) {
       PointSensitivityBuilder computedCall =
-          PRICER.presentValueSensitivityVolatility(CALLS[i], RATES_PROVIDER_AFTER, VOL_PROVIDER_AFTER);
+          PRICER.presentValueSensitivityModelParamsVolatility(CALLS[i], RATES_PROVIDER_AFTER, VOLS_AFTER);
       assertEquals(computedCall, PointSensitivityBuilder.none());
       PointSensitivityBuilder computedPut =
-          PRICER.presentValueSensitivityVolatility(PUTS[i], RATES_PROVIDER_AFTER, VOL_PROVIDER_AFTER);
+          PRICER.presentValueSensitivityModelParamsVolatility(PUTS[i], RATES_PROVIDER_AFTER, VOLS_AFTER);
       assertEquals(computedPut, PointSensitivityBuilder.none());
     }
   }
@@ -246,15 +273,15 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_currencyExposure() {
     for (int i = 0; i < NB_STRIKES; ++i) {
-      CurrencyAmount pvCall = PRICER.presentValue(CALLS[i], RATES_PROVIDER, VOL_PROVIDER);
-      PointSensitivityBuilder pvSensiCall = PRICER.presentValueSensitivityStickyStrike(CALLS[i], RATES_PROVIDER, VOL_PROVIDER);
-      MultiCurrencyAmount computedCall = PRICER.currencyExposure(CALLS[i], RATES_PROVIDER, VOL_PROVIDER);
+      CurrencyAmount pvCall = PRICER.presentValue(CALLS[i], RATES_PROVIDER, VOLS);
+      PointSensitivityBuilder pvSensiCall = PRICER.presentValueSensitivityRatesStickyStrike(CALLS[i], RATES_PROVIDER, VOLS);
+      MultiCurrencyAmount computedCall = PRICER.currencyExposure(CALLS[i], RATES_PROVIDER, VOLS);
       MultiCurrencyAmount expectedCall = RATES_PROVIDER.currencyExposure(pvSensiCall.build()).plus(pvCall);
       assertEquals(computedCall.getAmount(EUR).getAmount(), expectedCall.getAmount(EUR).getAmount(), NOTIONAL * TOL);
       assertEquals(computedCall.getAmount(USD).getAmount(), expectedCall.getAmount(USD).getAmount(), NOTIONAL * TOL);
-      CurrencyAmount pvPut = PRICER.presentValue(PUTS[i], RATES_PROVIDER, VOL_PROVIDER);
-      PointSensitivityBuilder pvSensiPut = PRICER.presentValueSensitivityStickyStrike(PUTS[i], RATES_PROVIDER, VOL_PROVIDER);
-      MultiCurrencyAmount computedPut = PRICER.currencyExposure(PUTS[i], RATES_PROVIDER, VOL_PROVIDER);
+      CurrencyAmount pvPut = PRICER.presentValue(PUTS[i], RATES_PROVIDER, VOLS);
+      PointSensitivityBuilder pvSensiPut = PRICER.presentValueSensitivityRatesStickyStrike(PUTS[i], RATES_PROVIDER, VOLS);
+      MultiCurrencyAmount computedPut = PRICER.currencyExposure(PUTS[i], RATES_PROVIDER, VOLS);
       MultiCurrencyAmount expectedPut = RATES_PROVIDER.currencyExposure(pvSensiPut.build()).plus(pvPut);
       assertEquals(computedPut.getAmount(EUR).getAmount(), expectedPut.getAmount(EUR).getAmount(), NOTIONAL * TOL);
       assertEquals(computedPut.getAmount(USD).getAmount(), expectedPut.getAmount(USD).getAmount(), NOTIONAL * TOL);
@@ -263,9 +290,9 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
 
   public void test_currencyExposure_atExpiry() {
     for (int i = 0; i < NB_STRIKES; ++i) {
-      MultiCurrencyAmount computedCall = PRICER.currencyExposure(CALLS[i], RATES_PROVIDER_AFTER, VOL_PROVIDER_AFTER);
+      MultiCurrencyAmount computedCall = PRICER.currencyExposure(CALLS[i], RATES_PROVIDER_AFTER, VOLS_AFTER);
       assertEquals(computedCall, MultiCurrencyAmount.empty());
-      MultiCurrencyAmount computedPut = PRICER.currencyExposure(PUTS[i], RATES_PROVIDER_AFTER, VOL_PROVIDER_AFTER);
+      MultiCurrencyAmount computedPut = PRICER.currencyExposure(PUTS[i], RATES_PROVIDER_AFTER, VOLS_AFTER);
       assertEquals(computedPut, MultiCurrencyAmount.empty());
     }
   }
@@ -275,16 +302,16 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
     double df = RATES_PROVIDER.discountFactor(USD, PAY);
     PointSensitivityBuilder dfSensi = RATES_PROVIDER.discountFactors(USD).zeroRatePointSensitivity(PAY);
     for (int i = 0; i < NB_STRIKES; ++i) {
-      CurrencyAmount pvCall = PRICER.presentValue(CALLS[i], RATES_PROVIDER, VOL_PROVIDER);
+      CurrencyAmount pvCall = PRICER.presentValue(CALLS[i], RATES_PROVIDER, VOLS);
       PointSensitivityBuilder pvSensiCall =
-          PRICER.presentValueSensitivityStickyStrike(CALLS[i], RATES_PROVIDER, VOL_PROVIDER);
+          PRICER.presentValueSensitivityRatesStickyStrike(CALLS[i], RATES_PROVIDER, VOLS);
       PointSensitivityBuilder pvSensiVolCall =
-          PRICER.presentValueSensitivityVolatility(CALLS[i], RATES_PROVIDER, VOL_PROVIDER);
-      CurrencyAmount pvPut = PRICER.presentValue(PUTS[i], RATES_PROVIDER, VOL_PROVIDER);
+          PRICER.presentValueSensitivityModelParamsVolatility(CALLS[i], RATES_PROVIDER, VOLS);
+      CurrencyAmount pvPut = PRICER.presentValue(PUTS[i], RATES_PROVIDER, VOLS);
       PointSensitivityBuilder pvSensiPut =
-          PRICER.presentValueSensitivityStickyStrike(PUTS[i], RATES_PROVIDER, VOL_PROVIDER);
+          PRICER.presentValueSensitivityRatesStickyStrike(PUTS[i], RATES_PROVIDER, VOLS);
       PointSensitivityBuilder pvSensiVolPut =
-          PRICER.presentValueSensitivityVolatility(PUTS[i], RATES_PROVIDER, VOL_PROVIDER);
+          PRICER.presentValueSensitivityModelParamsVolatility(PUTS[i], RATES_PROVIDER, VOLS);
       double forward = FX_PRICER.forwardFxRate(UNDERLYING[i], RATES_PROVIDER).fxRate(CURRENCY_PAIR);
       PointSensitivityBuilder forwardSensi = FX_PRICER.forwardFxRatePointSensitivity(UNDERLYING[i], RATES_PROVIDER);
       double strike = CALLS[i].getStrike();
@@ -293,7 +320,7 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
           dfSensi.multipliedBy((forward - strike) * NOTIONAL)
               .combinedWith(forwardSensi.multipliedBy(df * NOTIONAL)).build().normalized(),
           NOTIONAL * TOL));
-      DoubleArray sensiVol = VOL_PROVIDER.surfaceParameterSensitivity(
+      DoubleArray sensiVol = VOLS.parameterSensitivity(
           pvSensiVolCall.combinedWith(pvSensiVolPut).build()).getSensitivities().get(0).getSensitivity();
       assertTrue(DoubleArrayMath.fuzzyEquals(sensiVol.toArray(), new double[sensiVol.size()], NOTIONAL * TOL));
     }
@@ -343,10 +370,10 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
     CurveName usdName = RatesProviderFxDataSets.getCurveName(USD);
     for (int i = 0; i < NB_STRIKES; ++i) {
       // pv
-      CurrencyAmount computed = PRICER.presentValue(CALLS[i], RATES_PROVIDER, VOL_PROVIDER);
+      CurrencyAmount computed = PRICER.presentValue(CALLS[i], RATES_PROVIDER, VOLS);
       assertEquals(computed.getAmount(), expected[i], NOTIONAL * TOL);
       // curve sensitivity
-      PointSensitivityBuilder point = PRICER.presentValueSensitivityStickyStrike(CALLS[i], RATES_PROVIDER, VOL_PROVIDER);
+      PointSensitivityBuilder point = PRICER.presentValueSensitivityRatesStickyStrike(CALLS[i], RATES_PROVIDER, VOLS);
       CurrencyParameterSensitivities sensiComputed = RATES_PROVIDER.parameterSensitivity(point.build());
       assertTrue(DoubleArrayMath.fuzzyEquals(
           sensiComputed.getSensitivity(eurName, USD).getSensitivity().toArray(),
@@ -358,7 +385,7 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
           NOTIONAL * TOL));
       // vol sensitivity
       PointSensitivities pointVol =
-          PRICER.presentValueSensitivityVolatility(CALLS[i], RATES_PROVIDER, VOL_PROVIDER).build();
+          PRICER.presentValueSensitivityModelParamsVolatility(CALLS[i], RATES_PROVIDER, VOLS).build();
       assertEquals(pointVol.getSensitivities().get(0).getSensitivity(), sensiVolExpected[i][2], NOTIONAL * TOL);
       assertEquals(pointVol.getSensitivities().get(1).getSensitivity(), sensiVolExpected[i][1], NOTIONAL * TOL);
       assertEquals(pointVol.getSensitivities().get(2).getSensitivity(), sensiVolExpected[i][0], NOTIONAL * TOL);

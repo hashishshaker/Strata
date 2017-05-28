@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -130,7 +130,7 @@ public final class ResolvedFra
   /**
    * The set of indices.
    */
-  private final ImmutableSet<IborIndex> indices;  // not a property, derived and cached from input data
+  private final transient ImmutableSet<IborIndex> indices;  // not a property, derived and cached from input data
 
   //-------------------------------------------------------------------------
   @ImmutableConstructor
@@ -165,6 +165,12 @@ public final class ResolvedFra
     return builder.build().stream()
         .map(index -> IborIndex.class.cast(index))
         .collect(toImmutableSet());
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new ResolvedFra(
+        currency, notional, paymentDate, startDate, endDate, yearFraction, fixedRate, floatingRate, discounting);
   }
 
   //-------------------------------------------------------------------------
@@ -728,19 +734,31 @@ public final class ResolvedFra
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

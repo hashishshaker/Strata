@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -18,10 +18,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
@@ -52,6 +52,13 @@ public final class ReportingCurrency
    * from {@link CalculationFunction#naturalCurrency(CalculationTarget, ReferenceData)}.
    */
   public static final ReportingCurrency NATURAL = new ReportingCurrency(ReportingCurrencyType.NATURAL, null);
+  /**
+   * An instance requesting no currency conversion.
+   * <p>
+   * Calculation results are normally converted to a single currency.
+   * If this reporting currency is used, then no currency conversion will be performed.
+   */
+  public static final ReportingCurrency NONE = new ReportingCurrency(ReportingCurrencyType.NONE, null);
 
   /**
    * The type of reporting currency.
@@ -82,6 +89,18 @@ public final class ReportingCurrency
 
   //-------------------------------------------------------------------------
   /**
+   * Checks if the type is 'Specific'.
+   * <p>
+   * When converting calculation results, conversion will occur to the specific currency
+   * returned by {@link #getCurrency()}.
+   * 
+   * @return true if the type is 'Specific'
+   */
+  public boolean isSpecific() {
+    return (type == ReportingCurrencyType.SPECIFIC);
+  }
+
+  /**
    * Checks if the type is 'Natural'.
    * <p>
    * When converting calculation results, conversion will occur to the "natural" currency of the target.
@@ -95,15 +114,15 @@ public final class ReportingCurrency
   }
 
   /**
-   * Checks if the type is 'Specific'.
+   * Checks if the type is 'None'.
    * <p>
-   * When converting calculation results, conversion will occur to the specific currency
-   * returned by {@link #getCurrency()}.
+   * Calculation results are normally converted to a single currency.
+   * If this returns true than no currency conversion will be performed.
    * 
-   * @return true if the type is 'Specific'
+   * @return true if the type is 'None'
    */
-  public boolean isSpecific() {
-    return (type == ReportingCurrencyType.SPECIFIC);
+  public boolean isNone() {
+    return (type == ReportingCurrencyType.NONE);
   }
 
   /**
@@ -306,7 +325,7 @@ public final class ReportingCurrency
   /**
    * The bean-builder for {@code ReportingCurrency}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<ReportingCurrency> {
+  private static final class Builder extends DirectPrivateBeanBuilder<ReportingCurrency> {
 
     private ReportingCurrencyType type;
     private Currency currency;
@@ -315,6 +334,7 @@ public final class ReportingCurrency
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -342,30 +362,6 @@ public final class ReportingCurrency
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

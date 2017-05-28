@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.regression;
@@ -16,15 +16,16 @@ import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 /**
  * 
  */
+//CSOFF: JavadocMethod
 public class OrdinaryLeastSquaresRegression extends LeastSquaresRegression {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(OrdinaryLeastSquaresRegression.class);
+  private static final Logger log = LoggerFactory.getLogger(OrdinaryLeastSquaresRegression.class);
   private CommonsMatrixAlgebra _algebra = new CommonsMatrixAlgebra();
 
   @Override
   public LeastSquaresRegressionResult regress(double[][] x, double[][] weights, double[] y, boolean useIntercept) {
     if (weights != null) {
-      s_logger.info("Weights were provided for OLS regression: they will be ignored");
+      log.info("Weights were provided for OLS regression: they will be ignored");
     }
     return regress(x, y, useIntercept);
   }

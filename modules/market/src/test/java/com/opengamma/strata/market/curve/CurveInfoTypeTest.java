@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -36,6 +36,11 @@ public class CurveInfoTypeTest {
   public void test_PV_SENSITIVITY_TO_MARKET_QUOTE() {
     CurveInfoType<DoubleArray> test = CurveInfoType.PV_SENSITIVITY_TO_MARKET_QUOTE;
     assertEquals(test.toString(), "PVSensitivityToMarketQuote");
+  }
+
+  public void test_CDS_INDEX_FACTOR() {
+    CurveInfoType<Double> test = CurveInfoType.CDS_INDEX_FACTOR;
+    assertEquals(test.toString(), "CdsIndexFactor");
   }
 
   public void coverage() {

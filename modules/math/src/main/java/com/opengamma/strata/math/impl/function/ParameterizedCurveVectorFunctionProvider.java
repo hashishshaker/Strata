@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.function;
@@ -8,7 +8,7 @@ package com.opengamma.strata.math.impl.function;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A provider of a {@link ParameterizedCurveVectorFunction}
+ * A provider of a {@link ParameterizedCurveVectorFunction}.
  */
 public class ParameterizedCurveVectorFunctionProvider extends DoublesVectorFunctionProvider {
 

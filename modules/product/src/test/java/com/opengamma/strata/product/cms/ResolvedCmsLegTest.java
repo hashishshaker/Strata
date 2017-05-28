@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -38,6 +38,7 @@ public class ResolvedCmsLegTest {
     assertEquals(test.getStartDate(), PERIOD_1.getStartDate());
     assertEquals(test.getEndDate(), PERIOD_2.getEndDate());
     assertEquals(test.getIndex(), PERIOD_1.getIndex());
+    assertEquals(test.getUnderlyingIndex(), PERIOD_1.getIndex().getTemplate().getConvention().getFloatingLeg().getIndex());
     assertEquals(test.getPayReceive(), RECEIVE);
   }
 

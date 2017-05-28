@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -7,6 +7,7 @@ package com.opengamma.strata.product.capfloor;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -77,6 +78,7 @@ public final class ResolvedIborCapFloorLeg
   private ResolvedIborCapFloorLeg(
       PayReceive payReceive,
       List<IborCapletFloorletPeriod> capletFloorletPeriods) {
+
     this.payReceive = ArgChecker.notNull(payReceive, "payReceive");
     this.capletFloorletPeriods = ImmutableList.copyOf(capletFloorletPeriods);
     Set<Currency> currencies =
@@ -110,6 +112,24 @@ public final class ResolvedIborCapFloorLeg
    */
   public LocalDate getEndDate() {
     return capletFloorletPeriods.get(capletFloorletPeriods.size() - 1).getEndDate();
+  }
+
+  /**
+   * Gets the fixing date time of the final caplet/floorlet period.
+   * 
+   * @return the fixing date time
+   */
+  public ZonedDateTime getFinalFixingDateTime() {
+    return capletFloorletPeriods.get(capletFloorletPeriods.size() - 1).getFixingDateTime();
+  }
+
+  /**
+   * Gets the final caplet/floorlet period.
+   * 
+   * @return the final period
+   */
+  public IborCapletFloorletPeriod getFinalPeriod() {
+    return capletFloorletPeriods.get(capletFloorletPeriods.size() - 1);
   }
 
   /**
@@ -403,19 +423,31 @@ public final class ResolvedIborCapFloorLeg
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.index;
@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.Tenor;
 
 /**
  * An overnight index, such as Sonia or Eonia.
@@ -100,6 +101,16 @@ public final class ImmutableOvernightIndex
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.active = true;
+  }
+
+  @Override
+  public Tenor getTenor() {
+    return Tenor.TENOR_1D;
+  }
+
+  @Override
+  public FloatingRateName getFloatingRateName() {
+    return FloatingRateName.of(name);
   }
 
   //-------------------------------------------------------------------------
@@ -603,19 +614,31 @@ public final class ImmutableOvernightIndex
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

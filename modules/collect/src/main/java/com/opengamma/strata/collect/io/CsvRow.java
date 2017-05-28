@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.collect.io;
@@ -96,11 +96,13 @@ public final class CsvRow {
 
   /**
    * Gets the number of fields.
+   * <p>
+   * This will never be less than the number of headers.
    * 
    * @return the number of fields
    */
   public int fieldCount() {
-    return fields.size();
+    return Math.max(fields.size(), headers.size());
   }
 
   /**
@@ -111,6 +113,9 @@ public final class CsvRow {
    * @throws IndexOutOfBoundsException if the field index is invalid
    */
   public String field(int index) {
+    if (index >= fields.size() && index < headers.size()) {
+      return "";
+    }
     return fields.get(index);
   }
 
@@ -140,7 +145,7 @@ public final class CsvRow {
    */
   public Optional<String> findField(String header) {
     return Optional.ofNullable(searchHeaders.get(header.toLowerCase(Locale.ENGLISH)))
-        .map(idx -> fields.get(idx));
+        .map(idx -> field(idx));
   }
 
   /**
@@ -168,10 +173,84 @@ public final class CsvRow {
   public Optional<String> findField(Pattern headerPattern) {
     for (int i = 0; i < headers.size(); i++) {
       if (headerPattern.matcher(headers.get(i)).matches()) {
-        return Optional.of(fields.get(i));
+        return Optional.of(field(i));
       }
     }
     return Optional.empty();
+  }
+
+  /**
+   * Gets a single field value from the row by header pattern
+   * <p>
+   * This returns the value of the first column where the header matches the specified header pattern.
+   * If the header is not found or the value found is an empty string, then an IllegalArgumentException is thrown.
+   *
+   * @param headerPattern the header pattern to match
+   * @return the trimmed field value
+   * @throws IllegalArgumentException if the header is not found or if the value in the field is empty.
+   */
+  public String getValue(Pattern headerPattern) {
+    String value = getField(headerPattern);
+    if (value.isEmpty()) {
+      throw new IllegalArgumentException("No value was found for header pattern" + headerPattern);
+    } else {
+      return value;
+    }
+  }
+
+  /**
+   * Gets a single field value from the row by header
+   * <p>
+   * This returns the value of the first column where the header matches the specified header.
+   * If the header is not found or the value found is an empty string, then an IllegalArgumentException is thrown.
+   *
+   * @param header the column header
+   * @return the trimmed field value, empty
+   * @throws IllegalArgumentException if the header is not found or if the value in the field is empty.
+   */
+  public String getValue(String header) {
+    String value = getField(header);
+    if (value.isEmpty()) {
+      throw new IllegalArgumentException("No value was found for field " + header);
+    } else {
+      return value;
+    }
+  }
+
+  /**
+   * Gets a single value from the row by header pattern.
+   * <p>
+   * This returns the value of the first column where the header matches the specified header pattern.
+   * If the value is an empty string, then an empty optional is returned.
+   *
+   * @param headerPattern the header pattern to match
+   * @return the trimmed field value, empty
+   */
+  public Optional<String> findValue(Pattern headerPattern) {
+    Optional<String> value = findField(headerPattern);
+    if (value.isPresent() && !value.get().isEmpty()) {
+      return value;
+    } else {
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Gets a single value from the row by header.
+   * <p>
+   * This returns the value of the first column where the header matches the specified header pattern.
+   * If the value is an empty string, then an empty optional is returned.
+   *
+   * @param header the column header
+   * @return the trimmed field value, empty
+   */
+  public Optional<String> findValue(String header) {
+    Optional<String> value = findField(header);
+    if (value.isPresent() && !value.get().isEmpty()) {
+      return value;
+    } else {
+      return Optional.empty();
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -180,7 +259,7 @@ public final class CsvRow {
    * <p>
    * All fields after the specified index are included.
    * 
-   * @param startInclusive  the start index, inclusive
+   * @param startInclusive  the start index, zero-based, inclusive
    * @return the sub row
    */
   public CsvRow subRow(int startInclusive) {
@@ -190,8 +269,8 @@ public final class CsvRow {
   /**
    * Obtains a sub-row, containing a selection of fields by index.
    * 
-   * @param startInclusive  the start index, inclusive
-   * @param endExclusive  the end index, exclusive
+   * @param startInclusive  the start index, zero-based, inclusive
+   * @param endExclusive  the end index, zero-based, exclusive
    * @return the sub row
    */
   public CsvRow subRow(int startInclusive, int endExclusive) {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -30,12 +30,11 @@ import com.opengamma.strata.math.MathException;
 import com.opengamma.strata.math.impl.integration.RungeKuttaIntegrator1D;
 import com.opengamma.strata.pricer.impl.option.SabrExtrapolationRightFunction;
 import com.opengamma.strata.pricer.impl.volatility.smile.SabrFormulaData;
-import com.opengamma.strata.pricer.model.SabrInterestRateParameters;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SabrSwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SwaptionSabrSensitivity;
+import com.opengamma.strata.pricer.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.product.cms.CmsPeriod;
 import com.opengamma.strata.product.cms.CmsPeriodType;
 import com.opengamma.strata.product.common.PutCall;
@@ -44,7 +43,6 @@ import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapLegType;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
  *  Computes the price of a CMS coupon/caplet/floorlet by swaption replication on a shifted SABR formula with extrapolation.
@@ -57,12 +55,12 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
  *  The consistency between {@code RatesProvider} and {@code SabrParametersSwaptionVolatilities} is not checked in this 
  *  class, but validated only once in {@link SabrExtrapolationReplicationCmsLegPricer}.
  *  <p>
- *  Reference: Hagan, P. S. (2003). Convexity conundrums: Pricing CMS swaps, caps, and floors. 
+ *  Reference: Hagan, P. S. (2003). Convexity conundrums: Pricing CMS swaps, caps, and floors.
  *  Wilmott Magazine, March, pages 38--44.
  *  OpenGamma implementation note: Replication pricing for linear and TEC format CMS, Version 1.2, March 2011.
  *  OpenGamma implementation note for the extrapolation: Smile extrapolation, version 1.2, May 2011.
  */
-public class SabrExtrapolationReplicationCmsPeriodPricer {
+public final class SabrExtrapolationReplicationCmsPeriodPricer {
 
   /**
    * Logger.
@@ -75,7 +73,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
   private static final int NUM_ITER = 10;
   /** The relative tolerance for the numerical integration in PV computation. */
   private static final double REL_TOL = 1.0e-10;
-  /** The absolute tolerance for the numerical integration in PV computation. 
+  /** The absolute tolerance for the numerical integration in PV computation.
    * The numerical integration stops when the difference between two steps is below the absolute tolerance
    * plus the relative tolerance multiplied by the value.*/
   private static final double ABS_TOL = 1.0e-8;
@@ -103,11 +101,11 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
   private static final double MIN_TIME = 1e-4;
 
   /**
-   * Pricer for the underlying swap. 
+   * Pricer for the underlying swap.
    */
   private final DiscountingSwapProductPricer swapPricer;
   /**
-   * The cut-off strike. 
+   * The cut-off strike.
    * <p>
    * The smile is extrapolated above that level.
    */
@@ -121,7 +119,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the pricer. 
+   * Obtains the pricer.
    * 
    * @param swapPricer  the pricer for underlying swap
    * @param cutOffStrike  the cut-off strike value
@@ -137,7 +135,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
   }
 
   /**
-   * Obtains the pricer with default swap pricer. 
+   * Obtains the pricer with default swap pricer.
    * 
    * @param cutOffStrike  the cut-off strike value
    * @param mu  the tail thickness
@@ -169,7 +167,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
   public CurrencyAmount presentValue(
       CmsPeriod cmsPeriod,
       RatesProvider provider,
-      SabrParametersSwaptionVolatilities swaptionVolatilities) {
+      SabrSwaptionVolatilities swaptionVolatilities) {
 
     Currency ccy = cmsPeriod.getCurrency();
     if (provider.getValuationDate().isAfter(cmsPeriod.getPaymentDate())) {
@@ -183,7 +181,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     double expiryTime = swaptionVolatilities.relativeTime(
         fixingDate.atTime(index.getFixingTime()).atZone(index.getFixingZone()));
     double tenor = swaptionVolatilities.tenor(swap.getStartDate(), swap.getEndDate());
-    double shift = swaptionVolatilities.getParameters().shift(expiryTime, tenor);
+    double shift = swaptionVolatilities.shift(expiryTime, tenor);
     double strikeCpn = cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.COUPON) ? -shift : cmsPeriod.getStrike();
     if (!fixingDate.isAfter(valuationDate.toLocalDate())) {
       OptionalDouble fixedRate = provider.timeSeries(cmsPeriod.getIndex()).get(fixingDate);
@@ -247,7 +245,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
   public double adjustedForwardRate(
       CmsPeriod cmsPeriod,
       RatesProvider provider,
-      SabrParametersSwaptionVolatilities swaptionVolatilities) {
+      SabrSwaptionVolatilities swaptionVolatilities) {
 
     CmsPeriod coupon = cmsPeriod.toCouponEquivalent();
     Currency ccy = cmsPeriod.getCurrency();
@@ -274,7 +272,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
   public double adjustmentToForwardRate(
       CmsPeriod cmsPeriod,
       RatesProvider provider,
-      SabrParametersSwaptionVolatilities swaptionVolatilities) {
+      SabrSwaptionVolatilities swaptionVolatilities) {
 
     CmsPeriod coupon = cmsPeriod.toCouponEquivalent();
     double adjustedForwardRate = adjustedForwardRate(coupon, provider, swaptionVolatilities);
@@ -291,10 +289,10 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
    * @param swaptionVolatilities  the swaption volatilities
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivity(
+  public PointSensitivityBuilder presentValueSensitivityRates(
       CmsPeriod cmsPeriod,
       RatesProvider provider,
-      SabrParametersSwaptionVolatilities swaptionVolatilities) {
+      SabrSwaptionVolatilities swaptionVolatilities) {
 
     Currency ccy = cmsPeriod.getCurrency();
     if (provider.getValuationDate().isAfter(cmsPeriod.getPaymentDate())) {
@@ -308,7 +306,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     double expiryTime = swaptionVolatilities.relativeTime(
         fixingDate.atTime(index.getFixingTime()).atZone(index.getFixingZone()));
     double tenor = swaptionVolatilities.tenor(swap.getStartDate(), swap.getEndDate());
-    double shift = swaptionVolatilities.getParameters().shift(expiryTime, tenor);
+    double shift = swaptionVolatilities.shift(expiryTime, tenor);
     double strikeCpn = cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.COUPON) ? -shift : cmsPeriod.getStrike();
     if (!fixingDate.isAfter(valuationDate.toLocalDate())) {
       OptionalDouble fixedRate = provider.timeSeries(cmsPeriod.getIndex()).get(fixingDate);
@@ -368,10 +366,10 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
    * @param swaptionVolatilities  the swaption volatilities
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivitySabrParameter(
+  public PointSensitivityBuilder presentValueSensitivityModelParamsSabr(
       CmsPeriod cmsPeriod,
       RatesProvider provider,
-      SabrParametersSwaptionVolatilities swaptionVolatilities) {
+      SabrSwaptionVolatilities swaptionVolatilities) {
 
     Currency ccy = cmsPeriod.getCurrency();
     SwapIndex index = cmsPeriod.getIndex();
@@ -394,7 +392,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       }
     }
     double expiryTime = swaptionVolatilities.relativeTime(expiryDate);
-    double shift = swaptionVolatilities.getParameters().shift(expiryTime, tenor);
+    double shift = swaptionVolatilities.shift(expiryTime, tenor);
     double strikeCpn = cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.COUPON) ? -shift : cmsPeriod.getStrike();
     double forward = swapPricer.parRate(swap, provider);
     double eta = index.getTemplate().getConvention().getFixedLeg().getDayCount()
@@ -424,12 +422,12 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       totalSensi[loopparameter] =
           (strikePartPrice[loopparameter] + integralPart) * cmsPeriod.getNotional() * cmsPeriod.getYearFraction();
     }
-    FixedIborSwapConvention conv = cmsPeriod.getIndex().getTemplate().getConvention();
+    SwaptionVolatilitiesName name = swaptionVolatilities.getName();
     return PointSensitivityBuilder.of(
-        SwaptionSabrSensitivity.of(conv, expiryDate, tenor, ALPHA, ccy, totalSensi[0]),
-        SwaptionSabrSensitivity.of(conv, expiryDate, tenor, BETA, ccy, totalSensi[1]),
-        SwaptionSabrSensitivity.of(conv, expiryDate, tenor, RHO, ccy, totalSensi[2]),
-        SwaptionSabrSensitivity.of(conv, expiryDate, tenor, NU, ccy, totalSensi[3]));
+        SwaptionSabrSensitivity.of(name, expiryTime, tenor, ALPHA, ccy, totalSensi[0]),
+        SwaptionSabrSensitivity.of(name, expiryTime, tenor, BETA, ccy, totalSensi[1]),
+        SwaptionSabrSensitivity.of(name, expiryTime, tenor, RHO, ccy, totalSensi[2]),
+        SwaptionSabrSensitivity.of(name, expiryTime, tenor, NU, ccy, totalSensi[3]));
   }
 
   /**
@@ -443,7 +441,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
   public double presentValueSensitivityStrike(
       CmsPeriod cmsPeriod,
       RatesProvider provider,
-      SabrParametersSwaptionVolatilities swaptionVolatilities) {
+      SabrSwaptionVolatilities swaptionVolatilities) {
 
     ArgChecker.isFalse(
         cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.COUPON),
@@ -461,7 +459,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     ZonedDateTime expiryDate = fixingDate.atTime(index.getFixingTime()).atZone(index.getFixingZone());
     double expiryTime = swaptionVolatilities.relativeTime(expiryDate);
     double strike = cmsPeriod.getStrike();
-    double shift = swaptionVolatilities.getParameters().shift(expiryTime, tenor);
+    double shift = swaptionVolatilities.shift(expiryTime, tenor);
     if (!fixingDate.isAfter(valuationDate.toLocalDate())) {
       OptionalDouble fixedRate = provider.timeSeries(cmsPeriod.getIndex()).get(fixingDate);
       if (fixedRate.isPresent()) {
@@ -556,13 +554,22 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     return res;
   }
 
-  //explain PV for an Cms period
+  /**
+   * Explains the present value of the CMS period.
+   * <p>
+   * This returns explanatory information about the calculation.
+   * 
+   * @param period  the product
+   * @param ratesProvider  the rates provider
+   * @param swaptionVolatilities  the volatilities
+   * @param builder  the builder to populate
+   */
   public void explainPresentValue(
-      CmsPeriod period, 
-      RatesProvider ratesProvider, 
-      SabrParametersSwaptionVolatilities swaptionVolatilities,
+      CmsPeriod period,
+      RatesProvider ratesProvider,
+      SabrSwaptionVolatilities swaptionVolatilities,
       ExplainMapBuilder builder) {
-    
+
     String type = period.getCmsPeriodType().toString();
     Currency ccy = period.getCurrency();
     LocalDate paymentDate = period.getPaymentDate();
@@ -655,7 +662,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     public CmsIntegrantProvider(
         CmsPeriod cmsPeriod,
         ResolvedSwap swap,
-        SabrParametersSwaptionVolatilities swaptionVolatilities,
+        SabrSwaptionVolatilities swaptionVolatilities,
         double forward,
         double strike,
         double timeToExpiry,
@@ -669,10 +676,12 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
           ((RatePaymentPeriod) fixedLeg.getPaymentPeriods().get(0)).getAccrualPeriods().get(0).getYearFraction());
       this.tau = 1d / nbFixedPaymentYear;
       this.eta = eta;
-      SabrInterestRateParameters params = swaptionVolatilities.getParameters();
-      SabrFormulaData sabrPoint = SabrFormulaData.of(params.alpha(timeToExpiry, tenor),
-          params.beta(timeToExpiry, tenor), params.rho(timeToExpiry, tenor), params.nu(timeToExpiry, tenor));
-      this.shift = params.shift(timeToExpiry, tenor);
+      SabrFormulaData sabrPoint = SabrFormulaData.of(
+          swaptionVolatilities.alpha(timeToExpiry, tenor),
+          swaptionVolatilities.beta(timeToExpiry, tenor),
+          swaptionVolatilities.rho(timeToExpiry, tenor),
+          swaptionVolatilities.nu(timeToExpiry, tenor));
+      this.shift = swaptionVolatilities.shift(timeToExpiry, tenor);
       this.sabrExtrapolation = SabrExtrapolationRightFunction
           .of(forward + shift, timeToExpiry, sabrPoint, cutOffStrike + shift, mu);
       this.putCall = cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.FLOORLET) ? PutCall.PUT : PutCall.CALL;
@@ -714,8 +723,8 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
           double[] kD = kpkpp(x);
           // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
           double xShifted = Math.max(x + shift, 0d); // handle tiny but negative number
-          DoubleArray priceDerivativeSABR = getSabrExtrapolation().priceAdjointSabr(xShifted, putCall).getDerivatives();
-          return priceDerivativeSABR.get(i) * (factor * (kD[1] * (x - strike) + 2d * kD[0]));
+          DoubleArray priceDerivativeSabr = getSabrExtrapolation().priceAdjointSabr(xShifted, putCall).getDerivatives();
+          return priceDerivativeSabr.get(i) * (factor * (kD[1] * (x - strike) + 2d * kD[0]));
         }
       };
     }
@@ -842,7 +851,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     public CmsDeltaIntegrantProvider(
         CmsPeriod cmsPeriod,
         ResolvedSwap swap,
-        SabrParametersSwaptionVolatilities swaptionVolatilities,
+        SabrSwaptionVolatilities swaptionVolatilities,
         double forward,
         double strike,
         double timeToExpiry,

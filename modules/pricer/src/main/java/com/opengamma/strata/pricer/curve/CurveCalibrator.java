@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.curve;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveParameterSize;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
+import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.math.impl.linearalgebra.DecompositionFactory;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
@@ -55,7 +57,7 @@ public final class CurveCalibrator {
   /**
    * The standard curve calibrator.
    */
-  private static final CurveCalibrator STANDARD = 
+  private static final CurveCalibrator STANDARD =
       CurveCalibrator.of(1e-9, 1e-9, 1000, CalibrationMeasures.PAR_SPREAD, CalibrationMeasures.PRESENT_VALUE);
   /**
    * The matrix algebra used for matrix inversion.
@@ -134,7 +136,7 @@ public final class CurveCalibrator {
    * @param stepMaximum  the maximum steps
    * @param measures  the calibration measures, used to compute the function for which the root is found
    * @param pvMeasures  the present value measures, used to compute the present value sensitivity to market quotes 
-   * stored in the metadata.
+   *   stored in the metadata
    * @return the curve calibrator
    */
   public static CurveCalibrator of(
@@ -186,17 +188,19 @@ public final class CurveCalibrator {
    * The Jacobian matrices are computed and stored in curve metadata.
    *
    * @param curveGroupDefn  the curve group definition
-   * @param marketData  the market data required to build a trade for the instrument
+   * @param marketData  the market data required to build a trade for the instrument, including time-series
    * @param refData  the reference data, used to resolve the trades
-   * @param timeSeries  the time-series
    * @return the rates provider resulting from the calibration
    */
   public ImmutableRatesProvider calibrate(
       CurveGroupDefinition curveGroupDefn,
       MarketData marketData,
-      ReferenceData refData,
-      Map<Index, LocalDateDoubleTimeSeries> timeSeries) {
+      ReferenceData refData) {
 
+    Map<Index, LocalDateDoubleTimeSeries> timeSeries = marketData.getTimeSeriesIds().stream()
+        .filter(IndexQuoteId.class::isInstance)
+        .map(IndexQuoteId.class::cast)
+        .collect(toImmutableMap(id -> id.getIndex(), id -> marketData.getTimeSeries(id)));
     ImmutableRatesProvider knownData = ImmutableRatesProvider.builder(marketData.getValuationDate())
         .fxRateProvider(MarketDataFxRateProvider.of(marketData))
         .timeSeries(timeSeries)
@@ -218,11 +222,13 @@ public final class CurveCalibrator {
    * @param refData  the reference data, used to resolve the trades
    * @return the rates provider resulting from the calibration
    */
-  public ImmutableRatesProvider calibrate(
+  ImmutableRatesProvider calibrate(
       List<CurveGroupDefinition> allGroupsDefn,
       ImmutableRatesProvider knownData,
       MarketData marketData,
       ReferenceData refData) {
+    // this method effectively takes one CurveGroupDefinition
+    // the list is a split of the definition, not multiple independent definitions
 
     if (!knownData.getValuationDate().equals(marketData.getValuationDate())) {
       throw new IllegalArgumentException(Messages.format(
@@ -233,27 +239,28 @@ public final class CurveCalibrator {
     ImmutableList<CurveParameterSize> orderPrev = ImmutableList.of();
     ImmutableMap<CurveName, JacobianCalibrationMatrix> jacobians = ImmutableMap.of();
     for (CurveGroupDefinition groupDefn : allGroupsDefn) {
+      CurveGroupDefinition groupDefnBound = groupDefn.bindTimeSeries(knownData.getValuationDate(), knownData.getTimeSeries());
       // combine all data in the group into flat lists
-      ImmutableList<ResolvedTrade> trades = groupDefn.resolvedTrades(marketData, refData);
-      ImmutableList<Double> initialGuesses = groupDefn.initialGuesses(marketData);
-      ImmutableList<CurveParameterSize> orderGroup = toOrder(groupDefn);
+      ImmutableList<ResolvedTrade> trades = groupDefnBound.resolvedTrades(marketData, refData);
+      ImmutableList<Double> initialGuesses = groupDefnBound.initialGuesses(marketData);
+      ImmutableList<CurveParameterSize> orderGroup = toOrder(groupDefnBound);
       ImmutableList<CurveParameterSize> orderPrevAndGroup = ImmutableList.<CurveParameterSize>builder()
           .addAll(orderPrev)
           .addAll(orderGroup)
           .build();
 
       // calibrate
-      RatesProviderGenerator providerGenerator = ImmutableRatesProviderGenerator.of(providerCombined, groupDefn, refData);
+      RatesProviderGenerator providerGenerator = ImmutableRatesProviderGenerator.of(providerCombined, groupDefnBound, refData);
       DoubleArray calibratedGroupParams = calibrateGroup(providerGenerator, trades, initialGuesses, orderGroup);
       ImmutableRatesProvider calibratedProvider = providerGenerator.generate(calibratedGroupParams);
 
       // use calibration to build Jacobian matrices
-      if (groupDefn.isComputeJacobian()) {
+      if (groupDefnBound.isComputeJacobian()) {
         jacobians = updateJacobiansForGroup(
             calibratedProvider, trades, orderGroup, orderPrev, orderPrevAndGroup, jacobians);
       }
       ImmutableMap<CurveName, DoubleArray> sensitivityToMarketQuote = ImmutableMap.of();
-      if (groupDefn.isComputePvSensitivityToMarketQuote()) {
+      if (groupDefnBound.isComputePvSensitivityToMarketQuote()) {
         ImmutableRatesProvider providerWithJacobian = providerGenerator.generate(calibratedGroupParams, jacobians);
         sensitivityToMarketQuote = sensitivityToMarketQuoteForGroup(providerWithJacobian, trades, orderGroup);
       }

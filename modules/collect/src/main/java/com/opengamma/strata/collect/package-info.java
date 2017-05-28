@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -19,4 +19,3 @@
  * </ul>
  */
 package com.opengamma.strata.collect;
-

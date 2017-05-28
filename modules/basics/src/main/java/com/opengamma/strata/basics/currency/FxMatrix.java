@@ -1,10 +1,11 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.currency;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -22,15 +23,16 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 
@@ -45,7 +47,7 @@ import com.opengamma.strata.collect.tuple.Pair;
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class FxMatrix
-    implements FxRateProvider, ImmutableBean {
+    implements FxRateProvider, ImmutableBean, Serializable {
 
   /**
    * An empty FX matrix containing neither currencies nor rates.
@@ -203,9 +205,8 @@ public final class FxMatrix
     if (index1 != null && index2 != null) {
       return rates.get(index1, index2);
     } else {
-      throw new IllegalArgumentException(
-          "No rate found for " + baseCurrency + "/" + counterCurrency +
-              " - FX matrix only contains rates for: " + currencies.keySet());
+      throw new IllegalArgumentException(Messages.format(
+          "No FX rate found for {}/{}, matrix only contains rates for {}", baseCurrency, counterCurrency, currencies.keySet()));
     }
   }
 
@@ -299,6 +300,11 @@ public final class FxMatrix
   static {
     JodaBeanUtils.registerMetaBean(FxMatrix.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Creates an instance.
@@ -478,7 +484,7 @@ public final class FxMatrix
   /**
    * The bean-builder for {@code FxMatrix}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<FxMatrix> {
+  private static final class Builder extends DirectPrivateBeanBuilder<FxMatrix> {
 
     private Map<Currency, Integer> currencies = ImmutableMap.of();
     private DoubleMatrix rates;
@@ -487,6 +493,7 @@ public final class FxMatrix
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -515,30 +522,6 @@ public final class FxMatrix
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

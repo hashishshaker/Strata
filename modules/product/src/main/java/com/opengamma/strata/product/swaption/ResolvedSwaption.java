@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -56,7 +56,7 @@ public final class ResolvedSwaption
   @PropertyDefinition(validate = "notNull")
   private final LongShort longShort;
   /**
-   * Settlement method.  
+   * Settlement method.
    * <p>
    * The settlement of the option is specified by {@link SwaptionSettlement}.
    */
@@ -73,7 +73,7 @@ public final class ResolvedSwaption
    * The underlying swap.
    * <p>
    * At expiry, if the option is exercised, this swap will be entered into. The swap description is the swap 
-   * as viewed by the party long the option. 
+   * as viewed by the party long the option.
    */
   @PropertyDefinition(validate = "notNull")
   private final ResolvedSwap underlying;
@@ -96,7 +96,7 @@ public final class ResolvedSwaption
    * @return the currency
    */
   public Currency getCurrency() {
-    return Iterables.getOnlyElement(underlying.allCurrencies());
+    return Iterables.getOnlyElement(underlying.allPaymentCurrencies());
   }
 
   /**
@@ -465,19 +465,31 @@ public final class ResolvedSwaption
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

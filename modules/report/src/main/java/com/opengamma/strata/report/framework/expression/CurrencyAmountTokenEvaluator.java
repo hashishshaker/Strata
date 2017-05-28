@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.report.framework.expression;
@@ -16,8 +16,8 @@ import com.opengamma.strata.calc.runner.CalculationFunctions;
  */
 public class CurrencyAmountTokenEvaluator extends TokenEvaluator<CurrencyAmount> {
 
-  private final String CURRENCY_FIELD = "currency";
-  private final String AMOUNT_FIELD = "amount";
+  private static final String CURRENCY_FIELD = "currency";
+  private static final String AMOUNT_FIELD = "amount";
 
   @Override
   public Class<CurrencyAmount> getTargetType() {

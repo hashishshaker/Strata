@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -116,6 +116,11 @@ final class ExtendedMarketData<T>
   }
 
   @Override
+  public Set<ObservableId> getTimeSeriesIds() {
+    return underlying.getTimeSeriesIds();
+  }
+
+  @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
     return underlying.getTimeSeries(id);
   }
@@ -125,7 +130,7 @@ final class ExtendedMarketData<T>
   /**
    * The meta-bean for {@code ExtendedMarketData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(ExtendedMarketData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(ExtendedMarketData.class);
 
   /**
    * The meta-bean for {@code ExtendedMarketData}.

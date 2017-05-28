@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.statistics.distribution;
@@ -9,6 +9,7 @@ package com.opengamma.strata.math.impl.statistics.distribution;
  * Interface for probability distributions.
  * @param <T> Type of the parameters of the distribution
  */
+// CSOFF: ALL
 public interface ProbabilityDistribution<T> {
 
   /**

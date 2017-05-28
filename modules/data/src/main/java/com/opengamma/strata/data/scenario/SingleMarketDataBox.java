@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -40,7 +40,7 @@ import com.opengamma.strata.collect.function.ObjIntFunction;
  * @param <T>  the type of data held in the box
  */
 @BeanDefinition
-public final class SingleMarketDataBox<T>
+final class SingleMarketDataBox<T>
     implements ImmutableBean, MarketDataBox<T>, Serializable {
 
   /**
@@ -85,7 +85,7 @@ public final class SingleMarketDataBox<T>
 
   @Override
   public int getScenarioCount() {
-    return 1;
+    return -1;
   }
 
   @Override
@@ -170,7 +170,7 @@ public final class SingleMarketDataBox<T>
    * @param <T>  the type
    * @return the builder, not null
    */
-  public static <T> SingleMarketDataBox.Builder<T> builder() {
+  static <T> SingleMarketDataBox.Builder<T> builder() {
     return new SingleMarketDataBox.Builder<T>();
   }
 
@@ -210,7 +210,7 @@ public final class SingleMarketDataBox<T>
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
-  public Builder<T> toBuilder() {
+  Builder<T> toBuilder() {
     return new Builder<T>(this);
   }
 
@@ -247,7 +247,7 @@ public final class SingleMarketDataBox<T>
    * The meta-bean for {@code SingleMarketDataBox}.
    * @param <T>  the type
    */
-  public static final class Meta<T> extends DirectMetaBean {
+  static final class Meta<T> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -333,7 +333,7 @@ public final class SingleMarketDataBox<T>
    * The bean-builder for {@code SingleMarketDataBox}.
    * @param <T>  the type
    */
-  public static final class Builder<T> extends DirectFieldsBeanBuilder<SingleMarketDataBox<T>> {
+  static final class Builder<T> extends DirectFieldsBeanBuilder<SingleMarketDataBox<T>> {
 
     private T value;
 
@@ -381,19 +381,31 @@ public final class SingleMarketDataBox<T>
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder<T> setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder<T> setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder<T> setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

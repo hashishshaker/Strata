@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -133,8 +133,8 @@ public interface LocalDateDoubleTimeSeries {
    * @throws NoSuchElementException if the time-series is empty
    */
   public default LocalDate getEarliestDate() {
-    return dates().findFirst().orElseThrow(() ->
-        new NoSuchElementException("Unable to return earliest date, time-series is empty"));
+    return dates().findFirst()
+        .orElseThrow(() -> new NoSuchElementException("Unable to return earliest date, time-series is empty"));
   }
 
   /**
@@ -146,8 +146,8 @@ public interface LocalDateDoubleTimeSeries {
    * @throws NoSuchElementException if the time-series is empty
    */
   public default double getEarliestValue() {
-    return values().findFirst().orElseThrow(() ->
-        new NoSuchElementException("Unable to return earliest value, time-series is empty"));
+    return values().findFirst()
+        .orElseThrow(() -> new NoSuchElementException("Unable to return earliest value, time-series is empty"));
   }
 
   /**
@@ -310,7 +310,7 @@ public interface LocalDateDoubleTimeSeries {
    * @param other  the time-series to combine with
    * @param mapper  the function to be used to combine the values
    * @return a new time-series containing the dates in common between the
-   *  input series with their values combined together using the function
+   *   input series with their values combined together using the function
    */
   public default LocalDateDoubleTimeSeries intersection(LocalDateDoubleTimeSeries other, DoubleBinaryOperator mapper) {
     ArgChecker.notNull(other, "other");
@@ -332,7 +332,7 @@ public interface LocalDateDoubleTimeSeries {
    * @param other  the time-series to combine with
    * @param mapper  the function to be used to combine the values
    * @return a new time-series containing the dates in common between the
-   *  input series with their values combined together using the function
+   *   input series with their values combined together using the function
    */
   public default LocalDateDoubleTimeSeries union(LocalDateDoubleTimeSeries other, DoubleBinaryOperator mapper) {
     ArgChecker.notNull(other, "other");

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -23,6 +23,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.IborIndexObservation;
+import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 import com.opengamma.strata.pricer.rate.IborRateSensitivity;
@@ -38,13 +39,13 @@ public class RepoCurveZeroRateSensitivityTest {
   private static final double YEARFRAC2 = 3d;
   private static final double VALUE = 32d;
   private static final Currency CURRENCY = USD;
-  private static final BondGroup GROUP = BondGroup.of("ISSUER1 BND 10Y");
+  private static final RepoGroup GROUP = RepoGroup.of("ISSUER1 BND 10Y");
 
   //-------------------------------------------------------------------------
   public void test_of_withSensitivityCurrency() {
     Currency sensiCurrency = GBP;
     RepoCurveZeroRateSensitivity test = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, sensiCurrency, GROUP, VALUE);
-    assertEquals(test.getBondGroup(), GROUP);
+    assertEquals(test.getRepoGroup(), GROUP);
     assertEquals(test.getCurveCurrency(), CURRENCY);
     assertEquals(test.getCurrency(), sensiCurrency);
     assertEquals(test.getYearFraction(), YEARFRAC);
@@ -53,7 +54,7 @@ public class RepoCurveZeroRateSensitivityTest {
 
   public void test_of_withoutSensitivityCurrency() {
     RepoCurveZeroRateSensitivity test = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE);
-    assertEquals(test.getBondGroup(), GROUP);
+    assertEquals(test.getRepoGroup(), GROUP);
     assertEquals(test.getCurveCurrency(), CURRENCY);
     assertEquals(test.getCurrency(), CURRENCY);
     assertEquals(test.getYearFraction(), YEARFRAC);
@@ -64,7 +65,7 @@ public class RepoCurveZeroRateSensitivityTest {
     Currency sensiCurrency = GBP;
     ZeroRateSensitivity zeroSensi = ZeroRateSensitivity.of(CURRENCY, YEARFRAC, sensiCurrency, VALUE);
     RepoCurveZeroRateSensitivity test = RepoCurveZeroRateSensitivity.of(zeroSensi, GROUP);
-    assertEquals(test.getBondGroup(), GROUP);
+    assertEquals(test.getRepoGroup(), GROUP);
     assertEquals(test.getCurveCurrency(), CURRENCY);
     assertEquals(test.getCurrency(), sensiCurrency);
     assertEquals(test.getYearFraction(), YEARFRAC);
@@ -75,7 +76,7 @@ public class RepoCurveZeroRateSensitivityTest {
   public void test_withCurrency() {
     RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE);
     RepoCurveZeroRateSensitivity test = base.withCurrency(GBP);
-    assertEquals(test.getBondGroup(), GROUP);
+    assertEquals(test.getRepoGroup(), GROUP);
     assertEquals(test.getCurveCurrency(), CURRENCY);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getYearFraction(), YEARFRAC);
@@ -86,7 +87,7 @@ public class RepoCurveZeroRateSensitivityTest {
     RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE);
     double newValue = 53d;
     RepoCurveZeroRateSensitivity test = base.withSensitivity(newValue);
-    assertEquals(test.getBondGroup(), GROUP);
+    assertEquals(test.getRepoGroup(), GROUP);
     assertEquals(test.getCurveCurrency(), CURRENCY);
     assertEquals(test.getCurrency(), CURRENCY);
     assertEquals(test.getYearFraction(), YEARFRAC);
@@ -99,7 +100,7 @@ public class RepoCurveZeroRateSensitivityTest {
     RepoCurveZeroRateSensitivity b = RepoCurveZeroRateSensitivity.of(GBP, YEARFRAC, GROUP, VALUE);
     RepoCurveZeroRateSensitivity c = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC2, GROUP, VALUE);
     RepoCurveZeroRateSensitivity d =
-        RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, BondGroup.of("ISSUER1 BND 3Y"), VALUE);
+        RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, RepoGroup.of("ISSUER1 BND 3Y"), VALUE);
     IborRateSensitivity other =
         IborRateSensitivity.of(IborIndexObservation.of(GBP_LIBOR_3M, date(2014, 6, 30), REF_DATA), 32d);
     assertEquals(a1.compareKey(a2), 0);
@@ -172,7 +173,7 @@ public class RepoCurveZeroRateSensitivityTest {
     RepoCurveZeroRateSensitivity test1 = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE);
     coverImmutableBean(test1);
     RepoCurveZeroRateSensitivity test2 =
-        RepoCurveZeroRateSensitivity.of(GBP, YEARFRAC2, BondGroup.of("ISSUER2 BND 5Y"), 12d);
+        RepoCurveZeroRateSensitivity.of(GBP, YEARFRAC2, RepoGroup.of("ISSUER2 BND 5Y"), 12d);
     coverBeanEquals(test1, test2);
   }
 

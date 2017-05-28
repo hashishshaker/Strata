@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -50,7 +50,7 @@ final class IdTypeFilter<T>
   /**
    * The meta-bean for {@code IdTypeFilter}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(IdTypeFilter.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(IdTypeFilter.class);
 
   /**
    * The meta-bean for {@code IdTypeFilter}.

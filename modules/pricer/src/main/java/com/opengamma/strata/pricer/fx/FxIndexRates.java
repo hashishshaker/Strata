@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -46,7 +46,7 @@ public interface FxIndexRates
   public abstract LocalDateDoubleTimeSeries getFixings();
 
   /**
-   * Gets the underlying FX forward rates.  
+   * Gets the underlying FX forward rates.
    * 
    * @return the FX forward rates
    */

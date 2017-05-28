@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.currency;
@@ -62,7 +62,7 @@ public class FxMatrixBuilder {
    *
    * @return a new {@code FxMatrix}
    * @throws IllegalStateException if an attempt was made to add currencies
-   * which have no currency in common with other rates
+   *   which have no currency in common with other rates
    */
   public FxMatrix build() {
     if (!disjointRates.isEmpty()) {
@@ -193,9 +193,8 @@ public class FxMatrixBuilder {
         .filter(other.currencies::containsKey)
         .findFirst();
 
-    Currency commonCurrency = common.orElseThrow(() ->
-        new IllegalArgumentException("There are no currencies in common between " +
-            currencies.keySet() + " and " + other.currencies.keySet()));
+    Currency commonCurrency = common.orElseThrow(() -> new IllegalArgumentException(
+        "There are no currencies in common between " + currencies.keySet() + " and " + other.currencies.keySet()));
 
     // Add in all currencies that we don't already have
     MapStream.of(other.currencies)

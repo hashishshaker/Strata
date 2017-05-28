@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.interpolation;
@@ -130,13 +130,13 @@ public abstract class PenaltyMatrixGenerator {
   /**
    * Get the kth order finite difference derivative matrix, D_k(x),  for a non-uniform set of points. For a (1D) set
    * of points, x, (which are not necessarily uniformly spaced), and a set of values at those points, y (i.e. y=f(x))
-   * the vector y_k = D_k(x) * y is the the finite difference estimate of the k^th order derivative (d^k y/ dx^k) at
+   * the vector y_k = D_k(x) * y is the finite difference estimate of the k^th order derivative (d^k y/ dx^k) at
    * the points, x. <p>
    * K = 0, trivially return the identity matrix; for k = 1 and 2, this is a three point estimate. K > 2 is not implemented      
    * @param x A non-uniform set of points
    * @param k The order <b>Only first and second order are currently implemented</b>
    * @param includeEnds If true the matrix includes an estimate for the derivative at the end points; if false
-   * the first and last rows of the matrix are empty 
+   *   the first and last rows of the matrix are empty 
    * @return The derivative matrix
    */
   public static DoubleMatrix getDerivativeMatrix(double[] x, int k, boolean includeEnds) {
@@ -222,7 +222,7 @@ public abstract class PenaltyMatrixGenerator {
   }
 
   /**
-   * Get a kth order penalty matrix for a non-uniform grid whose values have been flattened to a vector 
+   * Get a kth order penalty matrix for a non-uniform grid whose values have been flattened to a vector.
    * @param x the grid positions in each dimension 
    * @param k the (finite difference) order
    * @param index which index to act on 
@@ -267,7 +267,7 @@ public abstract class PenaltyMatrixGenerator {
 
   /**
    * for a matrix {{A_{0,0}, A_{0,1},...._A_{0,m},{A_{1,0}, A_{1,1},...._A_{1,m},...,{A_{n,0}, A_{n,1},...._A_{n,m}}
-   * flattened to a vector {A_{0,0}, A_{0,1},...._A_{0,m}, A_{1,0}, A_{1,1},...._A_{1,m},...,A_{n,0}, A_{n,1},...._A_{n,m}}
+   * flattened to a vector {A_{0,0}, A_{0,1},...._A_{0,m}, A_{1,0}, A_{1,1},...._A_{1,m},...,A_{n,0}, A_{n,1},...._A_{n,m}}.
    * @param aMatrix A matrix
    * @return a the flattened matrix 
    */
@@ -289,7 +289,7 @@ public abstract class PenaltyMatrixGenerator {
    *  (see {@link #flattenMatrix}) that is, the <b>last</b> index changes most rapidly. 
    * Given a matrix, M, that acts on the elements of one index only, i.e.
    * $$y_{i, i_1, i_2, \dots,i_{k-1}, i_{k+1},\dots, i_n} =  \sum_{i_k=0}^{N_k-1} M_{i,i_k}  x_{i_1, i_2, \dots,i_k,\dots, i_n} $$
-   * form the larger matrix that acts on the flattened vector.  
+   * form the larger matrix that acts on the flattened vector.
    * @param numElements The number of elements in each index. In the example above, this would be {n,m} 
    * @param m the matrix M
    * @param index Which index does the matrix act on 

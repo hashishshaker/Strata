@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -23,10 +23,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
@@ -133,7 +133,7 @@ public final class PointSensitivities
    * Multiplies the sensitivities in this instance by the specified factor.
    * <p>
    * The result will consist of the same entries, but with each sensitivity value multiplied.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * 
    * @param factor  the multiplicative factor
    * @return a {@code PointSensitivities} based on this one, with each sensitivity multiplied by the factor
@@ -146,7 +146,7 @@ public final class PointSensitivities
    * Applies an operation to the sensitivities in this instance.
    * <p>
    * The result will consist of the same entries, but with the operator applied to each sensitivity value.
-   * This instance is immutable and unaffected by this method. 
+   * This instance is immutable and unaffected by this method.
    * <p>
    * This is used to apply a mathematical operation to the sensitivity values.
    * For example, the operator could multiply the sensitivities by a constant, or take the inverse.
@@ -178,7 +178,7 @@ public final class PointSensitivities
    * <p>
    * This instance is immutable and unaffected by this method.
    * 
-   * @return a {@code PointSensitivities} based on this one, with the the sensitivities normalized
+   * @return a {@code PointSensitivities} based on this one, with the sensitivities normalized
    */
   public PointSensitivities normalized() {
     if (sensitivities.isEmpty()) {
@@ -427,7 +427,7 @@ public final class PointSensitivities
   /**
    * The bean-builder for {@code PointSensitivities}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<PointSensitivities> {
+  private static final class Builder extends DirectPrivateBeanBuilder<PointSensitivities> {
 
     private List<PointSensitivity> sensitivities = ImmutableList.of();
 
@@ -435,6 +435,7 @@ public final class PointSensitivities
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -458,30 +459,6 @@ public final class PointSensitivities
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

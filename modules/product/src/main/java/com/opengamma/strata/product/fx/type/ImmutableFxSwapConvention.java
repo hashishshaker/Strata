@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -147,7 +147,8 @@ public final class ImmutableFxSwapConvention
    */
   public BusinessDayAdjustment getBusinessDayAdjustment() {
     return businessDayAdjustment != null ?
-        businessDayAdjustment : BusinessDayAdjustment.of(MODIFIED_FOLLOWING, spotDateOffset.getCalendar());
+        businessDayAdjustment :
+        BusinessDayAdjustment.of(MODIFIED_FOLLOWING, spotDateOffset.getCalendar());
   }
 
   //-------------------------------------------------------------------------
@@ -504,19 +505,31 @@ public final class ImmutableFxSwapConvention
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

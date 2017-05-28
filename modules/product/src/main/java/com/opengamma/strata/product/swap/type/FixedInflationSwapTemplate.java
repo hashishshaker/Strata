@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -82,7 +82,6 @@ public final class FixedInflationSwapTemplate
    * If selling the swap, the floating rate is paid to the counterparty, with the fixed rate being received.
    * 
    * @param tradeDate  the date of the trade
-   * @param tenor  the tenor of the trade
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount, in the payment currency of the template
    * @param fixedRate  the fixed rate, typically derived from the market
@@ -92,7 +91,6 @@ public final class FixedInflationSwapTemplate
    */
   public SwapTrade createTrade(
       LocalDate tradeDate,
-      Tenor tenor,
       BuySell buySell,
       double notional,
       double fixedRate,
@@ -370,19 +368,31 @@ public final class FixedInflationSwapTemplate
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -79,6 +79,7 @@ final class SwapIndexCsvLookup
         for (CsvRow row : csv.rows()) {
           SwapIndex parsed = parseSwapIndex(row);
           map.put(parsed.getName(), parsed);
+          map.putIfAbsent(parsed.getName().toUpperCase(Locale.ENGLISH), parsed);
         }
       } catch (RuntimeException ex) {
         log.log(Level.SEVERE, "Error processing resource as Swap Index CSV file: " + resource, ex);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -21,10 +21,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
@@ -77,11 +77,11 @@ public final class ZeroRatePeriodicDiscountFactors
   /**
    * The number of compounding periods per year of the zero-coupon rate.
    */
-  private final int frequency;  // cached, not a property
+  private final transient int frequency;  // cached, not a property
   /**
    * The day count convention of the curve.
    */
-  private final DayCount dayCount;  // cached, not a property
+  private final transient DayCount dayCount;  // cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -125,6 +125,11 @@ public final class ZeroRatePeriodicDiscountFactors
     this.curve = curve;
     this.dayCount = dayCount;
     this.frequency = frequencyOpt.get();
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new ZeroRatePeriodicDiscountFactors(currency, valuationDate, curve);
   }
 
   //-------------------------------------------------------------------------
@@ -174,24 +179,12 @@ public final class ZeroRatePeriodicDiscountFactors
   }
 
   @Override
-  public double discountFactorWithSpread(
-      double yearFraction,
-      double zSpread,
-      CompoundedRateType compoundedRateType,
-      int periodPerYear) {
-
-    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
-      return 1d;
-    }
-    double df = discountFactor(yearFraction);
-    if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
-      ArgChecker.notNegativeOrZero(periodPerYear, "periodPerYear");
-      double ratePeriodicAnnualPlusOne =
-          Math.pow(df, -1.0 / periodPerYear / yearFraction) + zSpread / periodPerYear;
-      return Math.pow(ratePeriodicAnnualPlusOne, -periodPerYear * yearFraction);
-    } else {
-      return df * Math.exp(-zSpread * yearFraction);
-    }
+  public double discountFactorTimeDerivative(double yearFraction) {
+    double zr = curve.yValue(yearFraction);
+    double periodIF = 1d + zr / frequency;
+    double df = Math.pow(periodIF, -yearFraction * frequency);
+    return -frequency * df *
+        (Math.log(periodIF) + yearFraction / periodIF * curve.firstDerivative(yearFraction) / frequency);
   }
 
   @Override
@@ -478,7 +471,7 @@ public final class ZeroRatePeriodicDiscountFactors
   /**
    * The bean-builder for {@code ZeroRatePeriodicDiscountFactors}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<ZeroRatePeriodicDiscountFactors> {
+  private static final class Builder extends DirectPrivateBeanBuilder<ZeroRatePeriodicDiscountFactors> {
 
     private Currency currency;
     private LocalDate valuationDate;
@@ -488,6 +481,7 @@ public final class ZeroRatePeriodicDiscountFactors
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -520,30 +514,6 @@ public final class ZeroRatePeriodicDiscountFactors
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

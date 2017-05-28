@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -12,6 +12,7 @@ import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
 /**
  * 
  */
+//CSOFF: JavadocMethod
 public abstract class OrthogonalPolynomialFunctionGenerator {
 
   private static final RealPolynomialFunction1D ZERO = new RealPolynomialFunction1D(new double[] {0});

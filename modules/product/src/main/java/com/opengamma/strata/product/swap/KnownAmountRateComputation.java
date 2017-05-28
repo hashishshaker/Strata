@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -26,7 +26,7 @@ import com.opengamma.strata.product.rate.RateComputation;
  * <p>
  * This is a special computation that represents a known amount instead of a rate.
  * It is used to pass the known amount through the standard rate computation process.
- * This computation is converted to a {@link KnownAmountNotionalPaymentPeriod} for pricing.
+ * This computation is converted to a {@link KnownAmountNotionalSwapPaymentPeriod} for pricing.
  */
 @BeanDefinition(style = "light")
 final class KnownAmountRateComputation
@@ -63,7 +63,7 @@ final class KnownAmountRateComputation
   /**
    * The meta-bean for {@code KnownAmountRateComputation}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(KnownAmountRateComputation.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(KnownAmountRateComputation.class);
 
   /**
    * The meta-bean for {@code KnownAmountRateComputation}.

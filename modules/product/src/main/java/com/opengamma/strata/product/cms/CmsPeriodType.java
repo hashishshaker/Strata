@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -14,7 +14,7 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * A CMS payment period type.
  * <p>
- * A CMS payment period is a CMS coupon, CMS caplet or CMS floorlet. 
+ * A CMS payment period is a CMS coupon, CMS caplet or CMS floorlet.
  * All of these payments are defined in a unified manner by {@link CmsPeriod}.
  */
 public enum CmsPeriodType {

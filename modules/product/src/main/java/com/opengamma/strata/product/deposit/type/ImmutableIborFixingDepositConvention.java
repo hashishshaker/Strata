@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -56,7 +56,7 @@ import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
  * <li>Fixing date, the date on which the index is to be observed, typically 2 business days before the start date
  * </ul>
  * The period between the start date and end date is specified by {@link IborFixingDepositTemplate},
- * not by this convention. However, the period is typically equal to the tenor of the index. 
+ * not by this convention. However, the period is typically equal to the tenor of the index.
  */
 @BeanDefinition
 public final class ImmutableIborFixingDepositConvention
@@ -228,7 +228,8 @@ public final class ImmutableIborFixingDepositConvention
    */
   public BusinessDayAdjustment getBusinessDayAdjustment() {
     return businessDayAdjustment != null ?
-        businessDayAdjustment : BusinessDayAdjustment.of(MODIFIED_FOLLOWING, index.getFixingCalendar());
+        businessDayAdjustment :
+        BusinessDayAdjustment.of(MODIFIED_FOLLOWING, index.getFixingCalendar());
   }
 
   /**
@@ -693,19 +694,31 @@ public final class ImmutableIborFixingDepositConvention
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

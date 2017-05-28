@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -49,7 +49,7 @@ public final class GenericSecurityPosition
    * <p>
    * This allows additional information to be attached to the position.
    */
-  @PropertyDefinition(overrideGet = true)
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PositionInfo info;
   /**
    * The underlying security.
@@ -65,7 +65,7 @@ public final class GenericSecurityPosition
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double longQuantity;
   /**
-   * The quantity that was traded.
+   * The short quantity of the security.
    * <p>
    * This is the quantity of the underlying security that has been short sold.
    * The quantity cannot be negative, as that would imply the position is long.
@@ -80,7 +80,7 @@ public final class GenericSecurityPosition
    * The net quantity is the long quantity minus the short quantity, which may be negative.
    * If the quantity is positive it is treated as a long quantity.
    * Otherwise it is treated as a short quantity.
-   * 
+   *
    * @param security  the underlying security
    * @param netQuantity  the net quantity of the underlying security
    * @return the position
@@ -93,7 +93,7 @@ public final class GenericSecurityPosition
    * Obtains an instance from position information, security and net quantity.
    * <p>
    * The net quantity is the long quantity minus the short quantity, which may be negative.
-   * 
+   *
    * @param positionInfo  the position information
    * @param security  the underlying security
    * @param netQuantity  the net quantity of the underlying security
@@ -109,7 +109,7 @@ public final class GenericSecurityPosition
    * Obtains an instance from the security, long quantity and short quantity.
    * <p>
    * The long quantity and short quantity must be zero or positive, not negative.
-   * 
+   *
    * @param security  the underlying security
    * @param longQuantity  the long quantity of the underlying security
    * @param shortQuantity  the short quantity of the underlying security
@@ -121,7 +121,7 @@ public final class GenericSecurityPosition
 
   /**
    * Obtains an instance from position information, security, long quantity and short quantity.
-   * 
+   *
    * @param positionInfo  the position information
    * @param security  the underlying security
    * @param longQuantity  the long quantity of the underlying security
@@ -147,7 +147,7 @@ public final class GenericSecurityPosition
    * Gets the security identifier.
    * <p>
    * This identifier uniquely identifies the security within the system.
-   * 
+   *
    * @return the security identifier
    */
   @Override
@@ -159,7 +159,7 @@ public final class GenericSecurityPosition
    * Gets the currency of the trade.
    * <p>
    * This is the currency of the security.
-   * 
+   *
    * @return the trading currency
    */
   public Currency getCurrency() {
@@ -174,7 +174,7 @@ public final class GenericSecurityPosition
    * if the net position is <i>short</i>.
    * <p>
    * This is calculated by subtracting the short quantity from the long quantity.
-   * 
+   *
    * @return the net quantity of the underlying security
    */
   @Override
@@ -212,7 +212,7 @@ public final class GenericSecurityPosition
 
   /**
    * Creates an instance.
-   * @param info  the value of the property
+   * @param info  the value of the property, not null
    * @param security  the value of the property, not null
    * @param longQuantity  the value of the property
    * @param shortQuantity  the value of the property
@@ -222,6 +222,7 @@ public final class GenericSecurityPosition
       GenericSecurity security,
       double longQuantity,
       double shortQuantity) {
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(security, "security");
     ArgChecker.notNegative(longQuantity, "longQuantity");
     ArgChecker.notNegative(shortQuantity, "shortQuantity");
@@ -251,7 +252,7 @@ public final class GenericSecurityPosition
    * Gets the additional position information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the position.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   @Override
   public PositionInfo getInfo() {
@@ -281,7 +282,7 @@ public final class GenericSecurityPosition
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the quantity that was traded.
+   * Gets the short quantity of the security.
    * <p>
    * This is the quantity of the underlying security that has been short sold.
    * The quantity cannot be negative, as that would imply the position is long.
@@ -327,13 +328,12 @@ public final class GenericSecurityPosition
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("GenericSecurityPosition{");
     buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("security").append('=').append(security).append(',').append(' ');
     buf.append("longQuantity").append('=').append(longQuantity).append(',').append(' ');
-    buf.append("shortQuantity").append('=').append(shortQuantity).append(',').append(' ');
-    buf.append("quantity").append('=').append(JodaBeanUtils.toString(getQuantity()));
+    buf.append("shortQuantity").append('=').append(JodaBeanUtils.toString(shortQuantity));
     buf.append('}');
     return buf.toString();
   }
@@ -565,19 +565,31 @@ public final class GenericSecurityPosition
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;
@@ -597,10 +609,11 @@ public final class GenericSecurityPosition
      * Sets the additional position information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the position.
-     * @param info  the new value
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder info(PositionInfo info) {
+      JodaBeanUtils.notNull(info, "info");
       this.info = info;
       return this;
     }
@@ -631,7 +644,7 @@ public final class GenericSecurityPosition
     }
 
     /**
-     * Sets the quantity that was traded.
+     * Sets the short quantity of the security.
      * <p>
      * This is the quantity of the underlying security that has been short sold.
      * The quantity cannot be negative, as that would imply the position is long.

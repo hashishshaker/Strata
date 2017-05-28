@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.basics.index;
@@ -75,6 +75,11 @@ public final class ImmutablePriceIndex
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.active = true;
+  }
+
+  @Override
+  public FloatingRateName getFloatingRateName() {
+    return FloatingRateName.of(name);
   }
 
   //-------------------------------------------------------------------------
@@ -461,19 +466,31 @@ public final class ImmutablePriceIndex
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -14,4 +14,3 @@
  * the shape of the curve. Each curve node is considered to be a parameter.
  */
 package com.opengamma.strata.market.param;
-

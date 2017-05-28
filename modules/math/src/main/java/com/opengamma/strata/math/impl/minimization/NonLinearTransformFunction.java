@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.minimization;
@@ -15,6 +15,7 @@ import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 /**
  * 
  */
+//CSOFF: JavadocMethod
 public class NonLinearTransformFunction {
 
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();

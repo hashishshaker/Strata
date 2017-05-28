@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -43,6 +43,27 @@ public class TestingParameterizedData2 implements ParameterizedData {
       return new TestingParameterizedData2(newValue, value2);
     }
     return new TestingParameterizedData2(value1, newValue);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof TestingParameterizedData2) {
+      TestingParameterizedData2 other = (TestingParameterizedData2) obj;
+      return Double.doubleToRawLongBits(value1) == Double.doubleToRawLongBits(other.value1) &&
+          Double.doubleToRawLongBits(value2) == Double.doubleToRawLongBits(other.value2);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Double.valueOf(value1).hashCode() ^ Double.valueOf(value2).hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return value1 + ":" + value2;
   }
 
 }

@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.differentiation;
@@ -113,6 +113,12 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Differentiate.
+   * 
+   * @param function  the function
+   * @return the result
+   */
   public Function<DoubleArray, DoubleMatrix[]> differentiateFull(
       Function<DoubleArray, DoubleArray> function) {
 

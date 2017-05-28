@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -11,6 +11,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -29,18 +30,21 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.MapStream;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketData;
-import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.product.ResolvedTrade;
 
 /**
@@ -71,8 +75,15 @@ public final class CurveGroupDefinition
    * Curve definitions are required for curves that need to be calibrated. A definition is not necessary if
    * the curve is not built by the Strata curve calibrator.
    */
+  @PropertyDefinition(validate = "notNull", builderType = "List<? extends CurveDefinition>")
+  private final ImmutableList<CurveDefinition> curveDefinitions;
+  /**
+   * Definitions which specify which seasonality should be used for some price index curves.
+   * <p>
+   * If a curve linked to a price index does not have an entry in the map, no seasonality is used for that curve.
+   */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableList<NodalCurveDefinition> curveDefinitions;
+  private final ImmutableMap<CurveName, SeasonalityDefinition> seasonalityDefinitions;
   /**
    * The flag indicating if the Jacobian matrices should be computed and stored in metadata or not.
    */
@@ -87,11 +98,11 @@ public final class CurveGroupDefinition
   /**
    * Entries for the curves, keyed by the curve name.
    */
-  private final ImmutableMap<CurveName, CurveGroupEntry> entriesByName;
+  private final transient ImmutableMap<CurveName, CurveGroupEntry> entriesByName;  // not a property
   /**
    * Definitions for the curves, keyed by the curve name.
    */
-  private final ImmutableMap<CurveName, NodalCurveDefinition> curveDefinitionsByName;
+  private final transient ImmutableMap<CurveName, CurveDefinition> curveDefinitionsByName;  // not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -104,7 +115,7 @@ public final class CurveGroupDefinition
   }
 
   /**
-   * Returns a curve group definition with the specified name and containing the specified entries. 
+   * Returns a curve group definition with the specified name and containing the specified entries.
    * <p>
    * The Jacobian matrices are computed. The Present Value sensitivity to Market quotes are not computed.
    *
@@ -116,9 +127,29 @@ public final class CurveGroupDefinition
   public static CurveGroupDefinition of(
       CurveGroupName name,
       Collection<CurveGroupEntry> entries,
-      Collection<NodalCurveDefinition> curveDefinitions) {
+      Collection<CurveDefinition> curveDefinitions) {
 
-    return new CurveGroupDefinition(name, entries, curveDefinitions, true, false);
+    return new CurveGroupDefinition(name, entries, curveDefinitions, ImmutableMap.of(), true, false);
+  }
+
+  /**
+   * Returns a curve group definition with the specified name and containing the specified entries and seasonality.
+   * <p>
+   * The Jacobian matrices are computed. The Present Value sensitivity to Market quotes are not computed.
+   * 
+   * @param name  the name of the curve group
+   * @param entries  entries describing the curves in the group
+   * @param curveDefinitions  definitions which specify how the curves are calibrated
+   * @param seasonalityDefinitions  definitions which specify the seasonality to use for different curves
+   * @return a curve group definition with the specified name and containing the specified entries
+   */
+  public static CurveGroupDefinition of(
+      CurveGroupName name,
+      Collection<CurveGroupEntry> entries,
+      Collection<CurveDefinition> curveDefinitions,
+      Map<CurveName, SeasonalityDefinition> seasonalityDefinitions) {
+
+    return new CurveGroupDefinition(name, entries, curveDefinitions, seasonalityDefinitions, true, false);
   }
 
   /**
@@ -132,17 +163,19 @@ public final class CurveGroupDefinition
   CurveGroupDefinition(
       CurveGroupName name,
       Collection<CurveGroupEntry> entries,
-      Collection<NodalCurveDefinition> curveDefinitions,
+      Collection<? extends CurveDefinition> curveDefinitions,
+      Map<CurveName, SeasonalityDefinition> seasonalityDefinitions,
       boolean computeJacobian,
       boolean computePvSensitivityToMarketQuote) {
 
     this.name = ArgChecker.notNull(name, "name");
     this.entries = ImmutableList.copyOf(entries);
     this.curveDefinitions = ImmutableList.copyOf(curveDefinitions);
-    entriesByName = entries.stream().collect(toImmutableMap(entry -> entry.getCurveName(), entry -> entry));
-    curveDefinitionsByName = curveDefinitions.stream().collect(toImmutableMap(def -> def.getName(), def -> def));
+    this.entriesByName = entries.stream().collect(toImmutableMap(entry -> entry.getCurveName(), entry -> entry));
+    this.curveDefinitionsByName = curveDefinitions.stream().collect(toImmutableMap(def -> def.getName(), def -> def));
     this.computeJacobian = computeJacobian;
     this.computePvSensitivityToMarketQuote = computePvSensitivityToMarketQuote;
+    this.seasonalityDefinitions = ImmutableMap.copyOf(seasonalityDefinitions);
     validate();
   }
 
@@ -160,6 +193,79 @@ public final class CurveGroupDefinition
     if (builder.computePvSensitivityToMarketQuote) {
       builder.computeJacobian = true;
     }
+  }
+
+  // ensure standard constructor is invoked
+  private Object readResolve() {
+    return new CurveGroupDefinition(
+        name, entries, curveDefinitions, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a filtered version of this definition with no invalid nodes.
+   * <p>
+   * A curve is formed of a number of nodes, each of which has an associated date.
+   * To be valid, the curve node dates must be in order from earliest to latest.
+   * This method applies rules to remove invalid nodes.
+   * 
+   * @param valuationDate  the valuation date
+   * @param refData  the reference data
+   * @return the resolved definition, that should be used in preference to this one
+   * @throws IllegalArgumentException if the curve nodes are invalid
+   */
+  public CurveGroupDefinition filtered(LocalDate valuationDate, ReferenceData refData) {
+    List<CurveDefinition> filtered = curveDefinitions.stream()
+        .map(ncd -> ncd.filtered(valuationDate, refData))
+        .collect(toImmutableList());
+    return new CurveGroupDefinition(
+        name, entries, filtered, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a definition that is bound to a time-series.
+   * <p>
+   * Curves related to a price index are better described when a starting point is added
+   * with the last fixing in the time series. This method finds price index curves, and ensures
+   * that they are unique (not used for any other index or discounting). Each price index
+   * curve is then bound to the matching time-series with the last fixing month equal to
+   * the last element in the time series which is in the past.
+   * 
+   * @param valuationDate  the valuation date 
+   * @param tsMap  the map of index to time series
+   * @return the new instance
+   */
+  public CurveGroupDefinition bindTimeSeries(LocalDate valuationDate, Map<Index, LocalDateDoubleTimeSeries> tsMap) {
+    ImmutableList.Builder<CurveDefinition> boundCurveDefinitions = ImmutableList.builder();
+    for (CurveGroupEntry entry : entries) {
+      CurveName name = entry.getCurveName();
+      CurveDefinition curveDef = curveDefinitionsByName.get(name);
+      Set<Index> indices = entry.getIndices();
+      boolean containsPriceIndex = indices.stream().anyMatch(i -> i instanceof PriceIndex);
+      if (containsPriceIndex) {
+        // check only one curve for Price Index and find time-series last value
+        ArgChecker.isTrue(indices.size() == 1, "Price index curve must not relate to another index or discounting: " + name);
+        Index index = indices.iterator().next();
+        LocalDateDoubleTimeSeries ts = tsMap.get(index);
+        ArgChecker.notNull(ts, "Price index curve must have associated time-series: " + index.toString());
+        // retrieve last fixing for months before the valuation date
+        LocalDateDoubleTimeSeries tsPast = ts.subSeries(ts.getEarliestDate(), valuationDate);
+        ArgChecker.isFalse(ts.isEmpty(),
+            "Price index curve must have associated time-series with at least one element in the past:" + index.toString());
+        ArgChecker.isTrue(curveDef instanceof NodalCurveDefinition,
+            "curve definition for inflation curve must be NodalCurveDefinition");
+        YearMonth lastFixingMonth = YearMonth.from(tsPast.getLatestDate());
+        double lastFixingValue = tsPast.getLatestValue();
+        InflationNodalCurveDefinition seasonalCurveDef = new InflationNodalCurveDefinition(
+            (NodalCurveDefinition) curveDef, lastFixingMonth, lastFixingValue, seasonalityDefinitions.get(name));
+        boundCurveDefinitions.add(seasonalCurveDef);
+      } else {
+        // no price index
+        boundCurveDefinitions.add(curveDef);
+      }
+    }
+    return this.withCurveDefinitions(boundCurveDefinitions.build());
   }
 
   //-------------------------------------------------------------------------
@@ -183,7 +289,7 @@ public final class CurveGroupDefinition
    * @param curveName  the name of the curve
    * @return the definition for the curve with the specified name
    */
-  public Optional<NodalCurveDefinition> findCurveDefinition(CurveName curveName) {
+  public Optional<CurveDefinition> findCurveDefinition(CurveName curveName) {
     return Optional.ofNullable(curveDefinitionsByName.get(curveName));
   }
 
@@ -214,7 +320,7 @@ public final class CurveGroupDefinition
    * @return the number of parameters
    */
   public int getTotalParameterCount() {
-    return curveDefinitionsByName.entrySet().stream().mapToInt(entry -> entry.getValue().getParameterCount()).sum();
+    return curveDefinitionsByName.entrySet().stream().mapToInt(entry -> entry.getValue().getParameterCount()).sum(); 
   }
 
   /**
@@ -247,11 +353,8 @@ public final class CurveGroupDefinition
    */
   public ImmutableList<Double> initialGuesses(MarketData marketData) {
     ImmutableList.Builder<Double> result = ImmutableList.builder();
-    for (NodalCurveDefinition defn : curveDefinitions) {
-      ValueType valueType = defn.getYValueType();
-      for (CurveNode node : defn.getNodes()) {
-        result.add(node.initialGuess(marketData, valueType));
-      }
+    for (CurveDefinition defn : curveDefinitions) {
+      result.addAll(defn.initialGuess(marketData));
     }
     return result.build();
   }
@@ -264,11 +367,28 @@ public final class CurveGroupDefinition
    * @param curveDefinitions  curve definitions
    * @return a copy of this object containing the specified curve definitions
    */
-  public CurveGroupDefinition withCurveDefinitions(List<NodalCurveDefinition> curveDefinitions) {
+  public CurveGroupDefinition withCurveDefinitions(List<CurveDefinition> curveDefinitions) {
     Set<CurveName> curveNames = entries.stream().map(entry -> entry.getCurveName()).collect(toSet());
-    List<NodalCurveDefinition> filteredDefinitions =
+    List<CurveDefinition> filteredDefinitions =
         curveDefinitions.stream().filter(def -> curveNames.contains(def.getName())).collect(toImmutableList());
-    return new CurveGroupDefinition(name, entries, filteredDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
+    return new CurveGroupDefinition(
+        name, entries, filteredDefinitions, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
+  }
+
+  /**
+   * Returns a copy of this object containing the specified seasonality definitions.
+   * <p>
+   * Seasonality definitions are ignored if there is no entry in this definition with the same curve name.
+   *
+   * @param seasonalityDefinitions  seasonality definitions
+   * @return a copy of this object containing the specified seasonality definitions
+   */
+  public CurveGroupDefinition withSeasonalityDefinitions(Map<CurveName, SeasonalityDefinition> seasonalityDefinitions) {
+    Set<CurveName> curveNames = entries.stream().map(entry -> entry.getCurveName()).collect(toSet());
+    Map<CurveName, SeasonalityDefinition> filteredDefinitions = MapStream.of(seasonalityDefinitions)
+        .filterKeys(cn -> curveNames.contains(cn)).toMap();
+    return new CurveGroupDefinition(
+        name, entries, curveDefinitions, filteredDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
   }
 
   /**
@@ -278,14 +398,21 @@ public final class CurveGroupDefinition
    * @return a copy of this curve group definition with a different name
    */
   public CurveGroupDefinition withName(CurveGroupName name) {
-    return new CurveGroupDefinition(name, entries, curveDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
+    return new CurveGroupDefinition(
+        name, entries, curveDefinitions, seasonalityDefinitions, computeJacobian, computePvSensitivityToMarketQuote);
   }
 
+  /**
+   * Converts to builder.
+   * 
+   * @return the builder
+   */
   public CurveGroupDefinitionBuilder toBuilder() {
     return new CurveGroupDefinitionBuilder(
         name,
         entriesByName,
         curveDefinitionsByName,
+        seasonalityDefinitions,
         computeJacobian,
         computePvSensitivityToMarketQuote);
   }
@@ -350,8 +477,19 @@ public final class CurveGroupDefinition
    * the curve is not built by the Strata curve calibrator.
    * @return the value of the property, not null
    */
-  public ImmutableList<NodalCurveDefinition> getCurveDefinitions() {
+  public ImmutableList<CurveDefinition> getCurveDefinitions() {
     return curveDefinitions;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets definitions which specify which seasonality should be used for some price index curves.
+   * <p>
+   * If a curve linked to a price index does not have an entry in the map, no seasonality is used for that curve.
+   * @return the value of the property, not null
+   */
+  public ImmutableMap<CurveName, SeasonalityDefinition> getSeasonalityDefinitions() {
+    return seasonalityDefinitions;
   }
 
   //-----------------------------------------------------------------------
@@ -383,6 +521,7 @@ public final class CurveGroupDefinition
       return JodaBeanUtils.equal(name, other.name) &&
           JodaBeanUtils.equal(entries, other.entries) &&
           JodaBeanUtils.equal(curveDefinitions, other.curveDefinitions) &&
+          JodaBeanUtils.equal(seasonalityDefinitions, other.seasonalityDefinitions) &&
           (computeJacobian == other.computeJacobian) &&
           (computePvSensitivityToMarketQuote == other.computePvSensitivityToMarketQuote);
     }
@@ -395,6 +534,7 @@ public final class CurveGroupDefinition
     hash = hash * 31 + JodaBeanUtils.hashCode(name);
     hash = hash * 31 + JodaBeanUtils.hashCode(entries);
     hash = hash * 31 + JodaBeanUtils.hashCode(curveDefinitions);
+    hash = hash * 31 + JodaBeanUtils.hashCode(seasonalityDefinitions);
     hash = hash * 31 + JodaBeanUtils.hashCode(computeJacobian);
     hash = hash * 31 + JodaBeanUtils.hashCode(computePvSensitivityToMarketQuote);
     return hash;
@@ -402,11 +542,12 @@ public final class CurveGroupDefinition
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("CurveGroupDefinition{");
     buf.append("name").append('=').append(name).append(',').append(' ');
     buf.append("entries").append('=').append(entries).append(',').append(' ');
     buf.append("curveDefinitions").append('=').append(curveDefinitions).append(',').append(' ');
+    buf.append("seasonalityDefinitions").append('=').append(seasonalityDefinitions).append(',').append(' ');
     buf.append("computeJacobian").append('=').append(computeJacobian).append(',').append(' ');
     buf.append("computePvSensitivityToMarketQuote").append('=').append(JodaBeanUtils.toString(computePvSensitivityToMarketQuote));
     buf.append('}');
@@ -438,8 +579,14 @@ public final class CurveGroupDefinition
      * The meta-property for the {@code curveDefinitions} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<NodalCurveDefinition>> curveDefinitions = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableList<CurveDefinition>> curveDefinitions = DirectMetaProperty.ofImmutable(
         this, "curveDefinitions", CurveGroupDefinition.class, (Class) ImmutableList.class);
+    /**
+     * The meta-property for the {@code seasonalityDefinitions} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableMap<CurveName, SeasonalityDefinition>> seasonalityDefinitions = DirectMetaProperty.ofImmutable(
+        this, "seasonalityDefinitions", CurveGroupDefinition.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code computeJacobian} property.
      */
@@ -458,6 +605,7 @@ public final class CurveGroupDefinition
         "name",
         "entries",
         "curveDefinitions",
+        "seasonalityDefinitions",
         "computeJacobian",
         "computePvSensitivityToMarketQuote");
 
@@ -476,6 +624,8 @@ public final class CurveGroupDefinition
           return entries;
         case -336166639:  // curveDefinitions
           return curveDefinitions;
+        case 1051792832:  // seasonalityDefinitions
+          return seasonalityDefinitions;
         case -1730091410:  // computeJacobian
           return computeJacobian;
         case -2061625469:  // computePvSensitivityToMarketQuote
@@ -520,8 +670,16 @@ public final class CurveGroupDefinition
      * The meta-property for the {@code curveDefinitions} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<NodalCurveDefinition>> curveDefinitions() {
+    public MetaProperty<ImmutableList<CurveDefinition>> curveDefinitions() {
       return curveDefinitions;
+    }
+
+    /**
+     * The meta-property for the {@code seasonalityDefinitions} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableMap<CurveName, SeasonalityDefinition>> seasonalityDefinitions() {
+      return seasonalityDefinitions;
     }
 
     /**
@@ -550,6 +708,8 @@ public final class CurveGroupDefinition
           return ((CurveGroupDefinition) bean).getEntries();
         case -336166639:  // curveDefinitions
           return ((CurveGroupDefinition) bean).getCurveDefinitions();
+        case 1051792832:  // seasonalityDefinitions
+          return ((CurveGroupDefinition) bean).getSeasonalityDefinitions();
         case -1730091410:  // computeJacobian
           return ((CurveGroupDefinition) bean).isComputeJacobian();
         case -2061625469:  // computePvSensitivityToMarketQuote
@@ -573,11 +733,12 @@ public final class CurveGroupDefinition
   /**
    * The bean-builder for {@code CurveGroupDefinition}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<CurveGroupDefinition> {
+  private static final class Builder extends DirectPrivateBeanBuilder<CurveGroupDefinition> {
 
     private CurveGroupName name;
     private List<CurveGroupEntry> entries = ImmutableList.of();
-    private List<NodalCurveDefinition> curveDefinitions = ImmutableList.of();
+    private List<? extends CurveDefinition> curveDefinitions = ImmutableList.of();
+    private Map<CurveName, SeasonalityDefinition> seasonalityDefinitions = ImmutableMap.of();
     private boolean computeJacobian;
     private boolean computePvSensitivityToMarketQuote;
 
@@ -585,6 +746,7 @@ public final class CurveGroupDefinition
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -597,6 +759,8 @@ public final class CurveGroupDefinition
           return entries;
         case -336166639:  // curveDefinitions
           return curveDefinitions;
+        case 1051792832:  // seasonalityDefinitions
+          return seasonalityDefinitions;
         case -1730091410:  // computeJacobian
           return computeJacobian;
         case -2061625469:  // computePvSensitivityToMarketQuote
@@ -617,7 +781,10 @@ public final class CurveGroupDefinition
           this.entries = (List<CurveGroupEntry>) newValue;
           break;
         case -336166639:  // curveDefinitions
-          this.curveDefinitions = (List<NodalCurveDefinition>) newValue;
+          this.curveDefinitions = (List<? extends CurveDefinition>) newValue;
+          break;
+        case 1051792832:  // seasonalityDefinitions
+          this.seasonalityDefinitions = (Map<CurveName, SeasonalityDefinition>) newValue;
           break;
         case -1730091410:  // computeJacobian
           this.computeJacobian = (Boolean) newValue;
@@ -632,36 +799,13 @@ public final class CurveGroupDefinition
     }
 
     @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
-      return this;
-    }
-
-    @Override
     public CurveGroupDefinition build() {
       preBuild(this);
       return new CurveGroupDefinition(
           name,
           entries,
           curveDefinitions,
+          seasonalityDefinitions,
           computeJacobian,
           computePvSensitivityToMarketQuote);
     }
@@ -669,11 +813,12 @@ public final class CurveGroupDefinition
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(224);
       buf.append("CurveGroupDefinition.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("entries").append('=').append(JodaBeanUtils.toString(entries)).append(',').append(' ');
       buf.append("curveDefinitions").append('=').append(JodaBeanUtils.toString(curveDefinitions)).append(',').append(' ');
+      buf.append("seasonalityDefinitions").append('=').append(JodaBeanUtils.toString(seasonalityDefinitions)).append(',').append(' ');
       buf.append("computeJacobian").append('=').append(JodaBeanUtils.toString(computeJacobian)).append(',').append(' ');
       buf.append("computePvSensitivityToMarketQuote").append('=').append(JodaBeanUtils.toString(computePvSensitivityToMarketQuote));
       buf.append('}');

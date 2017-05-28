@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -19,14 +19,15 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
+import com.opengamma.strata.market.curve.LegalEntityGroup;
 import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -57,7 +58,7 @@ public final class IssuerCurveZeroRateSensitivity
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
-   * The legal entity group. 
+   * The legal entity group.
    * <p>
    * The group defines the legal entity that the discount factors are for.
    */
@@ -91,7 +92,7 @@ public final class IssuerCurveZeroRateSensitivity
   }
 
   /**
-   * Obtains an instance from zero rate sensitivity and legal entity group. 
+   * Obtains an instance from zero rate sensitivity and legal entity group.
    * 
    * @param zeroRateSensitivity  the zero rate sensitivity
    * @param legalEntityGroup  the legal entity group
@@ -193,7 +194,7 @@ public final class IssuerCurveZeroRateSensitivity
   /**
    * Obtains the underlying {@code ZeroRateSensitivity}. 
    * <p>
-   * This creates the zero rate sensitivity object by omitting the legal entity group. 
+   * This creates the zero rate sensitivity object by omitting the legal entity group.
    * 
    * @return the point sensitivity object
    */
@@ -499,7 +500,7 @@ public final class IssuerCurveZeroRateSensitivity
   /**
    * The bean-builder for {@code IssuerCurveZeroRateSensitivity}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<IssuerCurveZeroRateSensitivity> {
+  private static final class Builder extends DirectPrivateBeanBuilder<IssuerCurveZeroRateSensitivity> {
 
     private Currency curveCurrency;
     private double yearFraction;
@@ -511,6 +512,7 @@ public final class IssuerCurveZeroRateSensitivity
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -553,30 +555,6 @@ public final class IssuerCurveZeroRateSensitivity
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

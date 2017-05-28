@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -34,7 +34,7 @@ import com.opengamma.strata.product.TradeInfo;
  * An Over-The-Counter (OTC) trade in a {@link IborFixingDeposit}.
  * <p>
  * An Ibor fixing deposit is a fictitious financial instrument that represents
- * the fixing based on an Ibor index. 
+ * the fixing based on an Ibor index.
  * <p>
  * For example, an Ibor fixing deposit involves the exchange of the difference between
  * the fixed rate of 1% and the 'GBP-LIBOR-3M' rate for the principal in 3 months time.
@@ -357,19 +357,31 @@ public final class IborFixingDepositTrade
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

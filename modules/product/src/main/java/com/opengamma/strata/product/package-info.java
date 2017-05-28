@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -68,4 +68,3 @@
  * Details for pricing against the model are held in the product.
  */
 package com.opengamma.strata.product;
-

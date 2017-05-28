@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -640,7 +640,7 @@ public class SabrExtrapolationRightFunctionTest {
   }
 
   /**
-   * Extrapolator is not calibrated in this case, then the gap may be produced at the cutoff. 
+   * Extrapolator is not calibrated in this case, then the gap may be produced at the cutoff.
    */
   @Test
   public void smallExpiryTest() {

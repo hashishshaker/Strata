@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.pricer.impl.tree;
@@ -10,13 +10,13 @@ import java.util.Arrays;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.product.fxopt.BarrierType;
+import com.opengamma.strata.product.option.BarrierType;
 
 /**
  * Single barrier knock-out option function.
  * <p>
  * Note that there is no option function responsible for knock-in options because a knock-in option is priced via
- * the in-out parity in a tree model.  
+ * the in-out parity in a tree model.
  */
 abstract class SingleBarrierKnockoutFunction implements OptionFunction {
 
@@ -36,7 +36,7 @@ abstract class SingleBarrierKnockoutFunction implements OptionFunction {
   public abstract double getBarrierLevel(int step);
 
   /**
-   * Obtains the sign.  
+   * Obtains the sign.
    * <p>
    * The sign is +1 for call and -1 for put.
    * 
@@ -45,7 +45,7 @@ abstract class SingleBarrierKnockoutFunction implements OptionFunction {
   public abstract double getSign();
 
   /**
-   * Obtains the barrier type. 
+   * Obtains the barrier type.
    * 
    * @return the barrier type
    */
@@ -82,7 +82,8 @@ abstract class SingleBarrierKnockoutFunction implements OptionFunction {
     if (isDown) {
       values[index + 1] = 0.5 * values[index + 1] + 0.5 * (bd * rebate + ub * values[index + 1]) / ud;
     } else {
-      values[index] = barrierLevel == stateValue.get(index) ? rebate :
+      values[index] = barrierLevel == stateValue.get(index) ?
+          rebate :
           0.5 * values[index] + 0.5 * (ub * rebate + bd * values[index]) / ud;
     }
     return DoubleArray.ofUnsafe(values);

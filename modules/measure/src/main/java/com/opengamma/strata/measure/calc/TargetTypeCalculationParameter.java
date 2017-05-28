@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -98,7 +98,7 @@ public final class TargetTypeCalculationParameter
   /**
    * The meta-bean for {@code TargetTypeCalculationParameter}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(TargetTypeCalculationParameter.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(TargetTypeCalculationParameter.class);
 
   /**
    * The meta-bean for {@code TargetTypeCalculationParameter}.

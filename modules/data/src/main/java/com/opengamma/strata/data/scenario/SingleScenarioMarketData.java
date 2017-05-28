@@ -1,10 +1,11 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.data.scenario;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
@@ -34,7 +35,7 @@ import com.opengamma.strata.data.ObservableId;
  */
 @BeanDefinition(style = "light")
 final class SingleScenarioMarketData
-    implements ImmutableBean, MarketData {
+    implements ImmutableBean, MarketData, Serializable {
 
   /**
    * The set of market data for all scenarios.
@@ -101,6 +102,11 @@ final class SingleScenarioMarketData
   }
 
   @Override
+  public Set<ObservableId> getTimeSeriesIds() {
+    return marketData.getTimeSeriesIds();
+  }
+
+  @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
     return marketData.getTimeSeries(id);
   }
@@ -110,7 +116,7 @@ final class SingleScenarioMarketData
   /**
    * The meta-bean for {@code SingleScenarioMarketData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(SingleScenarioMarketData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(SingleScenarioMarketData.class);
 
   /**
    * The meta-bean for {@code SingleScenarioMarketData}.
@@ -123,6 +129,11 @@ final class SingleScenarioMarketData
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private SingleScenarioMarketData(
       ScenarioMarketData marketData,

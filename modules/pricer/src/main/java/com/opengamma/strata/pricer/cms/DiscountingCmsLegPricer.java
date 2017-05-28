@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -82,7 +82,7 @@ public class DiscountingCmsLegPricer {
   }
 
   /**
-   * Calculates the current cash of the leg. 
+   * Calculates the current cash of the leg.
    * 
    * @param cmsLeg  the CMS leg
    * @param ratesProvider  the rates provider

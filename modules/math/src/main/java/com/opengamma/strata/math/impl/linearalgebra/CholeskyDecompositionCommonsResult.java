@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.linearalgebra;
@@ -15,7 +15,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.util.CommonsMathWrapper;
 
 /**
- * Wrapper for results of the Commons implementation of Cholesky decomposition ({@link CholeskyDecompositionCommons})
+ * Wrapper for results of the Commons implementation of Cholesky decomposition ({@link CholeskyDecompositionCommons}).
  */
 public class CholeskyDecompositionCommonsResult implements CholeskyDecompositionResult {
 

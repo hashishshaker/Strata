@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -21,10 +21,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
@@ -171,7 +171,7 @@ public final class ResolvedFxSingle
 
   //-------------------------------------------------------------------------
   /**
-   * Gets currency pair of the base currency and counter currency. 
+   * Gets currency pair of the base currency and counter currency.
    * <p>
    * This currency pair is conventional, thus indifferent to the direction of FX.
    * 
@@ -184,8 +184,8 @@ public final class ResolvedFxSingle
   /**
    * Gets the currency amount in which the amount is received.
    * <p>
-   * This returns the currency amount whose amount is non-negative. 
-   * If both are zero, the currency amount of {@code counterCurrencyPayment} is returned. 
+   * This returns the currency amount whose amount is non-negative.
+   * If both are zero, the currency amount of {@code counterCurrencyPayment} is returned.
    * 
    * @return the receive currency amount
    */
@@ -425,7 +425,7 @@ public final class ResolvedFxSingle
   /**
    * The bean-builder for {@code ResolvedFxSingle}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<ResolvedFxSingle> {
+  private static final class Builder extends DirectPrivateBeanBuilder<ResolvedFxSingle> {
 
     private Payment baseCurrencyPayment;
     private Payment counterCurrencyPayment;
@@ -434,6 +434,7 @@ public final class ResolvedFxSingle
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -461,30 +462,6 @@ public final class ResolvedFxSingle
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

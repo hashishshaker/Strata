@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -22,8 +22,9 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.interpolator.CurveInterpolator;
-import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.curve.RepoGroup;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
@@ -42,11 +43,11 @@ public class RepoCurveDiscountFactorsTest {
   private static final InterpolatedNodalCurve CURVE =
       InterpolatedNodalCurve.of(METADATA, DoubleArray.of(0, 10), DoubleArray.of(1, 2), INTERPOLATOR);
   private static final DiscountFactors DSC_FACTORS = ZeroRateDiscountFactors.of(GBP, DATE, CURVE);
-  private static final BondGroup GROUP = BondGroup.of("ISSUER1 BND 5Y");
+  private static final RepoGroup GROUP = RepoGroup.of("ISSUER1 BND 5Y");
 
   public void test_of() {
     RepoCurveDiscountFactors test = RepoCurveDiscountFactors.of(DSC_FACTORS, GROUP);
-    assertEquals(test.getBondGroup(), GROUP);
+    assertEquals(test.getRepoGroup(), GROUP);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getValuationDate(), DATE);
     assertEquals(test.discountFactor(DATE_AFTER), DSC_FACTORS.discountFactor(DATE_AFTER));
@@ -82,7 +83,7 @@ public class RepoCurveDiscountFactorsTest {
     RepoCurveDiscountFactors test1 = RepoCurveDiscountFactors.of(DSC_FACTORS, GROUP);
     coverImmutableBean(test1);
     RepoCurveDiscountFactors test2 =
-        RepoCurveDiscountFactors.of(ZeroRateDiscountFactors.of(USD, DATE, CURVE), BondGroup.of("ISSUER2"));
+        RepoCurveDiscountFactors.of(ZeroRateDiscountFactors.of(USD, DATE, CURVE), RepoGroup.of("ISSUER2"));
     coverBeanEquals(test1, test2);
   }
 

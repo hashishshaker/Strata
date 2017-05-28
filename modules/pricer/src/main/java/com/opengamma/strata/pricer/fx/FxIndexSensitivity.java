@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -19,10 +19,10 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
@@ -108,19 +108,6 @@ public final class FxIndexSensitivity
   }
 
   //-------------------------------------------------------------------------
-//  /**
-//   * Gets the currency counter to the reference currency.
-//   * <p>
-//   * The index contains two currencies. One is the reference currency.
-//   * This method returns the other.
-//   * 
-//   * @return the counter currency
-//   */
-//  public Currency getReferenceCounterCurrency() {
-//    boolean inverse = referenceCurrency.equals(index.getCurrencyPair().getBase());
-//    return inverse ? index.getCurrencyPair().getCounter() : index.getCurrencyPair().getBase();
-//  }
-
   /**
    * Converts this sensitivity to an {@code FxForwardSensitivity}.
    * <p>
@@ -476,7 +463,7 @@ public final class FxIndexSensitivity
   /**
    * The bean-builder for {@code FxIndexSensitivity}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<FxIndexSensitivity> {
+  private static final class Builder extends DirectPrivateBeanBuilder<FxIndexSensitivity> {
 
     private FxIndexObservation observation;
     private Currency referenceCurrency;
@@ -487,6 +474,7 @@ public final class FxIndexSensitivity
      * Restricted constructor.
      */
     private Builder() {
+      super(meta());
     }
 
     //-----------------------------------------------------------------------
@@ -524,30 +512,6 @@ public final class FxIndexSensitivity
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
       return this;
     }
 

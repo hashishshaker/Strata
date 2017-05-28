@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -56,7 +56,7 @@ final class CompositeCalculationFunctions implements CalculationFunctions, Immut
   /**
    * The meta-bean for {@code CompositeCalculationFunctions}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(CompositeCalculationFunctions.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(CompositeCalculationFunctions.class);
 
   /**
    * The meta-bean for {@code CompositeCalculationFunctions}.

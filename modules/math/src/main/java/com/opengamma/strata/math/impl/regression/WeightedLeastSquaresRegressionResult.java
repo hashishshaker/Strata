@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -8,6 +8,7 @@ package com.opengamma.strata.math.impl.regression;
 /**
  * 
  */
+//CSOFF: JavadocMethod
 public class WeightedLeastSquaresRegressionResult extends LeastSquaresRegressionResult {
 
   public WeightedLeastSquaresRegressionResult(LeastSquaresRegressionResult result) {

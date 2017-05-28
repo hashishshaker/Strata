@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -35,6 +35,8 @@ import com.opengamma.strata.pricer.fx.FxIndexSensitivity;
  * <p>
  * This provides the environmental information against which pricing occurs.
  * The valuation date, FX rates, discount factors, time-series and forward curves are included.
+ * <p>
+ * The standard independent implementation is {@link ImmutableRatesProvider}.
  * <p>
  * All implementations of this interface must be immutable and thread-safe.
  */
@@ -230,11 +232,19 @@ public interface RatesProvider
   /**
    * Gets the time series.
    * <p>
-   * This returns time series for the index. 
+   * This returns time series for the index.
    * 
    * @param index  the index
    * @return the time series
    */
   public abstract LocalDateDoubleTimeSeries timeSeries(Index index);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts this provider to an equivalent {@code ImmutableRatesProvider}.
+   * 
+   * @return the equivalent immutable rates provider
+   */
+  public abstract ImmutableRatesProvider toImmutableRatesProvider();
 
 }

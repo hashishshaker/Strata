@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -14,6 +14,10 @@ import com.opengamma.strata.calc.marketdata.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.ObservableDataProvider;
 import com.opengamma.strata.calc.marketdata.TimeSeriesProvider;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
+import com.opengamma.strata.measure.bond.BondFutureTradeCalculationFunction;
+import com.opengamma.strata.measure.bond.FixedCouponBondTradeCalculationFunction;
+import com.opengamma.strata.measure.capfloor.IborCapFloorTradeCalculationFunction;
+import com.opengamma.strata.measure.credit.CdsIndexTradeCalculationFunction;
 import com.opengamma.strata.measure.credit.CdsTradeCalculationFunction;
 import com.opengamma.strata.measure.curve.CurveGroupMarketDataFunction;
 import com.opengamma.strata.measure.curve.CurveInputsMarketDataFunction;
@@ -25,16 +29,24 @@ import com.opengamma.strata.measure.fx.FxNdfTradeCalculationFunction;
 import com.opengamma.strata.measure.fx.FxRateMarketDataFunction;
 import com.opengamma.strata.measure.fx.FxSingleTradeCalculationFunction;
 import com.opengamma.strata.measure.fx.FxSwapTradeCalculationFunction;
+import com.opengamma.strata.measure.fxopt.FxSingleBarrierOptionTradeCalculationFunction;
+import com.opengamma.strata.measure.fxopt.FxVanillaOptionTradeCalculationFunction;
 import com.opengamma.strata.measure.index.IborFutureTradeCalculationFunction;
 import com.opengamma.strata.measure.payment.BulletPaymentTradeCalculationFunction;
+import com.opengamma.strata.measure.security.GenericSecurityPositionCalculationFunction;
 import com.opengamma.strata.measure.security.GenericSecurityTradeCalculationFunction;
 import com.opengamma.strata.measure.security.SecurityPositionCalculationFunction;
 import com.opengamma.strata.measure.security.SecurityTradeCalculationFunction;
 import com.opengamma.strata.measure.swap.SwapTradeCalculationFunction;
 import com.opengamma.strata.measure.swaption.SwaptionTradeCalculationFunction;
+import com.opengamma.strata.product.GenericSecurityPosition;
 import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.SecurityPosition;
 import com.opengamma.strata.product.SecurityTrade;
+import com.opengamma.strata.product.bond.BondFutureTrade;
+import com.opengamma.strata.product.bond.FixedCouponBondTrade;
+import com.opengamma.strata.product.capfloor.IborCapFloorTrade;
+import com.opengamma.strata.product.credit.CdsIndexTrade;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.dsf.DsfTrade;
@@ -42,6 +54,8 @@ import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fx.FxNdfTrade;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.fxopt.FxSingleBarrierOptionTrade;
+import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -59,20 +73,27 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
  * or look up data from a data store, for example a time series database.
  * Instances of {@link CalculationRunner} are created directly using the static methods on the interface.
  */
-public class StandardComponents {
+public final class StandardComponents {
 
   /**
    * The standard calculation functions.
    */
   private static final CalculationFunctions STANDARD = CalculationFunctions.of(
+      new BondFutureTradeCalculationFunction(),
       new BulletPaymentTradeCalculationFunction(),
       new CdsTradeCalculationFunction(),
+      new CdsIndexTradeCalculationFunction(),
       new DsfTradeCalculationFunction(),
+      new FixedCouponBondTradeCalculationFunction(),
       new FraTradeCalculationFunction(),
       new FxNdfTradeCalculationFunction(),
+      new FxSingleBarrierOptionTradeCalculationFunction(),
       new FxSingleTradeCalculationFunction(),
       new FxSwapTradeCalculationFunction(),
+      new FxVanillaOptionTradeCalculationFunction(),
+      new GenericSecurityPositionCalculationFunction(),
       new GenericSecurityTradeCalculationFunction(),
+      new IborCapFloorTradeCalculationFunction(),
       new IborFutureTradeCalculationFunction(),
       new SecurityPositionCalculationFunction(),
       new SecurityTradeCalculationFunction(),
@@ -146,18 +167,24 @@ public class StandardComponents {
    * easy access to all built-in asset class coverage.
    * The supported asset classes are:
    * <ul>
+   *  <li>Bond future - {@link BondFutureTrade}
    *  <li>Bullet Payment - {@link BulletPaymentTrade}
+   *  <li>Cap/floor (Ibor) - {@link IborCapFloorTrade}
    *  <li>Credit Default Swap - {@link CdsTrade}
+   *  <li>CDS Index - {@link CdsIndexTrade}
    *  <li>Deliverable Swap Future - {@link DsfTrade}
    *  <li>Forward Rate Agreement - {@link FraTrade}
+   *  <li>Fixed coupon bond - {@link FixedCouponBondTrade}
    *  <li>FX spot and FX forward - {@link FxSingleTrade}
    *  <li>FX NDF - {@link FxNdfTrade}
    *  <li>FX swap - {@link FxSwapTrade}
-   *  <li>Generic Security - {@link GenericSecurityTrade}
-   *  <li>STIR Future (Ibor) - {@link IborFutureTrade}
+   *  <li>FX vanilla option - {@link FxVanillaOptionTrade}
+   *  <li>FX single barrier option - {@link FxSingleBarrierOptionTrade}
+   *  <li>Generic Security - {@link GenericSecurityTrade} and {@link GenericSecurityPosition}
    *  <li>Rate Swap - {@link SwapTrade}
    *  <li>Swaption - {@link SwaptionTrade}
    *  <li>Security - {@link SecurityTrade} and {@link SecurityPosition}
+   *  <li>STIR Future (Ibor) - {@link IborFutureTrade}
    *  <li>Term Deposit - {@link TermDepositTrade}
    * </ul>
    *

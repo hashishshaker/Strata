@@ -1,10 +1,11 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.data.scenario;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
@@ -22,7 +23,8 @@ import com.opengamma.strata.basics.ReferenceData;
  * @param <T>  the type of handled by the perturbation
  */
 @BeanDefinition(style = "light")
-final class NoOpScenarioPerturbation<T> implements ScenarioPerturbation<T>, ImmutableBean {
+final class NoOpScenarioPerturbation<T>
+    implements ScenarioPerturbation<T>, ImmutableBean, Serializable {
 
   /** The single shared instance of this class. */
   static final ScenarioPerturbation<Object> INSTANCE = new NoOpScenarioPerturbation<>();
@@ -44,7 +46,7 @@ final class NoOpScenarioPerturbation<T> implements ScenarioPerturbation<T>, Immu
   /**
    * The meta-bean for {@code NoOpScenarioPerturbation}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(NoOpScenarioPerturbation.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(NoOpScenarioPerturbation.class);
 
   /**
    * The meta-bean for {@code NoOpScenarioPerturbation}.
@@ -57,6 +59,11 @@ final class NoOpScenarioPerturbation<T> implements ScenarioPerturbation<T>, Immu
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private NoOpScenarioPerturbation() {
   }

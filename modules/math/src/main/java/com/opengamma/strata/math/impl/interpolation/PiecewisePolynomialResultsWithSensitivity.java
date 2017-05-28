@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.interpolation;
@@ -44,7 +44,7 @@ public class PiecewisePolynomialResultsWithSensitivity extends PiecewisePolynomi
   }
 
   /**
-   * Access _coeffSense
+   * Access _coeffSense.
    * @return _coeffSense
    */
   public DoubleMatrix[] getCoefficientSensitivityAll() {
@@ -52,7 +52,7 @@ public class PiecewisePolynomialResultsWithSensitivity extends PiecewisePolynomi
   }
 
   /**
-   * Access _coeffSense for the i-th interval
+   * Access _coeffSense for the i-th interval.
    * @param interval  the interval
    * @return _coeffSense for the i-th interval
    */

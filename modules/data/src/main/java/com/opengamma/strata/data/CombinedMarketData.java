@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -93,6 +93,14 @@ final class CombinedMarketData
   }
 
   @Override
+  public Set<ObservableId> getTimeSeriesIds() {
+    return ImmutableSet.<ObservableId>builder()
+        .addAll(underlying1.getTimeSeriesIds())
+        .addAll(underlying2.getTimeSeriesIds())
+        .build();
+  }
+
+  @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
     LocalDateDoubleTimeSeries timeSeries = underlying1.getTimeSeries(id);
     return !timeSeries.isEmpty() ? timeSeries : underlying2.getTimeSeries(id);
@@ -103,7 +111,7 @@ final class CombinedMarketData
   /**
    * The meta-bean for {@code CombinedMarketData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(CombinedMarketData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(CombinedMarketData.class);
 
   /**
    * The meta-bean for {@code CombinedMarketData}.

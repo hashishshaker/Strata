@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -42,7 +42,8 @@ public class ResourceConfigTest {
   }
 
   public void test_orderedResources_notFound() throws Exception {
-    String captured = caputureSystemErr(() -> assertThrows(IllegalStateException.class, () -> ResourceConfig.orderedResources("NotFound.txt")));
+    String captured =
+        caputureSystemErr(() -> assertThrows(IllegalStateException.class, () -> ResourceConfig.orderedResources("NotFound.txt")));
     assertTrue(captured.contains("No resource files found on the classpath"));
   }
 

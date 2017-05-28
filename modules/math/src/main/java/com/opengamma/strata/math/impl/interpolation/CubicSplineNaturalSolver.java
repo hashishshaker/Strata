@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.interpolation;
@@ -8,7 +8,7 @@ package com.opengamma.strata.math.impl.interpolation;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
- * Solves cubic spline problem with natural endpoint conditions, where the second derivative at the endpoints is 0
+ * Solves cubic spline problem with natural endpoint conditions, where the second derivative at the endpoints is 0.
  */
 public class CubicSplineNaturalSolver extends CubicSplineSolver {
 

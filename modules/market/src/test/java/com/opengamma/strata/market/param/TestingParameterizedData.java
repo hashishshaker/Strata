@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -38,6 +38,26 @@ public class TestingParameterizedData implements ParameterizedData {
   @Override
   public ParameterizedData withParameter(int parameterIndex, double newValue) {
     return new TestingParameterizedData(newValue);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof TestingParameterizedData) {
+      TestingParameterizedData other = (TestingParameterizedData) obj;
+      return Double.doubleToRawLongBits(value) == Double.doubleToRawLongBits(other.value);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Double.valueOf(value).hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return Double.toString(value);
   }
 
 }

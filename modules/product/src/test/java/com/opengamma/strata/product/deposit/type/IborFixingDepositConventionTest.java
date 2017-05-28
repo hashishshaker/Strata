@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -177,7 +177,7 @@ public class IborFixingDepositConventionTest {
         .name("Foo")
         .build();
     coverBeanEquals(test1, test2);
-    
+
     coverPrivateConstructor(IborFixingDepositConventions.class);
     coverPrivateConstructor(IborFixingDepositConventionLookup.class);
   }

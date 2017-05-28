@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -45,6 +45,14 @@ import com.opengamma.strata.product.TradeInfo;
  * For example, the widely traded "CME Eurodollar futures contract" has a notional
  * of 1 million USD, is based on the USD Libor 3 month rate 'USD-LIBOR-3M', expiring
  * two business days before an IMM date (the 3rd Wednesday of the month).
+ * 
+ * <h4>Price</h4>
+ * The price of an Ibor future is based on the interest rate of the underlying index.
+ * It is defined as {@code (100 - percentRate)}.
+ * <p>
+ * Strata uses <i>decimal prices</i> for Ibor futures in the trade model, pricers and market data.
+ * The decimal price is based on the decimal rate equivalent to the percentage.
+ * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
  */
 @BeanDefinition
 public final class IborFutureSecurity
@@ -286,14 +294,13 @@ public final class IborFutureSecurity
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("IborFutureSecurity{");
     buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
     buf.append("lastTradeDate").append('=').append(lastTradeDate).append(',').append(' ');
     buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("rounding").append('=').append(rounding).append(',').append(' ');
-    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency()));
+    buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding));
     buf.append('}');
     return buf.toString();
   }
@@ -549,19 +556,31 @@ public final class IborFutureSecurity
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
+    /**
+     * @deprecated Use Joda-Convert in application code
+     */
     @Override
+    @Deprecated
     public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
+    /**
+     * @deprecated Loop in application code
+     */
     @Override
+    @Deprecated
     public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;

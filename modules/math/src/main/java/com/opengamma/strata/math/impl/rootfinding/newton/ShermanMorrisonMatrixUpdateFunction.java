@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
@@ -15,6 +15,7 @@ import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 /**
  * 
  */
+//CSOFF: JavadocMethod
 public class ShermanMorrisonMatrixUpdateFunction implements NewtonRootFinderMatrixUpdateFunction {
 
   private final MatrixAlgebra _algebra;

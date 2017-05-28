@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.pricer.impl.volatility.smile;
@@ -21,21 +21,21 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * The data bundle for SABR formula. 
+ * The data bundle for SABR formula.
  * <p>
- * The bundle contains the SABR model parameters, alpha, beta, rho and nu, as an array. 
+ * The bundle contains the SABR model parameters, alpha, beta, rho and nu, as an array.
  */
 @BeanDefinition(style = "light")
 public final class SabrFormulaData
     implements SmileModelData, ImmutableBean, Serializable {
 
   /**
-   * The number of model parameters. 
+   * The number of model parameters.
    */
   private static final int NUM_PARAMETERS = 4;
 
   /**
-   * The model parameters. 
+   * The model parameters.
    * <p>
    * This must be an array of length 4.
    * The parameters in the array are in the order of alpha, beta, rho and nu.
@@ -46,7 +46,7 @@ public final class SabrFormulaData
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance of the SABR formula data. 
+   * Obtains an instance of the SABR formula data.
    * 
    * @param alpha  the alpha parameter
    * @param beta  the beta parameter
@@ -59,9 +59,9 @@ public final class SabrFormulaData
   }
 
   /**
-   * Obtains an instance of the SABR formula data. 
+   * Obtains an instance of the SABR formula data.
    * <p>
-   * The parameters in the input array should be in the order of alpha, beta, rho and nu.  
+   * The parameters in the input array should be in the order of alpha, beta, rho and nu.
    * 
    * @param parameters  the parameters
    * @return the instance
@@ -81,7 +81,7 @@ public final class SabrFormulaData
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the alpha parameter. 
+   * Gets the alpha parameter.
    * 
    * @return the alpha parameter
    */
@@ -90,7 +90,7 @@ public final class SabrFormulaData
   }
 
   /**
-   * Gets the beta parameter. 
+   * Gets the beta parameter.
    * 
    * @return the beta parameter
    */
@@ -99,7 +99,7 @@ public final class SabrFormulaData
   }
 
   /**
-   * Gets the rho parameter. 
+   * Gets the rho parameter.
    * 
    * @return the rho parameter
    */
@@ -196,7 +196,7 @@ public final class SabrFormulaData
   /**
    * The meta-bean for {@code SabrFormulaData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(SabrFormulaData.class);
+  private static final MetaBean META_BEAN = LightMetaBean.of(SabrFormulaData.class);
 
   /**
    * The meta-bean for {@code SabrFormulaData}.

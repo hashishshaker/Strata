@@ -1,6 +1,6 @@
-/**
+/*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.strata.math.impl.regression;
@@ -12,6 +12,7 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * Contains the result of a least squares regression.
  */
+//CSOFF: JavadocMethod
 public class LeastSquaresRegressionResult {
   //TODO the predicted value calculation should be separated out from this class.
 
